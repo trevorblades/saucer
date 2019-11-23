@@ -12,6 +12,7 @@ module.exports = {
     },
     'gatsby-plugin-react-helmet',
     'gatsby-plugin-svgr',
+    'gatsby-theme-apollo',
     {
       resolve: 'gatsby-plugin-emoji-favicon',
       options: {
