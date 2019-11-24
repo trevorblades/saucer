@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
-import {Box} from '@material-ui/core';
+import {Box, NoSsr} from '@material-ui/core';
 import {Helmet} from 'react-helmet';
 import {ReactComponent as Logo} from 'twemoji/2/svg/1f6f8.svg';
 import {LogoTitleProps} from '@trevorblades/mui-theme';
@@ -38,7 +38,8 @@ export default function Layout(props) {
           <Box {...LogoTitleProps.title}>{title}</Box>
         </Box>
       </Box>
-      {props.children}
+
+      <NoSsr>{props.children}</NoSsr>
     </Fragment>
   );
 }

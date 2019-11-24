@@ -16,8 +16,7 @@
     "esm": "^3.2.25",
     "jsonwebtoken": "^8.5.1",
     "pg": "^7.14.0",
-    "sequelize": "^5.21.2",
-    "unique-names-generator": "^4.1.1"
+    "sequelize": "^5.21.2"
   },
   "devDependencies": {
     "@trevorblades/eslint-config": "^7.0.2",

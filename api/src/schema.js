@@ -1,14 +1,20 @@
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import {AuthenticationError, UserInputError, gql} from 'apollo-server';
-import {Instance, User} from './db';
 import {
-  adjectives,
-  animals,
-  colors,
-  uniqueNamesGenerator
-} from 'unique-names-generator';
+  AuthenticationError,
+  ForbiddenError,
+  UserInputError,
+  gql
+} from 'apollo-server';
+import {User} from './db';
 import {parse} from 'querystring';
+
+const doApi = axios.create({
+  baseURL: 'https://api.digitalocean.com/v2',
+  headers: {
+    Authorization: `Bearer ${process.env.DIGITAL_OCEAN_ACCESS_TOKEN}`
+  }
+});
 
 export const typeDefs = gql`
   type Query {
@@ -17,7 +23,8 @@ export const typeDefs = gql`
 
   type Mutation {
     logIn(code: String!): String
-    createInstance: Instance
+    createInstance(name: String!): Instance
+    deleteInstance(id: ID!): Instance
   }
 
   type Instance {
@@ -29,11 +36,18 @@ export const typeDefs = gql`
 
 export const resolvers = {
   Query: {
-    instances(parent, args, {user}) {
+    async instances(parent, args, {user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
-      return user.getInstances();
+
+      const response = await doApi.get('/droplets', {
+        params: {
+          tag_name: user.id
+        }
+      });
+
+      return response.data.droplets;
     }
   },
   Mutation: {
@@ -60,11 +74,7 @@ export const resolvers = {
       let user = await User.findByPk(id);
       if (!user) {
         const [{email}] = await githubApi
-          .get('/user/emails', {
-            headers: {
-              authorization: `token ${accessToken}`
-            }
-          })
+          .get('/user/emails')
           .then(({data}) => data.filter(({primary}) => primary));
 
         user = await User.create({
@@ -81,19 +91,15 @@ export const resolvers = {
         throw new AuthenticationError('Unauthorized');
       }
 
-      const name = uniqueNamesGenerator({
-        dictionaries: [colors, adjectives, animals],
-        separator: '-'
-      });
-
       try {
-        const response = await axios.post(
-          'https://api.digitalocean.com/v2/droplets',
+        const response = await doApi.post(
+          '/droplets',
           {
-            name,
+            name: args.name,
             region: 'sfo2',
             size: 's-1vcpu-1gb',
-            image: 'wordpress-18-04'
+            image: 'wordpress-18-04',
+            tags: [user.id.toString()]
           },
           {
             headers: {
@@ -102,13 +108,24 @@ export const resolvers = {
           }
         );
 
-        return Instance.create({
-          id: response.data.droplet.id,
-          userId: user.id
-        });
+        return response.data.droplet;
       } catch (error) {
         throw new UserInputError(error);
       }
+    },
+    async deleteInstance(parent, args, {user}) {
+      if (!user) {
+        throw new AuthenticationError('Unauthorized');
+      }
+
+      const response = await doApi.get(`/droplets/${args.id}`);
+      const {droplet} = response.data;
+      if (!droplet.tags.includes(user.id.toString())) {
+        throw new ForbiddenError('You do not have access to this resource');
+      }
+
+      await doApi.delete(`/droplets/${droplet.id}`);
+      return droplet;
     }
   }
 };

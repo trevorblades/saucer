@@ -10,8 +10,8 @@ const server = new ApolloServer({
     if (req.headers.authorization) {
       const matches = req.headers.authorization.match(/bearer (\S+)/i);
       try {
-        const {sub} = jwt.verify(matches[1], process.env.TOKEN_SECRET);
-        const user = await User.findByPk(sub);
+        const {id} = jwt.verify(matches[1], process.env.TOKEN_SECRET);
+        const user = await User.findByPk(id);
         return {user};
       } catch (error) {
         // let errors pass
