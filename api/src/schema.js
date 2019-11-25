@@ -46,6 +46,11 @@ function tagInstance(id, tag, method = 'post') {
   });
 }
 
+async function listDomainRecords() {
+  const response = await doApi.get('/domains/saucer.dev/records');
+  return response.data.domain_records;
+}
+
 export const typeDefs = gql`
   type Query {
     instances: [Instance]
@@ -152,16 +157,28 @@ export const resolvers = {
         throw new UserInputError('Instance is already provisioned');
       }
 
-      // TODO: don't tag if already tagged
-      await tagInstance(droplet.id, TAG_STARTED);
+      if (!droplet.tags.includes(TAG_STARTED)) {
+        await tagInstance(droplet.id, TAG_STARTED);
+      }
 
-      // TODO: don't add A record if already added
       const [{ip_address}] = droplet.networks.v4;
-      await doApi.post('/domains/saucer.dev/records', {
-        type: 'A',
-        name: droplet.name,
-        data: ip_address
-      });
+
+      let isDomainConfigured = false;
+      const domainRecords = await listDomainRecords();
+      for (const record of domainRecords) {
+        if (record.name === droplet.name) {
+          isDomainConfigured = true;
+          break;
+        }
+      }
+
+      if (!isDomainConfigured) {
+        await doApi.post('/domains/saucer.dev/records', {
+          type: 'A',
+          name: droplet.name,
+          data: ip_address
+        });
+      }
 
       const conn = new Client();
       conn
@@ -175,6 +192,9 @@ export const resolvers = {
               .on('close', () => {
                 console.log('end here');
                 conn.end();
+              })
+              .on('end', () => {
+                console.log('ended??');
               })
               .on('data', data => {
                 console.log(data.toString());
@@ -214,6 +234,16 @@ export const resolvers = {
 
       const droplet = await findInstance(args.id, user.id);
       await doApi.delete(`/droplets/${droplet.id}`);
+
+      const domainRecords = await listDomainRecords();
+      await Promise.all(
+        domainRecords
+          .filter(record => record.name === droplet.name)
+          .map(record =>
+            doApi.delete(`/domains/saucer.dev/records/${record.id}`)
+          )
+      );
+
       return droplet;
     }
   }
