@@ -38,7 +38,6 @@ export default function Layout(props) {
           <Box {...LogoTitleProps.title}>{title}</Box>
         </Box>
       </Box>
-
       <NoSsr>{props.children}</NoSsr>
     </Fragment>
   );

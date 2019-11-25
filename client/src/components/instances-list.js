@@ -1,4 +1,5 @@
 import DeleteInstanceButton from './delete-instance-button';
+import ProvisionInstanceButton from './provision-instance-button';
 import React from 'react';
 import {LIST_INSTANCES} from '../utils';
 import {
@@ -33,6 +34,10 @@ export default function InstancesList() {
             {instance.name}
           </ListItemText>
           <ListItemSecondaryAction>
+            {instance.status === 'active' &&
+              !instance.tags.includes('ready') && (
+                <ProvisionInstanceButton instance={instance} />
+              )}
             <DeleteInstanceButton instance={instance} />
           </ListItemSecondaryAction>
         </ListItem>
