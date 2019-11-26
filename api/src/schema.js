@@ -231,12 +231,11 @@ export const resolvers = {
             .on('data', data => {
               stdout += data;
 
-              const message = data.toString();
-              if (/Domain\/Subdomain name:\s$/.test(message)) {
+              if (/Domain\/Subdomain name:\s$/.test(data)) {
                 stream.end(`${droplet.name}.saucer.dev\r`);
               }
 
-              if (/Your Email Address:\s$/.test(message)) {
+              if (/Your Email Address:\s$/.test(data)) {
                 stream.close();
               }
             })
