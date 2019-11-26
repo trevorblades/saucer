@@ -157,11 +157,13 @@ export const resolvers = {
         throw new UserInputError('Instance is already provisioned');
       }
 
+      // if (droplet.tags.includes(TAG_STARTED)) {
+      //   throw new UserInputError('Instance is currently being provisioned');
+      // }
+
       if (!droplet.tags.includes(TAG_STARTED)) {
         await tagInstance(droplet.id, TAG_STARTED);
       }
-
-      const [{ip_address}] = droplet.networks.v4;
 
       let isDomainConfigured = false;
       const domainRecords = await listDomainRecords();
@@ -172,6 +174,7 @@ export const resolvers = {
         }
       }
 
+      const [{ip_address}] = droplet.networks.v4;
       if (!isDomainConfigured) {
         await doApi.post('/domains/saucer.dev/records', {
           type: 'A',
@@ -180,50 +183,71 @@ export const resolvers = {
         });
       }
 
-      const conn = new Client();
-      conn
-        .on('ready', () => {
-          conn.shell((err, stream) => {
-            if (err) {
-              throw err;
-            }
-
-            stream
-              .on('close', () => {
-                console.log('end here');
-                conn.end();
-              })
-              .on('end', () => {
-                console.log('ended??');
-              })
-              .on('data', data => {
-                console.log(data.toString());
-              });
-            stream.end(
-              [
-                `${droplet.name}.saucer.dev`,
-                'hello@saucer.dev',
-                'admin',
-                'password',
-                'test',
-                'y',
-                'ssl@saucer.dev',
-                'A',
-                'N',
-                '1',
-                '2'
-              ].join('\r')
-            );
+      const conn = await new Promise((resolve, reject) => {
+        const client = new Client();
+        client
+          .on('ready', () => {
+            resolve(client);
+          })
+          .on('error', reject)
+          .connect({
+            host: ip_address,
+            username: 'root',
+            privateKey: process.env.PRIVATE_KEY
           });
-        })
-        .on('error', error => {
-          console.log(error);
-        })
-        .connect({
-          host: ip_address,
-          username: 'root',
-          privateKey: process.env.PRIVATE_KEY
+      });
+
+      // const cmd = [
+      //   `${droplet.name}.saucer.dev`, // host
+      //   'hello@saucer.dev', // email
+      //   'admin', // username
+      //   'password', // password
+      //   'test', // blog title
+      //   'y', // letsencrypt
+      //   'ssl@saucer.dev', // email
+      //   'A', // agree
+      //   'N', // subscribe to newsletter
+      //   '1', // only subdomain or www?
+      //   '2' // redirect HTTP to HTTPS
+      // ].join('\r');
+
+      const {out, err} = await new Promise((resolve, reject) => {
+        let stdout = '';
+        let stderr = '';
+        conn.shell((err, stream) => {
+          if (err) {
+            reject(err);
+          }
+
+          stream
+            .on('close', (code, signal) => {
+              resolve({
+                out: stdout,
+                err: stderr,
+                code,
+                signal
+              });
+            })
+            .on('data', data => {
+              stdout += data;
+
+              const message = data.toString();
+              if (/Domain\/Subdomain name:\s$/.test(message)) {
+                stream.end(`${droplet.name}.saucer.dev\r`);
+              }
+
+              if (/Your Email Address:\s$/.test(message)) {
+                stream.close();
+              }
+            })
+            .stderr.on('data', data => {
+              stderr += data;
+            });
         });
+      });
+
+      console.log('OUT:', out);
+      console.log('ERR:', err);
 
       return droplet;
     },
