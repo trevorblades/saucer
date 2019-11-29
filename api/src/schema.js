@@ -247,12 +247,68 @@ export const resolvers = {
             .on('data', data => {
               stdout += data;
 
-              if (/Domain\/Subdomain name:\s$/.test(data)) {
-                stream.end(`${droplet.name}.saucer.dev\r`);
-              }
+              const message = data.toString();
+              const parts = message.split('\n').filter(Boolean);
+              const lastPart = parts[parts.length - 1];
 
-              if (/Your Email Address:\s$/.test(data)) {
-                stream.close();
+              console.log(message);
+
+              switch (lastPart.trim()) {
+                case 'Domain/Subdomain name:':
+                  stream.write(`${droplet.name}.saucer.dev\r`);
+                  break;
+                case 'Your Email Address:':
+                  stream.write('hello@saucer.dev\r');
+                  break;
+                case 'Username:':
+                  stream.write('admin\r');
+                  break;
+                case 'Password:':
+                  stream.write('password\r');
+                  break;
+                case 'Blog Title:':
+                  stream.write('test\r');
+                  break;
+                case 'Would you like to use LetsEncrypt (certbot) to configure SSL(https) for your new site? (y/n):':
+                  stream.write('y\r');
+                  break;
+                // Enter email address (used for urgent renewal and security notices) (Enter 'c' to
+                case 'cancel):':
+                  stream.write('ssl@saucer.dev\r');
+                  break;
+                // Please read the Terms of Service at
+                // https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf. You must
+                // agree in order to register with the ACME server at
+                // https://acme-v02.api.letsencrypt.org/directory
+                case '(A)gree/(C)ancel:':
+                  stream.write('A\r');
+                  break;
+                // Would you be willing to share your email address with the Electronic Frontier
+                // Foundation, a founding partner of the Let's Encrypt project and the non-profit
+                // organization that develops Certbot? We'd like to send you email about our work
+                // encrypting the web, EFF news, campaigns, and ways to support digital freedom.
+                case '(Y)es/(N)o:':
+                  stream.write('N\r');
+                  break;
+                // Which names would you like to activate HTTPS for?
+                // 1: tomato-ok-magpie.saucer.dev
+                // 2: www.tomato-ok-magpie.saucer.dev
+                // Select the appropriate numbers separated by commas and/or spaces, or leave input
+                case "blank to select all options shown (Enter 'c' to cancel):":
+                  stream.write('1\r');
+                  break;
+                // Please choose whether or not to redirect HTTP traffic to HTTPS, removing HTTP access.
+                // 1: No redirect - Make no further changes to the webserver configuration.
+                // 2: Redirect - Make all requests redirect to secure HTTPS access. Choose this for
+                // new sites, or if you're confident your site works on HTTPS. You can undo this
+                // change by editing your web server's configuration.
+                case "Select the appropriate number [1-2] then [enter] (press 'c' to cancel):":
+                  stream.write('2\r');
+                  break;
+                case 'Installation complete. Access your new WordPress site in a browser to continue.':
+                  stream.close();
+                  break;
+                default:
               }
             })
             .stderr.on('data', data => {
