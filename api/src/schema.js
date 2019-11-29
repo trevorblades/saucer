@@ -15,6 +15,7 @@ export const typeDefs = gql`
   scalar DateTime
 
   type Query {
+    instance(id: ID!): Instance
     instances: [Instance]
   }
 
@@ -49,7 +50,7 @@ async function findInstance(id, userId) {
   const response = await doApi.get(`/droplets/${id}`);
   const {droplet} = response.data;
   if (!droplet.tags.includes(userId.toString())) {
-    throw new ForbiddenError('You do not have access to this resource');
+    throw new ForbiddenError('You do not have access to this instance');
   }
 
   return droplet;
@@ -81,6 +82,13 @@ export const resolvers = {
     createdAt: instance => instance.created_at
   },
   Query: {
+    instance(parent, args, {user}) {
+      if (!user) {
+        throw new AuthenticationError('Unauthorized');
+      }
+
+      return findInstance(args.id, user.id);
+    },
     async instances(parent, args, {user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');

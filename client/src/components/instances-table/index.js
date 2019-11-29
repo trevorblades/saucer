@@ -1,4 +1,3 @@
-import CreateInstanceButton from './create-instance-button';
 import InstanceActions from './instance-actions';
 import InstanceStatus from './instance-status';
 import React, {Fragment} from 'react';
@@ -22,19 +21,14 @@ export default function InstancesTable() {
 
   if (loading || error) {
     return (
-      <Typography color={error ? 'error' : 'textSecondary'}>
+      <Typography variant="h6" color={error ? 'error' : 'textSecondary'}>
         {error ? error.message : 'Loading...'}
       </Typography>
     );
   }
 
   if (!data.instances.length) {
-    return (
-      <Fragment>
-        <Typography>You have no instances</Typography>
-        <CreateInstanceButton />
-      </Fragment>
-    );
+    return <Typography variant="h6">You have no instances</Typography>;
   }
 
   return (

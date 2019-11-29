@@ -1,3 +1,4 @@
+import CreateInstanceButton from './create-instance-button';
 import React from 'react';
 import {Box, Button} from '@material-ui/core';
 import {ReactComponent as Logo} from 'twemoji/2/svg/1f375.svg';
@@ -19,9 +20,12 @@ export default function Header() {
         <Box {...LogoTitleProps.logo} component={Logo} />
         <Box {...LogoTitleProps.title}>{title}</Box>
       </Box>
-      <Button variant="outlined" onClick={logOut}>
-        Log out
-      </Button>
+      <CreateInstanceButton />
+      <Box ml={1.5}>
+        <Button variant="outlined" onClick={logOut}>
+          Log out
+        </Button>
+      </Box>
     </Box>
   );
 }

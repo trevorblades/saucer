@@ -1,7 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import {Button} from '@material-ui/core';
-import {INSTANCE_FRAGMENT, LIST_INSTANCES} from '../../utils';
+import {INSTANCE_FRAGMENT, LIST_INSTANCES} from '../utils';
 import {
   adjectives,
   animals,
@@ -19,7 +18,7 @@ const CREATE_INSTANCE = gql`
   ${INSTANCE_FRAGMENT}
 `;
 
-export default function CreateInstanceButton(props) {
+export default function CreateInstanceButton() {
   const [createInstance, {loading}] = useMutation(CREATE_INSTANCE, {
     update(cache, {data}) {
       const {instances} = cache.readQuery({
@@ -47,17 +46,8 @@ export default function CreateInstanceButton(props) {
   }
 
   return (
-    <Button
-      color="primary"
-      variant="contained"
-      disabled={loading || props.disabled}
-      onClick={handleClick}
-    >
-      Create instance
+    <Button color="primary" disabled={loading} onClick={handleClick}>
+      Create new
     </Button>
   );
 }
-
-CreateInstanceButton.propTypes = {
-  disabled: PropTypes.bool.isRequired
-};
