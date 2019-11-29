@@ -1,6 +1,7 @@
 import GitHubLogin from 'github-login';
 import React, {Fragment} from 'react';
-import {Button, Typography} from '@material-ui/core';
+import {Box, Button, Typography} from '@material-ui/core';
+import {FaGithub} from 'react-icons/fa';
 import {gql, useMutation} from '@apollo/client';
 import {userFromToken} from '../utils';
 
@@ -30,6 +31,8 @@ export default function LoginButton() {
     <Fragment>
       {error && <Typography color="error">{error.message}</Typography>}
       <Button
+        size="large"
+        variant="outlined"
         component={GitHubLogin}
         disabled={loading}
         clientId={process.env.GATSBY_GITHUB_CLIENT_ID}
@@ -37,6 +40,7 @@ export default function LoginButton() {
         // pass an empty string as the redirectUri
         redirectUri=""
       >
+        <Box component={FaGithub} mr={1.5} size={20} />
         Log in with GitHub
       </Button>
     </Fragment>

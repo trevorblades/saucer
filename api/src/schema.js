@@ -7,8 +7,35 @@ import {
   gql
 } from 'apollo-server';
 import {Client} from 'ssh2';
+import {GraphQLDateTime} from 'graphql-iso-date';
 import {User} from './db';
 import {parse} from 'querystring';
+
+export const typeDefs = gql`
+  scalar DateTime
+
+  type Query {
+    instances: [Instance]
+  }
+
+  type Mutation {
+    logIn(code: String!): String
+    createInstance(name: String!): Instance
+    provisionInstance(id: ID!): Instance
+    deleteInstance(id: ID!): Instance
+  }
+
+  type Instance {
+    id: ID
+    name: String
+    status: String
+    tags: [String]
+    createdAt: DateTime
+  }
+`;
+
+const TAG_STARTED = 'started';
+const TAG_READY = 'ready';
 
 const doApi = axios.create({
   baseURL: 'https://api.digitalocean.com/v2',
@@ -17,9 +44,6 @@ const doApi = axios.create({
     'Content-Type': 'application/json'
   }
 });
-
-const TAG_STARTED = 'started';
-const TAG_READY = 'ready';
 
 async function findInstance(id, userId) {
   const response = await doApi.get(`/droplets/${id}`);
@@ -51,27 +75,11 @@ async function listDomainRecords() {
   return response.data.domain_records;
 }
 
-export const typeDefs = gql`
-  type Query {
-    instances: [Instance]
-  }
-
-  type Mutation {
-    logIn(code: String!): String
-    createInstance(name: String!): Instance
-    provisionInstance(id: ID!): Instance
-    deleteInstance(id: ID!): Instance
-  }
-
-  type Instance {
-    id: ID
-    name: String
-    status: String
-    tags: [String]
-  }
-`;
-
 export const resolvers = {
+  DateTime: GraphQLDateTime,
+  Instance: {
+    createdAt: instance => instance.created_at
+  },
   Query: {
     async instances(parent, args, {user}) {
       if (!user) {

@@ -7,9 +7,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton
+  Menu,
+  MenuItem
 } from '@material-ui/core';
-import {LIST_INSTANCES} from '../utils';
+import {LIST_INSTANCES} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 
 const DELETE_INSTANCE = gql`
@@ -20,7 +21,8 @@ const DELETE_INSTANCE = gql`
   }
 `;
 
-export default function DeleteInstanceButton(props) {
+export default function InstanceActions(props) {
+  const [anchorEl, setAnchorEl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteInstance, {loading}] = useMutation(DELETE_INSTANCE, {
     variables: {
@@ -42,7 +44,16 @@ export default function DeleteInstanceButton(props) {
     }
   });
 
-  function handleClick() {
+  function handleClick(event) {
+    setAnchorEl(event.currentTarget);
+  }
+
+  function closeMenu() {
+    setAnchorEl(null);
+  }
+
+  function handleDeleteClick() {
+    closeMenu();
     setDialogOpen(true);
   }
 
@@ -52,7 +63,13 @@ export default function DeleteInstanceButton(props) {
 
   return (
     <Fragment>
-      <IconButton onClick={handleClick}>D</IconButton>
+      <Button size="small" onClick={handleClick}>
+        Actions
+      </Button>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+        <MenuItem>Edit instance</MenuItem>
+        <MenuItem onClick={handleDeleteClick}>Delete instance</MenuItem>
+      </Menu>
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
         <DialogTitle>Are you sure?</DialogTitle>
         <DialogContent>
@@ -73,6 +90,6 @@ export default function DeleteInstanceButton(props) {
   );
 }
 
-DeleteInstanceButton.propTypes = {
+InstanceActions.propTypes = {
   instance: PropTypes.object.isRequired
 };

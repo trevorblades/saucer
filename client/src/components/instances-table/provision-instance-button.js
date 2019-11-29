@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {INSTANCE_FRAGMENT} from '../utils';
-import {IconButton} from '@material-ui/core';
+import {Button} from '@material-ui/core';
+import {INSTANCE_FRAGMENT} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 
 const PROVISION_INSTANCE = gql`
@@ -21,9 +21,15 @@ export default function ProvisionInstanceButton(props) {
   });
 
   return (
-    <IconButton disabled={loading} onClick={provisionInstance}>
-      P
-    </IconButton>
+    <Button
+      size="small"
+      disabled={loading}
+      onClick={provisionInstance}
+      color="primary"
+      variant="contained"
+    >
+      Ready to provision
+    </Button>
   );
 }
 
