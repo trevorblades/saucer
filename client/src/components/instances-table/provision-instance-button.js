@@ -1,35 +1,36 @@
 import PropTypes from 'prop-types';
-import React from 'react';
-import {Button} from '@material-ui/core';
-import {INSTANCE_FRAGMENT} from '../../utils';
-import {gql, useMutation} from '@apollo/client';
-
-const PROVISION_INSTANCE = gql`
-  mutation ProvisionInstance($id: ID!) {
-    provisionInstance(id: $id) {
-      ...InstanceFragment
-    }
-  }
-  ${INSTANCE_FRAGMENT}
-`;
+import ProvisionForm from './provision-form';
+import React, {Fragment, useState} from 'react';
+import {Button, Dialog} from '@material-ui/core';
 
 export default function ProvisionInstanceButton(props) {
-  const [provisionInstance, {loading}] = useMutation(PROVISION_INSTANCE, {
-    variables: {
-      id: props.instance.id
-    }
-  });
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  function handleClick() {
+    setDialogOpen(true);
+  }
+
+  function closeDialog() {
+    setDialogOpen(false);
+  }
 
   return (
-    <Button
-      size="small"
-      disabled={loading}
-      onClick={provisionInstance}
-      color="primary"
-      variant="contained"
-    >
-      Ready to provision
-    </Button>
+    <Fragment>
+      <Button
+        size="small"
+        onClick={handleClick}
+        color="primary"
+        variant="contained"
+      >
+        Ready to provision
+      </Button>
+      <Dialog open={dialogOpen} onClose={closeDialog}>
+        <ProvisionForm
+          variables={{id: props.instance.id}}
+          onCancel={closeDialog}
+        />
+      </Dialog>
+    </Fragment>
   );
 }
 

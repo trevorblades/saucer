@@ -22,7 +22,13 @@ export const typeDefs = gql`
   type Mutation {
     logIn(code: String!): String
     createInstance(name: String!): Instance
-    provisionInstance(id: ID!): Instance
+    provisionInstance(
+      id: ID!
+      email: String!
+      username: String!
+      password: String!
+      title: String!
+    ): Instance
     deleteInstance(id: ID!): Instance
   }
 
@@ -242,16 +248,16 @@ export const resolvers = {
                   stream.write(`${droplet.name}.saucer.dev\r`);
                   break;
                 case 'Your Email Address:':
-                  stream.write('hello@saucer.dev\r');
+                  stream.write(`${args.email}\r`);
                   break;
                 case 'Username:':
-                  stream.write('admin\r');
+                  stream.write(`${args.username}\r`);
                   break;
                 case 'Password:':
-                  stream.write('password\r');
+                  stream.write(`${args.password}\r`);
                   break;
                 case 'Blog Title:':
-                  stream.write('test\r');
+                  stream.write(`${args.title}\r`);
                   break;
                 case 'Would you like to use LetsEncrypt (certbot) to configure SSL(https) for your new site? (y/n):':
                   stream.write('y\r');
