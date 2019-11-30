@@ -46,7 +46,12 @@ export default function CreateInstanceButton() {
   }
 
   return (
-    <Button color="primary" disabled={loading} onClick={handleClick}>
+    <Button
+      color="primary"
+      variant="outlined"
+      disabled={loading}
+      onClick={handleClick}
+    >
       Create new
     </Button>
   );

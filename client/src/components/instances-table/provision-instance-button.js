@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import ProvisionForm from './provision-form';
 import React, {Fragment, useState} from 'react';
-import {Button, Dialog} from '@material-ui/core';
+import {Chip, Dialog} from '@material-ui/core';
 
 export default function ProvisionInstanceButton(props) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -16,14 +16,13 @@ export default function ProvisionInstanceButton(props) {
 
   return (
     <Fragment>
-      <Button
-        size="small"
+      <Chip
+        clickable
         onClick={handleClick}
+        label="Ready to provision"
         color="primary"
-        variant="contained"
-      >
-        Ready to provision
-      </Button>
+        size="small"
+      />
       <Dialog open={dialogOpen} onClose={closeDialog}>
         <ProvisionForm
           variables={{id: props.instance.id}}

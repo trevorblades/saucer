@@ -1,6 +1,5 @@
 import decode from 'jwt-decode';
 import {gql, useQuery} from '@apollo/client';
-import {graphql, useStaticQuery} from 'gatsby';
 
 export function userFromToken(token) {
   try {
@@ -52,19 +51,3 @@ export const LIST_INSTANCES = gql`
   }
   ${INSTANCE_FRAGMENT}
 `;
-
-export function useSiteMetadata() {
-  const data = useStaticQuery(
-    graphql`
-      {
-        site {
-          siteMetadata {
-            title
-            description
-          }
-        }
-      }
-    `
-  );
-  return data.site.siteMetadata;
-}

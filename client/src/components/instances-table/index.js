@@ -49,7 +49,7 @@ export default function InstancesTable() {
               <TableRow key={instance.id}>
                 <TableCell padding="none">
                   <Box display="flex" alignItems="center">
-                    <Box mr={2} component={FaWordpressSimple} size={20} />
+                    <Box mr={2} component={FaWordpressSimple} size={24} />
                     {instance.status === 'active' &&
                     instance.tags.includes('ready') ? (
                       <Link
