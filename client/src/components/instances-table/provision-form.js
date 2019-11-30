@@ -78,16 +78,26 @@ export default function ProvisionForm(props) {
         </DialogContentText>
         <Grid container>
           <GridItem>
-            <FormField label="Blog title" name="title" />
+            <FormField disabled={loading} label="Blog title" name="title" />
           </GridItem>
           <GridItem>
-            <FormField label="Email address" name="email" type="email" />
+            <FormField
+              disabled={loading}
+              label="Email address"
+              name="email"
+              type="email"
+            />
           </GridItem>
           <GridItem>
-            <FormField label="Username" name="username" />
+            <FormField disabled={loading} label="Username" name="username" />
           </GridItem>
           <GridItem>
-            <FormField label="Password" name="password" type="password" />
+            <FormField
+              disabled={loading}
+              label="Password"
+              name="password"
+              type="password"
+            />
           </GridItem>
         </Grid>
       </DialogContent>

@@ -43,6 +43,7 @@ export const typeDefs = gql`
 
 const TAG_STARTED = 'started';
 const TAG_READY = 'ready';
+const PLUGINS_DIR = '/var/www/html/wp-content/plugins';
 
 const doApi = axios.create({
   baseURL: 'https://api.digitalocean.com/v2',
@@ -297,17 +298,18 @@ export const resolvers = {
                   break;
                 // Installation complete. Access your new WordPress site in a browser to continue.
                 case `root@${droplet.name}:~#`:
+                  // install graphql plugins and enable pretty permalinks
                   stream.end(
                     [
-                      'cd /var/www/html',
-                      'git clone https://github.com/wp-graphql/wp-graphql ./wp-content/plugins/wp-graphql',
-                      'git clone https://github.com/wp-graphql/wp-graphiql ./wp-content/plugins/wp-graphiql',
+                      `cd ${PLUGINS_DIR}`,
+                      'git clone https://github.com/wp-graphql/wp-graphql',
+                      'git clone https://github.com/wp-graphql/wp-graphiql',
                       'wp plugin activate wp-graphql wp-graphiql --allow-root',
-                      "wp rewrite structure '/%year%/%monthnum%/%postname%/' --allow-root\r"
-                    ].join(' && ')
+                      "wp rewrite structure '/%year%/%monthnum%/%postname%/' --allow-root"
+                    ].join(' && ') + '\r'
                   );
                   break;
-                case `root@${droplet.name}:/var/www/html#`:
+                case `root@${droplet.name}:${PLUGINS_DIR}#`:
                   stream.close();
                   break;
                 default:
