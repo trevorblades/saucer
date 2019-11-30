@@ -3,6 +3,7 @@ import InstanceStatus from './instance-status';
 import React, {Fragment} from 'react';
 import {
   Box,
+  Link,
   Table,
   TableBody,
   TableCell,
@@ -49,7 +50,18 @@ export default function InstancesTable() {
                 <TableCell padding="none">
                   <Box display="flex" alignItems="center">
                     <Box mr={2} component={FaWordpressSimple} size={20} />
-                    {instance.name}
+                    {instance.status === 'active' &&
+                    instance.tags.includes('ready') ? (
+                      <Link
+                        href={`https://${instance.name}.saucer.dev/wp-admin`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {instance.name}
+                      </Link>
+                    ) : (
+                      instance.name
+                    )}
                   </Box>
                 </TableCell>
                 <TableCell>
@@ -64,7 +76,7 @@ export default function InstancesTable() {
                     </span>
                   </Tooltip>
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="right" padding="checkbox">
                   <InstanceActions instance={instance} />
                 </TableCell>
               </TableRow>

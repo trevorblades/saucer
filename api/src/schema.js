@@ -213,23 +213,8 @@ export const resolvers = {
           });
       });
 
-      // const cmd = [
-      //   `${droplet.name}.saucer.dev`, // host
-      //   'hello@saucer.dev', // email
-      //   'admin', // username
-      //   'password', // password
-      //   'test', // blog title
-      //   'y', // letsencrypt
-      //   'ssl@saucer.dev', // email
-      //   'A', // agree
-      //   'N', // subscribe to newsletter
-      //   '1', // only subdomain or www?
-      //   '2' // redirect HTTP to HTTPS
-      // ].join('\r');
-
-      const {out, err} = await new Promise((resolve, reject) => {
+      const {out} = await new Promise((resolve, reject) => {
         let stdout = '';
-        let stderr = '';
         conn.shell((err, stream) => {
           if (err) {
             reject(err);
@@ -239,7 +224,6 @@ export const resolvers = {
             .on('close', (code, signal) => {
               resolve({
                 out: stdout,
-                err: stderr,
                 code,
                 signal
               });
@@ -251,9 +235,9 @@ export const resolvers = {
               const parts = message.split('\n').filter(Boolean);
               const lastPart = parts[parts.length - 1];
 
-              console.log(message);
-
               switch (lastPart.trim()) {
+                case 'Please wait while we get your droplet ready...':
+                  throw new Error('Instance is not ready yet');
                 case 'Domain/Subdomain name:':
                   stream.write(`${droplet.name}.saucer.dev\r`);
                   break;
@@ -291,8 +275,8 @@ export const resolvers = {
                   stream.write('N\r');
                   break;
                 // Which names would you like to activate HTTPS for?
-                // 1: tomato-ok-magpie.saucer.dev
-                // 2: www.tomato-ok-magpie.saucer.dev
+                // 1: DROPLET_NAME.saucer.dev
+                // 2: www.DROPLET_NAME.saucer.dev
                 // Select the appropriate numbers separated by commas and/or spaces, or leave input
                 case "blank to select all options shown (Enter 'c' to cancel):":
                   stream.write('1\r');
@@ -305,22 +289,35 @@ export const resolvers = {
                 case "Select the appropriate number [1-2] then [enter] (press 'c' to cancel):":
                   stream.write('2\r');
                   break;
-                case 'Installation complete. Access your new WordPress site in a browser to continue.':
+                // Installation complete. Access your new WordPress site in a browser to continue.
+                case `root@${droplet.name}:~#`:
+                  stream.end(
+                    [
+                      'cd /var/www/html',
+                      'git clone https://github.com/wp-graphql/wp-graphql ./wp-content/plugins/wp-graphql',
+                      'git clone https://github.com/wp-graphql/wp-graphiql ./wp-content/plugins/wp-graphiql',
+                      'wp plugin activate wp-graphql wp-graphiql --allow-root',
+                      "wp rewrite structure '/%year%/%monthnum%/%postname%/' --allow-root\r"
+                    ].join(' && ')
+                  );
+                  break;
+                case `root@${droplet.name}:/var/www/html#`:
                   stream.close();
                   break;
                 default:
               }
             })
             .stderr.on('data', data => {
-              stderr += data;
+              throw new Error(data);
             });
         });
       });
 
-      console.log('OUT:', out);
-      console.log('ERR:', err);
+      console.log(out);
 
-      return droplet;
+      // tag the instance and refetch it
+      await tagInstance(droplet.id, TAG_READY);
+      return findInstance(droplet.id, user.id);
     },
     async deleteInstance(parent, args, {user}) {
       if (!user) {

@@ -7,9 +7,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  IconButton,
   Menu,
-  MenuItem
+  MenuItem,
+  Tooltip
 } from '@material-ui/core';
+import {FiMoreHorizontal} from 'react-icons/fi';
 import {LIST_INSTANCES} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 
@@ -63,9 +66,11 @@ export default function InstanceActions(props) {
 
   return (
     <Fragment>
-      <Button size="small" onClick={handleClick}>
-        Actions
-      </Button>
+      <Tooltip title="More actions">
+        <IconButton size="small" onClick={handleClick}>
+          <FiMoreHorizontal size={24} />
+        </IconButton>
+      </Tooltip>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
         <MenuItem>Edit instance</MenuItem>
         <MenuItem onClick={handleDeleteClick}>Delete instance</MenuItem>

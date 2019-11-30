@@ -10,6 +10,8 @@ export default function Layout(props) {
     <Fragment>
       <Helmet defaultTitle={title} titleTemplate={`%s - ${title}`}>
         <meta name="description" content={description} />
+        {/* prevent the app from being indexed */}
+        <meta name="robots" content="noindex" />
       </Helmet>
       {/* prevent SSR on all pages */}
       <NoSsr>{props.children}</NoSsr>
