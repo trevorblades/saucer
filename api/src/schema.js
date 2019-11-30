@@ -180,12 +180,8 @@ export const resolvers = {
         throw new UserInputError('Instance is already provisioned');
       }
 
-      // if (droplet.tags.includes(TAG_STARTED)) {
-      //   throw new UserInputError('Instance is currently being provisioned');
-      // }
-
-      if (!droplet.tags.includes(TAG_STARTED)) {
-        await tagInstance(droplet.id, TAG_STARTED);
+      if (droplet.tags.includes(TAG_STARTED)) {
+        throw new UserInputError('Instance is currently being provisioned');
       }
 
       let isDomainConfigured = false;
@@ -220,6 +216,8 @@ export const resolvers = {
           });
       });
 
+      // tag instance with 'started' if connection is successful
+      await tagInstance(droplet.id, TAG_STARTED);
       const {out} = await new Promise((resolve, reject) => {
         let stdout = '';
         conn.shell((err, stream) => {
@@ -323,8 +321,13 @@ export const resolvers = {
 
       console.log(out);
 
-      // tag the instance and refetch it
-      await tagInstance(droplet.id, TAG_READY);
+      // remove 'started' tag and add a 'ready' one
+      await Promise.all([
+        tagInstance(droplet.id, TAG_READY),
+        tagInstance(droplet.id, TAG_STARTED, 'delete')
+      ]);
+
+      // refetch droplet
       return findInstance(droplet.id, user.id);
     },
     async deleteInstance(parent, args, {user}) {

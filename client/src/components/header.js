@@ -1,7 +1,7 @@
 import CreateInstanceButton from './create-instance-button';
+import Logo from './logo';
 import React from 'react';
 import {Box, Button} from '@material-ui/core';
-import {ReactComponent as Logo} from 'twemoji/2/svg/1f375.svg';
 import {LogoTitleProps} from '@trevorblades/mui-theme';
 import {useSiteMetadata, useUser} from '../utils';
 
