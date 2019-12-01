@@ -1,6 +1,8 @@
+import CreateInstanceButton from '../create-instance-button';
 import InstanceActions from './instance-actions';
 import InstanceStatus from './instance-status';
 import React, {Fragment} from 'react';
+import mirageListIsEmpty from '../../assets/mirage-list-is-empty.png';
 import {
   Box,
   Link,
@@ -29,7 +31,22 @@ export default function InstancesTable() {
   }
 
   if (!data.instances.length) {
-    return <Typography variant="h6">You have no instances</Typography>;
+    return (
+      <Box border={1} borderColor="divider" p={4} mt={3} textAlign="center">
+        <img height={200} src={mirageListIsEmpty} />
+        <Box mt={2} mb={3}>
+          <Typography variant="h5" gutterBottom>
+            You have no instances
+          </Typography>
+          <Typography>Luckily, it&apos;s really easy to create one!</Typography>
+        </Box>
+        <CreateInstanceButton
+          size="large"
+          color="primary"
+          variant="contained"
+        />
+      </Box>
+    );
   }
 
   return (

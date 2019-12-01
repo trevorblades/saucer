@@ -1,5 +1,6 @@
-import AuthRequired from './auth-required';
-import LayoutInner from './layout-inner';
+import AuthRequired from '../components/auth-required';
+import LayoutInner from '../components/layout-inner';
+import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import {Helmet} from 'react-helmet';
 import {NoSsr} from '@material-ui/core';
@@ -30,9 +31,16 @@ export default function Layout(props) {
       {/* prevent SSR on all pages */}
       <NoSsr>
         <AuthRequired>
-          <LayoutInner title={title} {...props} />
+          <LayoutInner title={title} pathname={props.location.pathname}>
+            {props.children}
+          </LayoutInner>
         </AuthRequired>
       </NoSsr>
     </Fragment>
   );
 }
+
+Layout.propTypes = {
+  children: PropTypes.node.isRequired,
+  location: PropTypes.object.isRequired
+};

@@ -1,12 +1,13 @@
-import LoginButton from '../login-button';
-import Logo from '../logo';
+import LoginButton from './login-button';
+import Logo from './logo';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {Box} from '@material-ui/core';
-import {useUser} from '../../utils';
+import {useUser} from '../utils';
 
 export default function AuthRequired(props) {
   const {user} = useUser();
+
   if (user) {
     return props.children;
   }

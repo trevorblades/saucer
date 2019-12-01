@@ -18,7 +18,7 @@ const CREATE_INSTANCE = gql`
   ${INSTANCE_FRAGMENT}
 `;
 
-export default function CreateInstanceButton() {
+export default function CreateInstanceButton(props) {
   const [createInstance, {loading}] = useMutation(CREATE_INSTANCE, {
     update(cache, {data}) {
       const {instances} = cache.readQuery({
@@ -46,13 +46,8 @@ export default function CreateInstanceButton() {
   }
 
   return (
-    <Button
-      color="primary"
-      variant="outlined"
-      disabled={loading}
-      onClick={handleClick}
-    >
-      Create new
+    <Button disabled={loading} onClick={handleClick} {...props}>
+      Create instance
     </Button>
   );
 }

@@ -13,10 +13,12 @@ module.exports = {
     'gatsby-plugin-react-helmet',
     'gatsby-plugin-svgr',
     'gatsby-theme-apollo',
+    'gatsby-plugin-layout',
+    'gatsby-plugin-svgr',
     {
-      resolve: 'gatsby-plugin-emoji-favicon',
+      resolve: 'gatsby-plugin-manifest',
       options: {
-        emoji: '🍵'
+        icon: 'src/assets/favicon.svg'
       }
     }
   ]
