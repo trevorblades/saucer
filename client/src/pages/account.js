@@ -11,8 +11,8 @@ export default function Account() {
       justifyContent="space-between"
       mb={2}
     >
-      <Typography variant="h4">Account settings</Typography>
-      <Button variant="outlined" onClick={logOut}>
+      <Typography variant="h3">Account settings</Typography>
+      <Button size="large" variant="outlined" onClick={logOut}>
         Log out
       </Button>
     </Box>

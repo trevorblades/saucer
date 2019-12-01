@@ -17,8 +17,8 @@ export default function AuthRequired(props) {
       <Box m="auto">
         <Box
           component={Logo}
-          width={64}
-          height={64}
+          width={72}
+          height={72}
           mb={4}
           display="block"
           mx="auto"

@@ -1,6 +1,7 @@
 import CreateInstanceButton from '../create-instance-button';
 import InstanceActions from './instance-actions';
 import InstanceStatus from './instance-status';
+import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import mirageListIsEmpty from '../../assets/mirage-list-is-empty.png';
 import {
@@ -15,22 +16,18 @@ import {
   Typography
 } from '@material-ui/core';
 import {FaWordpressSimple} from 'react-icons/fa';
-import {LIST_INSTANCES} from '../../utils';
 import {formatDistanceToNow} from 'date-fns';
-import {useQuery} from '@apollo/client';
 
-export default function InstancesTable() {
-  const {data, loading, error} = useQuery(LIST_INSTANCES);
-
-  if (loading || error) {
+export default function InstancesTable(props) {
+  if (props.loading || props.error) {
     return (
-      <Typography variant="h6" color={error ? 'error' : 'textSecondary'}>
-        {error ? error.message : 'Loading...'}
+      <Typography variant="h6" color={props.error ? 'error' : 'textSecondary'}>
+        {props.error ? props.error.message : 'Loading...'}
       </Typography>
     );
   }
 
-  if (!data.instances.length) {
+  if (!props.data.instances.length) {
     return (
       <Box border={1} borderColor="divider" p={4} mt={3} textAlign="center">
         <img height={200} src={mirageListIsEmpty} />
@@ -60,7 +57,7 @@ export default function InstancesTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.instances.map(instance => {
+          {props.data.instances.map(instance => {
             const createdAt = new Date(instance.createdAt);
             return (
               <TableRow key={instance.id}>
@@ -104,3 +101,9 @@ export default function InstancesTable() {
     </Fragment>
   );
 }
+
+InstancesTable.propTypes = {
+  data: PropTypes.object,
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.object
+};
