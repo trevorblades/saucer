@@ -1,6 +1,14 @@
-import React from 'react';
+import React, {Fragment} from 'react';
+import {Helmet} from 'react-helmet';
 import {Typography} from '@material-ui/core';
 
 export default function Billing() {
-  return <Typography variant="h3">Billing settings</Typography>;
+  return (
+    <Fragment>
+      <Helmet>
+        <title>Billing</title>
+      </Helmet>
+      <Typography variant="h3">Billing settings</Typography>
+    </Fragment>
+  );
 }

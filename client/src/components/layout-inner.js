@@ -24,13 +24,22 @@ export default function LayoutInner(props) {
       mx="auto"
       maxWidth={breakpoints.values.lg}
     >
-      <Box p={1} width={300} height="100vh" position="sticky" flexShrink={0}>
+      <Box
+        p={1}
+        width={300}
+        height="100vh"
+        position="sticky"
+        top={0}
+        flexShrink={0}
+        style={{overflow: 'auto'}}
+      >
         <Box {...LogoTitleProps.root} p={2}>
           <Logo width="1em" fill="currentColor" />
           <Box
             component={Wordmark}
             height="calc(7em / 18)"
             ml="calc(1em / 3)"
+            fill="currentColor"
           />
         </Box>
         <List component="nav">
