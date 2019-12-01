@@ -1,4 +1,3 @@
-import CreateInstanceButton from '../create-instance-button';
 import InstanceActions from './instance-actions';
 import InstanceStatus from './instance-status';
 import PropTypes from 'prop-types';
@@ -6,6 +5,7 @@ import React, {Fragment} from 'react';
 import mirageListIsEmpty from '../../assets/mirage-list-is-empty.png';
 import {
   Box,
+  Button,
   Link,
   Table,
   TableBody,
@@ -37,11 +37,14 @@ export default function InstancesTable(props) {
           </Typography>
           <Typography>Luckily, it&apos;s really easy to create one!</Typography>
         </Box>
-        <CreateInstanceButton
+        <Button
+          onClick={props.onCreateInstance}
           size="large"
           color="primary"
           variant="contained"
-        />
+        >
+          Create instance
+        </Button>
       </Box>
     );
   }
@@ -104,6 +107,7 @@ export default function InstancesTable(props) {
 
 InstancesTable.propTypes = {
   data: PropTypes.object,
+  onCreateInstance: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   error: PropTypes.object
 };

@@ -1,13 +1,23 @@
-import CreateInstanceButton from '../components/create-instance-button';
+import InstanceForm from '../components/instance-form';
 import InstancesTable from '../components/instances-table';
-import React, {Fragment} from 'react';
-import {Box, Typography} from '@material-ui/core';
+import React, {Fragment, useState} from 'react';
+import {Box, Button, Dialog, Typography} from '@material-ui/core';
 import {Helmet} from 'react-helmet';
 import {LIST_INSTANCES} from '../utils';
 import {useQuery} from '@apollo/client';
 
 export default function Home() {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const {data, loading, error} = useQuery(LIST_INSTANCES);
+
+  function openDialog() {
+    setDialogOpen(true);
+  }
+
+  function closeDialog() {
+    setDialogOpen(false);
+  }
+
   return (
     <Fragment>
       <Helmet>
@@ -21,14 +31,25 @@ export default function Home() {
       >
         <Typography variant="h3">My instances</Typography>
         {data && data.instances.length > 0 && (
-          <CreateInstanceButton
+          <Button
+            onClick={openDialog}
             color="primary"
             variant="outlined"
             size="large"
-          />
+          >
+            Create instance
+          </Button>
         )}
       </Box>
-      <InstancesTable data={data} loading={loading} error={error} />
+      <InstancesTable
+        data={data}
+        loading={loading}
+        error={error}
+        onCreateInstance={openDialog}
+      />
+      <Dialog fullWidth open={dialogOpen} onClose={closeDialog}>
+        <InstanceForm onCancel={closeDialog} />
+      </Dialog>
     </Fragment>
   );
 }
