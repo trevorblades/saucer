@@ -103,14 +103,10 @@ export default function InstanceForm(props) {
           <InputLabel>Payment method</InputLabel>
           <Select value="1">
             <MenuItem value="1">
-              <Box
-                component="img"
-                src={visa}
-                height="1em"
-                mr={1}
-                style={{verticalAlign: '-0.1em'}}
-              />
-              Visa 4242 (default)
+              <Box component="span" display="flex" alignItems="center">
+                <Box component="img" src={visa} height="1em" mr={1} />
+                Trevor Blades xxxx-4242
+              </Box>
             </MenuItem>
           </Select>
         </FormControl>
