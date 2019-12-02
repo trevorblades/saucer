@@ -8,7 +8,7 @@ export default function Support() {
       <Helmet>
         <title>Support</title>
       </Helmet>
-      <Typography variant="h3">Support center</Typography>
+      <Typography variant="h4">Support center</Typography>
     </Fragment>
   );
 }

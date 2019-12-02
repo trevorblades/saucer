@@ -8,7 +8,7 @@ export default function Tools() {
       <Helmet>
         <title>Tools</title>
       </Helmet>
-      <Typography variant="h3">Free tools</Typography>
+      <Typography variant="h4">Free tools</Typography>
     </Fragment>
   );
 }

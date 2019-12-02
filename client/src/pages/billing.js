@@ -8,7 +8,7 @@ export default function Billing() {
       <Helmet>
         <title>Billing</title>
       </Helmet>
-      <Typography variant="h3">Billing settings</Typography>
+      <Typography variant="h4">Billing settings</Typography>
     </Fragment>
   );
 }

@@ -29,14 +29,9 @@ export default function Home() {
         justifyContent="space-between"
         mb={2}
       >
-        <Typography variant="h3">My instances</Typography>
+        <Typography variant="h4">My instances</Typography>
         {data && data.instances.length > 0 && (
-          <Button
-            onClick={openDialog}
-            color="primary"
-            variant="outlined"
-            size="large"
-          >
+          <Button onClick={openDialog} color="primary" variant="outlined">
             Create instance
           </Button>
         )}

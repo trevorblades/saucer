@@ -1,6 +1,7 @@
 import FormButton from './form-button';
 import PropTypes from 'prop-types';
 import React, {useMemo} from 'react';
+import randomstring from 'randomstring';
 import visa from 'payment-icons/min/flat/visa.svg';
 import {
   Box,
@@ -21,7 +22,6 @@ import {INSTANCE_FRAGMENT, LIST_INSTANCES} from '../../utils';
 import {
   adjectives,
   animals,
-  colors,
   uniqueNamesGenerator
 } from 'unique-names-generator';
 import {gql, useMutation} from '@apollo/client';
@@ -55,9 +55,12 @@ export default function InstanceForm(props) {
   const name = useMemo(
     () =>
       uniqueNamesGenerator({
-        dictionaries: [colors, adjectives, animals],
+        dictionaries: [adjectives, animals],
+        length: 2,
         separator: '-'
-      }),
+      }) +
+      '-' +
+      randomstring.generate(6),
     []
   );
 
