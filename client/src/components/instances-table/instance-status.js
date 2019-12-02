@@ -5,17 +5,23 @@ import React from 'react';
 import StatusMessage from './status-message';
 
 export default function InstanceStatus(props) {
-  switch (props.instance.status) {
-    case 'new':
-      return <NewStatus variables={{id: props.instance.id}} />;
-    case 'active':
-      if (props.instance.tags.includes('ready')) {
-        return <StatusMessage color="limegreen">Active</StatusMessage>;
-      }
+  const {status, tags} = props.instance;
+  const isActive = status === 'active';
+  const isReady = tags.includes('ready');
+
+  if (isActive) {
+    if (tags.includes('provisioned')) {
+      return <StatusMessage color="limegreen">Active</StatusMessage>;
+    } else if (isReady) {
       return <ProvisionInstanceButton instance={props.instance} />;
-    default:
-      return <StatusMessage color="error.main">Unknown</StatusMessage>;
+    }
   }
+
+  if (status === 'new' || (isActive && !isReady)) {
+    return <NewStatus variables={{id: props.instance.id}} />;
+  }
+
+  return <StatusMessage color="error.main">Unknown</StatusMessage>;
 }
 
 InstanceStatus.propTypes = {

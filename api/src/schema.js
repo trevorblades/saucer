@@ -41,8 +41,10 @@ export const typeDefs = gql`
   }
 `;
 
-const TAG_STARTED = 'started';
 const TAG_READY = 'ready';
+const TAG_STARTED = 'started';
+const TAG_PROVISIONED = 'provisioned';
+
 const PLUGINS_DIR = '/var/www/html/wp-content/plugins';
 
 const doApi = axios.create({
@@ -83,18 +85,49 @@ async function listDomainRecords() {
   return response.data.domain_records;
 }
 
+function createConnection(host) {
+  return new Promise((resolve, reject) => {
+    const client = new Client();
+    client
+      .on('ready', () => {
+        resolve(client);
+      })
+      .on('error', reject)
+      .connect({
+        host,
+        username: 'root',
+        privateKey: process.env.PRIVATE_KEY
+      });
+  });
+}
+
 export const resolvers = {
   DateTime: GraphQLDateTime,
   Instance: {
     createdAt: instance => instance.created_at
   },
   Query: {
-    instance(parent, args, {user}) {
+    async instance(parent, args, {user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
 
-      return findInstance(args.id, user.id);
+      const droplet = await findInstance(args.id, user.id);
+      if (droplet.status === 'active' && !droplet.tags.includes(TAG_READY)) {
+        try {
+          // test SSH connection to the droplet
+          const [{ip_address}] = droplet.networks.v4;
+          const conn = await createConnection(ip_address);
+          conn.end();
+
+          await tagInstance(droplet.id, TAG_READY);
+          return findInstance(droplet.id, user.id);
+        } catch (error) {
+          // let errors pass
+        }
+      }
+
+      return droplet;
     },
     async instances(parent, args, {user}) {
       if (!user) {
@@ -172,17 +205,19 @@ export const resolvers = {
       }
 
       const droplet = await findInstance(args.id, user.id);
-      if (droplet.status !== 'active') {
+      if (droplet.status !== 'active' || !droplet.tags.includes(TAG_READY)) {
         throw new UserInputError('Instance is not ready to provision');
       }
 
-      if (droplet.tags.includes(TAG_READY)) {
+      if (droplet.tags.includes(TAG_PROVISIONED)) {
         throw new UserInputError('Instance is already provisioned');
       }
 
       if (droplet.tags.includes(TAG_STARTED)) {
         throw new UserInputError('Instance is currently being provisioned');
       }
+
+      await tagInstance(droplet.id, TAG_STARTED);
 
       let isDomainConfigured = false;
       const domainRecords = await listDomainRecords();
@@ -202,22 +237,7 @@ export const resolvers = {
         });
       }
 
-      const conn = await new Promise((resolve, reject) => {
-        const client = new Client();
-        client
-          .on('ready', () => {
-            resolve(client);
-          })
-          .on('error', reject)
-          .connect({
-            host: ip_address,
-            username: 'root',
-            privateKey: process.env.PRIVATE_KEY
-          });
-      });
-
-      // tag instance with 'started' if connection is successful
-      await tagInstance(droplet.id, TAG_STARTED);
+      const conn = await createConnection(ip_address);
       const {out} = await new Promise((resolve, reject) => {
         let stdout = '';
         conn.shell((err, stream) => {
@@ -321,10 +341,11 @@ export const resolvers = {
 
       console.log(out);
 
-      // remove 'started' tag and add a 'ready' one
+      // remove 'started' and 'ready' tags, and add a 'provisioned' one
       await Promise.all([
-        tagInstance(droplet.id, TAG_READY),
-        tagInstance(droplet.id, TAG_STARTED, 'delete')
+        tagInstance(droplet.id, TAG_PROVISIONED),
+        tagInstance(droplet.id, TAG_STARTED, 'delete'),
+        tagInstance(droplet.id, TAG_READY, 'delete')
       ]);
 
       // refetch droplet

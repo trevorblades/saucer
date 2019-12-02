@@ -68,7 +68,7 @@ export default function InstancesTable(props) {
                   <Box display="flex" alignItems="center">
                     <Box mr={2} component={FaWordpressSimple} size={24} />
                     {instance.status === 'active' &&
-                    instance.tags.includes('ready') ? (
+                    instance.tags.includes('provisioned') ? (
                       <Link
                         href={`https://${instance.name}.saucer.dev/wp-admin`}
                         target="_blank"
