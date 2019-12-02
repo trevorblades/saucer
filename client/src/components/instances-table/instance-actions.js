@@ -1,16 +1,17 @@
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
+import mirageDelete from '../../assets/mirage-delete.png';
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
   IconButton,
   Menu,
   MenuItem,
-  Tooltip
+  Tooltip,
+  Typography
 } from '@material-ui/core';
 import {FiMoreHorizontal} from 'react-icons/fi';
 import {LIST_INSTANCES} from '../../utils';
@@ -76,13 +77,18 @@ export default function InstanceActions(props) {
         <MenuItem onClick={handleDeleteClick}>Delete instance</MenuItem>
       </Menu>
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
-        <DialogTitle>Are you sure?</DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <Box textAlign="center">
+            <img src={mirageDelete} height={150} />
+            <Typography gutterBottom variant="h5">
+              Are you sure?
+            </Typography>
+          </Box>
+          <Typography paragraph>
             Deleting is permanent! Once you delete{' '}
             <em>{props.instance.name}</em>, you won&apos;t be able to recover
             it.
-          </DialogContentText>
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={closeDialog}>Cancel</Button>
