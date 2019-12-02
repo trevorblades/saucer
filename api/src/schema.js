@@ -120,6 +120,7 @@ export const resolvers = {
           const conn = await createConnection(ip_address);
           conn.end();
 
+          // tag with 'ready' if connection is successful
           await tagInstance(droplet.id, TAG_READY);
           return findInstance(droplet.id, user.id);
         } catch (error) {

@@ -72,7 +72,7 @@ export default function InstanceForm(props) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <DialogTitle>Configure your instance</DialogTitle>
+      <DialogTitle>What do you want to build?</DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
           <Grid item xs={6}>

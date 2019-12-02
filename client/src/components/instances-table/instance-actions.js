@@ -72,7 +72,7 @@ export default function InstanceActions(props) {
         </IconButton>
       </Tooltip>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
-        <MenuItem>Edit instance</MenuItem>
+        <MenuItem disabled>Edit instance</MenuItem>
         <MenuItem onClick={handleDeleteClick}>Delete instance</MenuItem>
       </Menu>
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>

@@ -3,13 +3,27 @@ import Logo from './logo';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {Box} from '@material-ui/core';
-import {useUser} from '../utils';
+import {UserContext} from '../utils';
+import {gql, useQuery} from '@apollo/client';
+
+const GET_USER = gql`
+  {
+    user @client(always: true) {
+      name
+      email
+    }
+  }
+`;
 
 export default function AuthRequired(props) {
-  const {user} = useUser();
+  const {data} = useQuery(GET_USER);
 
-  if (user) {
-    return props.children;
+  if (data && data.user) {
+    return (
+      <UserContext.Provider value={data.user}>
+        {props.children}
+      </UserContext.Provider>
+    );
   }
 
   return (

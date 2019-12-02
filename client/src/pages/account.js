@@ -1,10 +1,16 @@
 import React, {Fragment} from 'react';
 import {Box, Button, Typography} from '@material-ui/core';
 import {Helmet} from 'react-helmet';
-import {useUser} from '../utils';
+import {useApolloClient} from '@apollo/client';
 
 export default function Account() {
-  const {logOut} = useUser();
+  const client = useApolloClient();
+
+  function logOut() {
+    localStorage.removeItem('token');
+    client.resetStore();
+  }
+
   return (
     <Fragment>
       <Helmet>

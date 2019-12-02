@@ -1,5 +1,6 @@
 import decode from 'jwt-decode';
-import {gql, useQuery} from '@apollo/client';
+import {createContext} from 'react';
+import {gql} from '@apollo/client';
 
 export function userFromToken(token) {
   try {
@@ -13,25 +14,7 @@ export function userFromToken(token) {
   }
 }
 
-const GET_USER = gql`
-  {
-    user @client(always: true) {
-      name
-      email
-    }
-  }
-`;
-
-export function useUser() {
-  const {data, client} = useQuery(GET_USER);
-  return {
-    user: data && data.user,
-    logOut() {
-      localStorage.removeItem('token');
-      client.resetStore();
-    }
-  };
-}
+export const UserContext = createContext();
 
 export const INSTANCE_FRAGMENT = gql`
   fragment InstanceFragment on Instance {

@@ -1,15 +1,9 @@
 import PropTypes from 'prop-types';
-import React from 'react';
-import {
-  Button,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Grid,
-  TextField
-} from '@material-ui/core';
-import {INSTANCE_FRAGMENT} from '../../utils';
+import React, {useContext} from 'react';
+import mirageComeBackLater from '../../assets/mirage-come-back-later.png';
+import {Box, CardActionArea, TextField, Typography} from '@material-ui/core';
+import {FiDownloadCloud} from 'react-icons/fi';
+import {INSTANCE_FRAGMENT, UserContext} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 
 const PROVISION_INSTANCE = gql`
@@ -34,20 +28,22 @@ const PROVISION_INSTANCE = gql`
 `;
 
 function FormField(props) {
-  return <TextField required fullWidth margin="normal" {...props} />;
-}
-
-function GridItem(props) {
-  return <Grid item xs={6} {...props} />;
+  return (
+    <TextField
+      required
+      fullWidth
+      margin="normal"
+      variant="outlined"
+      {...props}
+    />
+  );
 }
 
 export default function ProvisionForm(props) {
+  const user = useContext(UserContext);
   const [provisionInstance, {loading, error}] = useMutation(
     PROVISION_INSTANCE,
-    {
-      onCompleted: props.onCancel,
-      variables: props.variables
-    }
+    {variables: props.variables}
   );
 
   function handleSubmit(event) {
@@ -65,53 +61,93 @@ export default function ProvisionForm(props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <DialogTitle>Provision your instance</DialogTitle>
-      <DialogContent>
+    <Box
+      width={500}
+      height="100%"
+      display="flex"
+      flexDirection="column"
+      component="form"
+      onSubmit={handleSubmit}
+      position="relative"
+      zIndex={0}
+    >
+      <Box p={3}>
+        <Box
+          display="block"
+          component="img"
+          src={mirageComeBackLater}
+          height={200}
+          mx="auto"
+        />
+        <Typography gutterBottom variant="h5" align="center">
+          Provision your instance
+        </Typography>
         {error && (
-          <DialogContentText color="error">{error.message}</DialogContentText>
+          <Typography gutterBottom color="error">
+            {error.message}
+          </Typography>
         )}
-        <DialogContentText>
-          Complete your Wordpress installation with the following information.
-          You will use this username/password combination to log in to your
-          Wordpress site.
-        </DialogContentText>
-        <Grid container>
-          <GridItem>
-            <FormField disabled={loading} label="Blog title" name="title" />
-          </GridItem>
-          <GridItem>
-            <FormField
-              disabled={loading}
-              label="Email address"
-              name="email"
-              type="email"
-            />
-          </GridItem>
-          <GridItem>
-            <FormField disabled={loading} label="Username" name="username" />
-          </GridItem>
-          <GridItem>
-            <FormField
-              disabled={loading}
-              label="Password"
-              name="password"
-              type="password"
-            />
-          </GridItem>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={props.onCancel}>Cancel</Button>
-        <Button type="submit" color="primary" disabled={loading}>
-          Submit
-        </Button>
-      </DialogActions>
-    </form>
+        <Typography paragraph>
+          Enter the following information to complete your Wordpress
+          installation. You will use this username/password combination to log
+          in to your Wordpress admin area.
+        </Typography>
+        <FormField
+          autoFocus
+          disabled={loading}
+          label="Website title"
+          placeholder="Acme Inc."
+          name="title"
+        />
+        <FormField
+          disabled={loading}
+          defaultValue={user.email}
+          label="Email address"
+          name="email"
+          type="email"
+        />
+        <FormField
+          disabled={loading}
+          defaultValue="admin"
+          label="Username"
+          name="username"
+        />
+        <FormField
+          disabled={loading}
+          label="Password"
+          name="password"
+          type="password"
+        />
+      </Box>
+      <Box
+        mt="auto"
+        position="sticky"
+        bottom={0}
+        zIndex={1}
+        bgcolor="background.paper"
+      >
+        <CardActionArea type="submit" disabled={loading}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            bgcolor={loading ? 'action.disabled' : 'primary.main'}
+            p={2}
+            color="white"
+          >
+            <Typography variant="button">
+              <Box component="span" fontSize="body1.fontSize">
+                Install Wordpress
+              </Box>
+            </Typography>
+            <Box component={FiDownloadCloud} ml={2} size={24} />
+          </Box>
+        </CardActionArea>
+      </Box>
+    </Box>
   );
 }
 
 ProvisionForm.propTypes = {
-  variables: PropTypes.object.isRequired,
-  onCancel: PropTypes.func.isRequired
+  variables: PropTypes.object.isRequired
 };

@@ -1,7 +1,15 @@
 import Logo from './logo';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {Box, List, ListItem, ListItemText, useTheme} from '@material-ui/core';
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  Link as MuiLink,
+  Typography,
+  useTheme
+} from '@material-ui/core';
 import {Link} from 'gatsby';
 import {LogoTitleProps} from '@trevorblades/mui-theme';
 import {ReactComponent as Wordmark} from '../assets/wordmark.svg';
@@ -26,7 +34,7 @@ export default function LayoutInner(props) {
     >
       <Box
         p={1}
-        width={300}
+        width={250}
         height="100vh"
         position="sticky"
         top={0}
@@ -63,8 +71,27 @@ export default function LayoutInner(props) {
           ))}
         </List>
       </Box>
-      <Box flexGrow={1} p={4} borderLeft={1} borderColor="divider">
-        {props.children}
+      <Box
+        flexGrow={1}
+        display="flex"
+        flexDirection="column"
+        borderLeft={1}
+        borderColor="divider"
+      >
+        <Box p={4}>{props.children}</Box>
+        <Box component="footer" mt="auto" py={2} mx={4}>
+          <Typography variant="caption" color="textSecondary">
+            &copy; {new Date().getFullYear()} Saucer. Illustrations by{' '}
+            <MuiLink
+              color="inherit"
+              href="https://icons8.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ouch.pics
+            </MuiLink>
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );

@@ -55,7 +55,7 @@ export default function InstancesTable(props) {
         <TableHead>
           <TableRow>
             <TableCell padding="none">Name</TableCell>
-            <TableCell>Status</TableCell>
+            <TableCell padding="none">Status</TableCell>
             <TableCell colSpan={2}>Created </TableCell>
           </TableRow>
         </TableHead>
@@ -66,7 +66,7 @@ export default function InstancesTable(props) {
               <TableRow key={instance.id}>
                 <TableCell padding="none">
                   <Box display="flex" alignItems="center">
-                    <Box mr={2} component={FaWordpressSimple} size={24} />
+                    <Box mr={2} component={FaWordpressSimple} size={20} />
                     {instance.status === 'active' &&
                     instance.tags.includes('provisioned') ? (
                       <Link
@@ -81,7 +81,7 @@ export default function InstancesTable(props) {
                     )}
                   </Box>
                 </TableCell>
-                <TableCell>
+                <TableCell padding="none">
                   <InstanceStatus instance={instance} />
                 </TableCell>
                 <TableCell>
