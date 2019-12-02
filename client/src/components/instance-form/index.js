@@ -1,12 +1,18 @@
 import FormButton from './form-button';
 import PropTypes from 'prop-types';
 import React, {useMemo} from 'react';
+import visa from 'payment-icons/min/flat/visa.svg';
 import {
+  Box,
   Button,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   Grid,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography
 } from '@material-ui/core';
@@ -90,6 +96,21 @@ export default function InstanceForm(props) {
           required
           disabled
         />
+        <FormControl margin="normal" fullWidth>
+          <InputLabel>Payment method</InputLabel>
+          <Select value="1">
+            <MenuItem value="1">
+              <Box
+                component="img"
+                src={visa}
+                height="1em"
+                mr={1}
+                style={{verticalAlign: '-0.1em'}}
+              />
+              Visa 4242 (default)
+            </MenuItem>
+          </Select>
+        </FormControl>
       </DialogContent>
       <DialogActions>
         <Button onClick={props.onCancel}>Cancel</Button>
