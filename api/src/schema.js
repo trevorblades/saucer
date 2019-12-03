@@ -7,8 +7,6 @@ import {User} from './db';
 import {parse} from 'querystring';
 // import {Client} from 'ssh2';
 
-AWS.config.update({region: 'us-west-2'});
-
 export const typeDefs = gql`
   scalar DateTime
 
