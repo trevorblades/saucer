@@ -8,6 +8,7 @@ import {
   Button,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   FormControl,
   Grid,
@@ -36,7 +37,7 @@ const CREATE_INSTANCE = gql`
 `;
 
 export default function InstanceForm(props) {
-  const [createInstance, {loading}] = useMutation(CREATE_INSTANCE, {
+  const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {
     onCompleted: props.onCancel,
     update(cache, {data}) {
       const {instances} = cache.readQuery({
@@ -77,6 +78,9 @@ export default function InstanceForm(props) {
     <form onSubmit={handleSubmit}>
       <DialogTitle>What do you want to build?</DialogTitle>
       <DialogContent>
+        {error && (
+          <DialogContentText color="error">{error.message}</DialogContentText>
+        )}
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <FormButton selected icon={FaWordpressSimple}>
