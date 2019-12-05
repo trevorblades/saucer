@@ -1,11 +1,13 @@
 import AWS from 'aws-sdk';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import {AuthenticationError, gql} from 'apollo-server';
+import {AuthenticationError, ForbiddenError, gql} from 'apollo-server';
+// import {Client} from 'ssh2';
+import base64 from 'base-64';
 import {GraphQLDateTime} from 'graphql-iso-date';
 import {User} from './db';
+import {outdent} from 'outdent';
 import {parse} from 'querystring';
-// import {Client} from 'ssh2';
 
 export const typeDefs = gql`
   scalar DateTime
@@ -63,12 +65,21 @@ export const resolvers = {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
+
+      const [instance] = await user.getInstances({InstanceIds: [args.id]});
+
+      if (!instance) {
+        throw new ForbiddenError('You do not have access to this instance');
+      }
+
+      return instance;
     },
     async instances(parent, args, {user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
-      return [];
+
+      return user.getInstances();
     }
   },
   Mutation: {
@@ -113,17 +124,57 @@ export const resolvers = {
       }
 
       const ec2 = new AWS.EC2();
-      const {KeyName} = await ec2.createKeyPair({KeyName: args.name}).promise();
       const data = await ec2
         .runInstances({
           ImageId: 'ami-0c5204531f799e0c6',
           InstanceType: 't2.micro',
-          KeyName,
           MinCount: 1,
-          MaxCount: 1
+          MaxCount: 1,
+          UserData: base64.encode(
+            outdent`
+              #!/bin/bash
+              yum update -y
+              amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+              yum install -y httpd mariadb-server
+              systemctl start httpd
+              systemctl enable httpd
+            `
+          )
         })
         .promise();
-      console.log(data);
+
+      const [Instance] = data.Instances;
+      await ec2
+        .createTags({
+          Resources: [Instance.InstanceId],
+          Tags: [
+            {
+              Key: 'Name',
+              Value: args.name
+            },
+            {
+              Key: 'Owner',
+              Value: user.id.toString()
+            }
+          ]
+        })
+        .promise();
+
+      console.log(Instance);
+
+      // return new Promise((resolve, reject) => {
+      //   const client = new Client();
+      //   client
+      //     .on('ready', () => {
+      //       resolve(client);
+      //     })
+      //     .on('error', reject)
+      //     .connect({
+      //       host:,
+      //       username: 'root',
+      //       privateKey: process.env.PRIVATE_KEY
+      //     });
+      // });
 
       throw new Error('what');
     },
