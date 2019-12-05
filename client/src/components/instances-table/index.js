@@ -67,18 +67,15 @@ export default function InstancesTable(props) {
                 <TableCell padding="none">
                   <Box display="flex" alignItems="center">
                     <Box mr={2} component={FaWordpressSimple} size={20} />
-                    {instance.status === 'active' &&
-                    instance.tags.includes('provisioned') ? (
-                      <Link
-                        href={`https://${instance.name}.saucer.dev/wp-admin`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {instance.name}
-                      </Link>
-                    ) : (
-                      instance.name
-                    )}
+                    <Link
+                      color="inherit"
+                      href={`https://${instance.name}.saucer.dev/wp-admin`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      disabled={instance.status !== 'running'}
+                    >
+                      {instance.name}
+                    </Link>
                   </Box>
                 </TableCell>
                 <TableCell padding="none">

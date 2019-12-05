@@ -1,19 +1,23 @@
 import NewStatus from './new-status';
 import PropTypes from 'prop-types';
-import ProvisionInstanceButton from './provision-instance-button';
 import React from 'react';
 import StatusMessage from './status-message';
 
 export default function InstanceStatus(props) {
-  const {status, tags} = props.instance;
+  switch (props.instance.status) {
+    case 'running':
+      return <StatusMessage color="limegreen">Active</StatusMessage>;
+    default:
+      return <StatusMessage color="gold">Starting</StatusMessage>;
+  }
+
+  const {status} = props.instance;
   const isActive = status === 'active';
-  const isReady = tags.includes('ready');
 
   if (isActive) {
     if (tags.includes('provisioned')) {
-      return <StatusMessage color="limegreen">Active</StatusMessage>;
     } else if (isReady) {
-      return <ProvisionInstanceButton instance={props.instance} />;
+      // return <ProvisionInstanceButton instance={props.instance} />;
     }
   }
 

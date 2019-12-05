@@ -34,7 +34,6 @@ export const typeDefs = gql`
     id: ID
     name: String
     status: String
-    tags: [String]
     createdAt: DateTime
   }
 `;
@@ -58,7 +57,19 @@ export const typeDefs = gql`
 export const resolvers = {
   DateTime: GraphQLDateTime,
   Instance: {
-    createdAt: instance => instance.created_at
+    id: instance => instance.InstanceId,
+    name: instance => {
+      const {Name} = instance.Tags.reduce(
+        (acc, tag) => ({
+          ...acc,
+          [tag.Key]: tag.Value
+        }),
+        {}
+      );
+      return Name;
+    },
+    status: instance => instance.State.Name,
+    createdAt: instance => instance.LaunchTime
   },
   Query: {
     async instance(parent, args, {user}) {
@@ -74,7 +85,7 @@ export const resolvers = {
 
       return instance;
     },
-    async instances(parent, args, {user}) {
+    instances(parent, args, {user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
@@ -144,39 +155,28 @@ export const resolvers = {
         .promise();
 
       const [Instance] = data.Instances;
+      const Tags = [
+        {
+          Key: 'Name',
+          Value: args.name
+        },
+        {
+          Key: 'Owner',
+          Value: user.id.toString()
+        }
+      ];
+
       await ec2
         .createTags({
           Resources: [Instance.InstanceId],
-          Tags: [
-            {
-              Key: 'Name',
-              Value: args.name
-            },
-            {
-              Key: 'Owner',
-              Value: user.id.toString()
-            }
-          ]
+          Tags
         })
         .promise();
 
-      console.log(Instance);
-
-      // return new Promise((resolve, reject) => {
-      //   const client = new Client();
-      //   client
-      //     .on('ready', () => {
-      //       resolve(client);
-      //     })
-      //     .on('error', reject)
-      //     .connect({
-      //       host:,
-      //       username: 'root',
-      //       privateKey: process.env.PRIVATE_KEY
-      //     });
-      // });
-
-      throw new Error('what');
+      return {
+        ...Instance,
+        Tags
+      };
     },
     async provisionInstance(parent, args, {user}) {
       if (!user) {

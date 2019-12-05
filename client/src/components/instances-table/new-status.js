@@ -9,7 +9,6 @@ const GET_INSTANCE = gql`
     instance(id: $id) {
       id
       status
-      tags
     }
   }
 `;

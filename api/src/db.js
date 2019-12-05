@@ -21,7 +21,7 @@ async function getInstances(options) {
       ]
     })
     .promise();
-  return data.Reservations.length ? data.Reservations[0].Instances : [];
+  return data.Reservations.flatMap(reservation => reservation.Instances);
 }
 
 User.prototype.getInstances = getInstances;
