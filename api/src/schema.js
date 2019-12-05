@@ -158,7 +158,7 @@ export const resolvers = {
       const UserData = base64.encode(
         outdent`
           #!/bin/bash
-          
+
           # find public IP address and set an A record
           ip_address=$(curl 169.254.169.254/latest/meta-data/public-ipv4)
           aws route53 change-resource-record-sets --hosted-zone-id ${ROUTE_53_RECORD_SET_ID} --change-batch ${changeBatch}
@@ -218,7 +218,10 @@ export const resolvers = {
           InstanceType: 't2.micro',
           MinCount: 1,
           MaxCount: 1,
-          UserData
+          UserData,
+          IamInstanceProfile: {
+            Arn: 'arn:aws:iam::724863139036:instance-profile/SaucerSetup'
+          }
         })
         .promise();
 
