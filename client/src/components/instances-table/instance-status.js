@@ -47,6 +47,7 @@ export default function InstanceStatus(props) {
   const {status} = props.instance;
   switch (status) {
     case 'running':
+      // TODO: look for indication that post-boot script has finished
       return <StatusMessage color="limegreen">Active</StatusMessage>;
     case 'pending':
       return (
