@@ -16,6 +16,7 @@
     "axios": "^0.19.0",
     "base-64": "^0.1.0",
     "esm": "^3.2.25",
+    "generate-password": "^1.4.2",
     "graphql-iso-date": "^3.6.1",
     "jsonwebtoken": "^8.5.1",
     "outdent": "^0.7.0",

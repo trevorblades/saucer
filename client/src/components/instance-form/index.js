@@ -27,9 +27,10 @@ import {
 } from 'unique-names-generator';
 import {gql, useMutation} from '@apollo/client';
 
+// TODO: enable configuring locale in create dialog
 const CREATE_INSTANCE = gql`
   mutation CreateInstance($name: String!) {
-    createInstance(name: $name) {
+    createInstance(name: $name, locale: "en_US") {
       ...InstanceFragment
     }
   }
