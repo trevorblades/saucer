@@ -42,7 +42,7 @@ export default function Home() {
         error={error}
         onCreateInstance={openDialog}
       />
-      <Dialog fullWidth open={dialogOpen} onClose={closeDialog}>
+      <Dialog fullWidth scroll="body" open={dialogOpen} onClose={closeDialog}>
         <InstanceForm onCancel={closeDialog} />
       </Dialog>
     </Fragment>
