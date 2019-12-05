@@ -162,6 +162,12 @@ export const resolvers = {
             --admin_user=${args.adminUser} \
             --admin_password=${args.adminPassword} \
             --admin_email=${args.adminEmail}
+
+          # install wp-graphql plugin
+          cd wp-content/plugins
+          yum install git
+          git clone https://github.com/wp-graphql/wp-graphql
+          wp plugins activate wp-graphql
         `
       );
 
