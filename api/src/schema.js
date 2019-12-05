@@ -216,6 +216,8 @@ export const resolvers = {
           yum install git
           git clone https://github.com/wp-graphql/wp-graphql
           wp plugins activate wp-graphql
+
+          # TODO: install SSL via certbot
         `
       );
 
