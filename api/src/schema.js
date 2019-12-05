@@ -5,9 +5,21 @@ import {AuthenticationError, ForbiddenError, gql} from 'apollo-server';
 import {EC2} from 'aws-sdk';
 import {GraphQLDateTime} from 'graphql-iso-date';
 import {User} from './db';
-import {generate} from 'generate-password';
+import {
+  adjectives,
+  animals,
+  uniqueNamesGenerator
+} from 'unique-names-generator';
+import {generate} from 'randomstring';
 import {outdent} from 'outdent';
 import {parse} from 'querystring';
+
+const {
+  GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET,
+  TOKEN_SECRET,
+  ROUTE_53_RECORD_SET_ID
+} = process.env;
 
 export const typeDefs = gql`
   scalar DateTime
@@ -20,9 +32,8 @@ export const typeDefs = gql`
   type Mutation {
     logIn(code: String!): String
     createInstance(
-      name: String!
-      locale: String!
       title: String!
+      locale: String!
       adminUser: String!
       adminPassword: String!
       adminEmail: String!
@@ -80,8 +91,8 @@ export const resolvers = {
     async logIn(parent, args) {
       const accessToken = await axios
         .post('https://github.com/login/oauth/access_token', {
-          client_id: process.env.GITHUB_CLIENT_ID,
-          client_secret: process.env.GITHUB_CLIENT_SECRET,
+          client_id: GITHUB_CLIENT_ID,
+          client_secret: GITHUB_CLIENT_SECRET,
           code: args.code
         })
         .then(({data}) => parse(data).access_token);
@@ -110,12 +121,36 @@ export const resolvers = {
         });
       }
 
-      return jwt.sign(user.get(), process.env.TOKEN_SECRET);
+      return jwt.sign(user.get(), TOKEN_SECRET);
     },
     async createInstance(parent, args, {user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
+
+      const instanceName =
+        uniqueNamesGenerator({
+          dictionaries: [adjectives, animals],
+          length: 2,
+          separator: '-'
+        }) +
+        '-' +
+        generate(6);
+
+      const instanceUrl = `${instanceName}.saucer.dev`;
+      const changeBatch = JSON.stringify({
+        Changes: [
+          {
+            Action: 'CREATE',
+            ResourceRecordSet: {
+              Name: instanceUrl,
+              ResourceRecords: [{Value: '$ip_address'}],
+              TTL: 3600,
+              Type: 'A'
+            }
+          }
+        ]
+      });
 
       const dbName = 'wordpress';
       const dbPass = generate();
@@ -123,6 +158,11 @@ export const resolvers = {
       const UserData = base64.encode(
         outdent`
           #!/bin/bash
+          
+          # find public IP address and set an A record
+          ip_address=$(curl 169.254.169.254/latest/meta-data/public-ipv4)
+          aws route53 change-resource-record-sets --hosted-zone-id ${ROUTE_53_RECORD_SET_ID} --change-batch ${changeBatch}
+
           # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-lamp-amazon-linux-2.html
           yum update -y
           amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
@@ -157,7 +197,7 @@ export const resolvers = {
           # https://github.com/wp-cli/config-command
           wp config create --dbname=${dbName} --dbuser=root --dbpass=${dbPass}
 
-          wp core install --url=${args.name}.saucer.dev \
+          wp core install --url=${instanceUrl} \
             --title=${args.title} \
             --admin_user=${args.adminUser} \
             --admin_password=${args.adminPassword} \
@@ -186,7 +226,7 @@ export const resolvers = {
       const Tags = [
         {
           Key: 'Name',
-          Value: args.name
+          Value: instanceName
         },
         {
           Key: 'Owner',
@@ -222,6 +262,8 @@ export const resolvers = {
           InstanceIds: [instance.InstanceId]
         })
         .promise();
+
+      // TODO: delete route53 record set
 
       return TerminatingInstances[0].InstanceId;
     }

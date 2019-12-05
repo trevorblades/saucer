@@ -1,10 +1,9 @@
 import FormButton from './form-button';
 import FormField, {PasswordField} from './form-field';
 import PropTypes from 'prop-types';
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import localeEmoji from 'locale-emoji';
 import mirageComeBackLater from '../../assets/mirage-come-back-later.png';
-import randomstring from 'randomstring';
 import visa from 'payment-icons/min/flat/visa.svg';
 import {
   Box,
@@ -21,26 +20,19 @@ import {
 } from '@material-ui/core';
 import {FaDrupal, FaWordpressSimple} from 'react-icons/fa';
 import {INSTANCE_FRAGMENT, LIST_INSTANCES, UserContext} from '../../utils';
-import {
-  adjectives,
-  animals,
-  uniqueNamesGenerator
-} from 'unique-names-generator';
 import {gql, useMutation} from '@apollo/client';
 
 const CREATE_INSTANCE = gql`
   mutation CreateInstance(
-    $name: String!
-    $locale: String!
     $title: String!
+    $locale: String!
     $adminEmail: String!
     $adminUser: String!
     $adminPassword: String!
   ) {
     createInstance(
-      name: $name
-      locale: $locale
       title: $title
+      locale: $locale
       adminEmail: $adminEmail
       adminUser: $adminUser
       adminPassword: $adminPassword
@@ -101,25 +93,12 @@ export default function InstanceForm(props) {
     }
   });
 
-  const name = useMemo(
-    () =>
-      uniqueNamesGenerator({
-        dictionaries: [adjectives, animals],
-        length: 2,
-        separator: '-'
-      }) +
-      '-' +
-      randomstring.generate(6),
-    []
-  );
-
   function handleSubmit(event) {
     event.preventDefault();
 
-    const {name, title, adminEmail, adminUser, adminPassword} = event.target;
+    const {title, adminEmail, adminUser, adminPassword} = event.target;
     createInstance({
       variables: {
-        name: name.value,
         locale,
         title: title.value,
         adminEmail: adminEmail.value,
@@ -156,13 +135,6 @@ export default function InstanceForm(props) {
             </FormButton>
           </Grid>
         </Grid>
-        <FormField
-          required
-          value={name}
-          label="Instance name"
-          name="name"
-          disabled
-        />
         <FormField
           autoFocus
           required
