@@ -1,4 +1,4 @@
-import EC2 from 'aws-sdk/clients/ec2';
+import {EC2} from 'aws-sdk';
 import {Sequelize} from 'sequelize';
 
 export const sequelize = new Sequelize(process.env.DATABASE_URL);
@@ -10,18 +10,22 @@ export const User = sequelize.define('user', {
 
 async function getInstances(options) {
   const ec2 = new EC2();
-  const data = await ec2
+  const {Reservations} = await ec2
     .describeInstances({
       ...options,
       Filters: [
         {
           Name: 'tag:Owner',
           Values: [this.id.toString()]
+        },
+        {
+          Name: 'instance-state-name',
+          Values: ['pending', 'running', 'stopping', 'stopped']
         }
       ]
     })
     .promise();
-  return data.Reservations.flatMap(reservation => reservation.Instances);
+  return Reservations.flatMap(reservation => reservation.Instances);
 }
 
 User.prototype.getInstances = getInstances;

@@ -1,9 +1,8 @@
-import AWS from 'aws-sdk';
 import axios from 'axios';
+import base64 from 'base-64';
 import jwt from 'jsonwebtoken';
 import {AuthenticationError, ForbiddenError, gql} from 'apollo-server';
-// import {Client} from 'ssh2';
-import base64 from 'base-64';
+import {EC2} from 'aws-sdk';
 import {GraphQLDateTime} from 'graphql-iso-date';
 import {User} from './db';
 import {outdent} from 'outdent';
@@ -20,14 +19,7 @@ export const typeDefs = gql`
   type Mutation {
     logIn(code: String!): String
     createInstance(name: String!): Instance
-    provisionInstance(
-      id: ID!
-      email: String!
-      username: String!
-      password: String!
-      title: String!
-    ): Instance
-    deleteInstance(id: ID!): Instance
+    deleteInstance(id: ID!): ID
   }
 
   type Instance {
@@ -37,22 +29,6 @@ export const typeDefs = gql`
     createdAt: DateTime
   }
 `;
-
-// function createConnection(host) {
-//   return new Promise((resolve, reject) => {
-//     const client = new Client();
-//     client
-//       .on('ready', () => {
-//         resolve(client);
-//       })
-//       .on('error', reject)
-//       .connect({
-//         host,
-//         username: 'root',
-//         privateKey: process.env.PRIVATE_KEY
-//       });
-//   });
-// }
 
 export const resolvers = {
   DateTime: GraphQLDateTime,
@@ -78,7 +54,6 @@ export const resolvers = {
       }
 
       const [instance] = await user.getInstances({InstanceIds: [args.id]});
-
       if (!instance) {
         throw new ForbiddenError('You do not have access to this instance');
       }
@@ -134,7 +109,7 @@ export const resolvers = {
         throw new AuthenticationError('Unauthorized');
       }
 
-      const ec2 = new AWS.EC2();
+      const ec2 = new EC2();
       const data = await ec2
         .runInstances({
           ImageId: 'ami-0c5204531f799e0c6',
@@ -149,6 +124,9 @@ export const resolvers = {
               yum install -y httpd mariadb-server
               systemctl start httpd
               systemctl enable httpd
+              curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+              chmod +x wp-cli.phar
+              mv wp-cli.phar /usr/bin/wp
             `
           )
         })
@@ -178,15 +156,24 @@ export const resolvers = {
         Tags
       };
     },
-    async provisionInstance(parent, args, {user}) {
-      if (!user) {
-        throw new AuthenticationError('Unauthorized');
-      }
-    },
     async deleteInstance(parent, args, {user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
+
+      const [instance] = await user.getInstances({InstanceIds: [args.id]});
+      if (!instance) {
+        throw new ForbiddenError('You do not have access to this instance');
+      }
+
+      const ec2 = new EC2();
+      const {TerminatingInstances} = await ec2
+        .terminateInstances({
+          InstanceIds: [instance.InstanceId]
+        })
+        .promise();
+
+      return TerminatingInstances[0].InstanceId;
     }
   }
 };
