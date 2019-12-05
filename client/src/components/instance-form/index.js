@@ -1,6 +1,7 @@
 import FormButton from './form-button';
 import PropTypes from 'prop-types';
 import React, {useContext, useMemo, useState} from 'react';
+import mirageComeBackLater from '../../assets/mirage-come-back-later.png';
 import randomstring from 'randomstring';
 import visa from 'payment-icons/min/flat/visa.svg';
 import {
@@ -9,7 +10,6 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   FormControl,
   Grid,
   IconButton,
@@ -133,14 +133,17 @@ export default function InstanceForm(props) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <DialogTitle>What do you want to build?</DialogTitle>
       <DialogContent>
+        <Box textAlign="center" mb={3}>
+          <img src={mirageComeBackLater} height={150} />
+          <Typography variant="h5">What do you want to build today?</Typography>
+        </Box>
         {error && (
           <DialogContentText color="error">{error.message}</DialogContentText>
         )}
         <Grid container spacing={2}>
           <Grid item xs={6}>
-            <FormButton selected icon={FaWordpressSimple}>
+            <FormButton selected disabled={loading} icon={FaWordpressSimple}>
               <Typography>Wordpress</Typography>
             </FormButton>
           </Grid>
@@ -152,19 +155,28 @@ export default function InstanceForm(props) {
           </Grid>
         </Grid>
         <FormField value={name} label="Instance name" name="name" disabled />
-        <FormField placeholder="Acme blog" label="Title" name="title" />
         <FormField
+          autoFocus
+          disabled={loading}
+          placeholder="Acme blog"
+          label="Title"
+          name="title"
+        />
+        <FormField
+          disabled={loading}
           defaultValue={user.email}
           label="Admin email"
           name="adminEmail"
           type="email"
         />
         <FormField
+          disabled={loading}
           defaultValue="admin"
           label="Admin username"
           name="adminUser"
         />
         <PasswordField
+          disabled={loading}
           helperText="You will use this to log in to your Wordpress installation"
           label="Admin password"
           name="adminPassword"

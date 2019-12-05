@@ -151,11 +151,12 @@ export const resolvers = {
           # move to public directory
           cd /var/www/html
 
+          # https://developer.wordpress.org/cli/commands/core/
+          wp core download --locale=${args.locale}
+
           # https://github.com/wp-cli/config-command
           wp config create --dbname=${dbName} --dbuser=root --dbpass=${dbPass}
 
-          # https://developer.wordpress.org/cli/commands/core/
-          wp core download --locale=${args.locale}
           wp core install --url=${args.name}.saucer.dev \
             --title=${args.title} \
             --admin_user=${args.adminUser} \
