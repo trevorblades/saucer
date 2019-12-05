@@ -138,19 +138,21 @@ export const resolvers = {
         generate(6);
 
       const instanceUrl = `${instanceName}.saucer.dev`;
-      const changeBatch = JSON.stringify({
-        Changes: [
-          {
-            Action: 'CREATE',
-            ResourceRecordSet: {
-              Name: instanceUrl,
-              ResourceRecords: [{Value: '$ip_address'}],
-              TTL: 3600,
-              Type: 'A'
+      const changeBatch = JSON.stringify(
+        JSON.stringify({
+          Changes: [
+            {
+              Action: 'CREATE',
+              ResourceRecordSet: {
+                Name: instanceUrl,
+                ResourceRecords: [{Value: '$ip_address'}],
+                TTL: 3600,
+                Type: 'A'
+              }
             }
-          }
-        ]
-      });
+          ]
+        })
+      );
 
       const dbName = 'wordpress';
       const dbPass = generate();
@@ -161,7 +163,9 @@ export const resolvers = {
 
           # find public IP address and set an A record
           ip_address=$(curl 169.254.169.254/latest/meta-data/public-ipv4)
-          aws route53 change-resource-record-sets --hosted-zone-id ${ROUTE_53_RECORD_SET_ID} --change-batch ${changeBatch}
+          aws route53 change-resource-record-sets \
+            --hosted-zone-id ${ROUTE_53_RECORD_SET_ID} \
+            --change-batch ${changeBatch}
 
           # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-lamp-amazon-linux-2.html
           yum update -y
@@ -195,9 +199,13 @@ export const resolvers = {
           wp core download --locale=${args.locale}
 
           # https://github.com/wp-cli/config-command
-          wp config create --dbname=${dbName} --dbuser=root --dbpass=${dbPass}
+          wp config create \
+            --dbname=${dbName} \
+            --dbuser=root \
+            --dbpass=${dbPass}
 
-          wp core install --url=${instanceUrl} \
+          wp core install \
+            --url=${instanceUrl} \
             --title=${args.title} \
             --admin_user=${args.adminUser} \
             --admin_password=${args.adminPassword} \
