@@ -167,15 +167,16 @@ export const resolvers = {
         )
       );
 
-      const dbName = 'wordpress';
-      const dbPass = generate();
-
       const UserData = base64.encode(
         outdent`
           #!/bin/bash
 
-          # find public IP address and set an A record
+          # set up some variables
+          dbname=wordpress
+          dbpass=${generate()}
           ip_address=$(curl 169.254.169.254/latest/meta-data/public-ipv4)
+
+          # find public IP address and set an A record
           aws route53 change-resource-record-sets \
             --hosted-zone-id ${AWS_ROUTE_53_HOSTED_ZONE_ID} \
             --change-batch ${changeBatch}
@@ -192,12 +193,12 @@ export const resolvers = {
 
           # https://bertvv.github.io/notes-to-self/2015/11/16/automating-mysql_secure_installation/
           mysql --user=root <<EOF
-          UPDATE mysql.user SET Password=PASSWORD('${dbPass}') WHERE User='root';
+          UPDATE mysql.user SET Password=PASSWORD('$dbpass') WHERE User='root';
           DELETE FROM mysql.user WHERE User='';
           DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
           DROP DATABASE IF EXISTS test;
           DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
-          CREATE DATABASE ${dbName};
+          CREATE DATABASE $dbname;
           FLUSH PRIVILEGES;
           EOF
 
@@ -214,9 +215,9 @@ export const resolvers = {
 
           # https://github.com/wp-cli/config-command
           wp config create \
-            --dbname=${dbName} \
+            --dbname=$dbname \
             --dbuser=root \
-            --dbpass=${dbPass}
+            --dbpass=$dbpass
 
           wp core install \
             --url=${instanceDomain} \
