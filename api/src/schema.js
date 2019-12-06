@@ -320,10 +320,13 @@ export const resolvers = {
         throw new ForbiddenError('You do not have access to this instance');
       }
 
-      const {Name} = instance.Tags.reduce((acc, tag) => ({
-        ...acc,
-        [tag.Key]: tag.Value
-      }));
+      const {Name} = instance.Tags.reduce(
+        (acc, tag) => ({
+          ...acc,
+          [tag.Key]: tag.Value
+        }),
+        {}
+      );
 
       const route53 = new Route53();
       const instanceDomain = createInstanceDomain(Name);
