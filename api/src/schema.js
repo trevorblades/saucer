@@ -220,7 +220,7 @@ export const resolvers = {
           git clone https://github.com/wp-graphql/wp-graphql
           wp plugin activate wp-graphql
 
-          # enable pretty urls
+          # enable pretty URLs
           wp rewrite structure '/%year%/%monthnum%/%postname%/'
 
           # TODO: install SSL via certbot
