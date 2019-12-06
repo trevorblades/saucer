@@ -1,7 +1,7 @@
 import FormButton from './form-button';
 import FormField, {PasswordField} from './form-field';
 import PropTypes from 'prop-types';
-import React, {useContext, useState} from 'react';
+import React, {Fragment, useContext, useState} from 'react';
 import localeEmoji from 'locale-emoji';
 import mirageComeBackLater from '../../assets/mirage-come-back-later.png';
 import visa from 'payment-icons/min/flat/visa.svg';
@@ -12,8 +12,10 @@ import {
   DialogContent,
   DialogContentText,
   FormControl,
+  FormHelperText,
   Grid,
   InputLabel,
+  Link,
   MenuItem,
   Select,
   Typography
@@ -43,17 +45,19 @@ const CREATE_INSTANCE = gql`
   ${INSTANCE_FRAGMENT}
 `;
 
-function LabeledSelect({label, ...props}) {
+function LabeledSelect({label, helperText, ...props}) {
   return (
     <FormControl margin="normal" fullWidth>
       <InputLabel>{label}</InputLabel>
       <Select {...props} />
+      {helperText && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>
   );
 }
 
 LabeledSelect.propTypes = {
-  label: PropTypes.string.isRequired
+  label: PropTypes.string.isRequired,
+  helperText: PropTypes.node
 };
 
 const locales = {
@@ -71,7 +75,9 @@ const locales = {
   Polski: 'pl_PL',
   한국어: 'ko_KR',
   हिन्दी: 'hi_IN',
-  Svenska: 'sv_SE'
+  Svenska: 'sv_SE',
+  'Tiếng Việt': 'vi',
+  Nederlands: 'nl_NL'
 };
 
 export default function InstanceForm(props) {
@@ -122,19 +128,21 @@ export default function InstanceForm(props) {
         {error && (
           <DialogContentText color="error">{error.message}</DialogContentText>
         )}
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <FormButton selected disabled={loading} icon={FaWordpressSimple}>
-              <Typography>Wordpress</Typography>
-            </FormButton>
+        <Box mb={1}>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <FormButton selected disabled={loading} icon={FaWordpressSimple}>
+                <Typography>Wordpress</Typography>
+              </FormButton>
+            </Grid>
+            <Grid item xs={6}>
+              <FormButton disabled icon={FaDrupal}>
+                <Typography>Drupal</Typography>
+                <Typography variant="caption">(Coming later)</Typography>
+              </FormButton>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <FormButton disabled icon={FaDrupal}>
-              <Typography>Drupal</Typography>
-              <Typography variant="caption">(Coming later)</Typography>
-            </FormButton>
-          </Grid>
-        </Grid>
+        </Box>
         <FormField
           autoFocus
           required
@@ -167,6 +175,19 @@ export default function InstanceForm(props) {
         />
         <LabeledSelect
           label="Locale"
+          helperText={
+            <Fragment>
+              Don&apos;t see your language?{' '}
+              <Link
+                href="mailto:hello@saucer.dev?subject=Please add my language"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Let us know
+              </Link>{' '}
+              and we&apos;ll add it.
+            </Fragment>
+          }
           value={locale}
           onChange={handleLocaleChange}
         >

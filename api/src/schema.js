@@ -66,7 +66,7 @@ function createChangeBatch(Action, Name, Value) {
 }
 
 function createInstanceDomain(subdomain) {
-  return `${subdomain}.saucer.dev`;
+  return subdomain + '.saucer.dev';
 }
 
 export const resolvers = {
