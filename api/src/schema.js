@@ -235,10 +235,16 @@ export const resolvers = {
           touch .htaccess
           wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'
 
-          # install wp-graphql plugin
+          # install wordpress plugins
+          wp plugin install wp-fail2ban
           cd wp-content/plugins
           git clone https://github.com/wp-graphql/wp-graphql
-          wp plugin activate wp-graphql
+          git clone https://github.com/wp-graphql/wp-graphiql
+          wp plugin activate wp-fail2ban wp-graphql wp-graphiql
+
+          # give wordpress access to filesystem
+          echo "define( 'FS_METHOD', 'direct' );" >> wp-config.php
+          chmod -R apache:apache /var/www/html
 
           # add host for port 80 (needed for certbot)
           cat >> /etc/httpd/conf/httpd.conf <<EOF
