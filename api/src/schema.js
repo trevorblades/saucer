@@ -15,10 +15,10 @@ import {outdent} from 'outdent';
 import {parse} from 'querystring';
 
 const {
+  TOKEN_SECRET,
   GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET,
-  TOKEN_SECRET,
-  ROUTE_53_RECORD_SET_ID
+  AWS_ROUTE_53_RECORD_SET_ID
 } = process.env;
 
 export const typeDefs = gql`
@@ -164,13 +164,14 @@ export const resolvers = {
           # find public IP address and set an A record
           ip_address=$(curl 169.254.169.254/latest/meta-data/public-ipv4)
           aws route53 change-resource-record-sets \
-            --hosted-zone-id ${ROUTE_53_RECORD_SET_ID} \
+            --hosted-zone-id ${AWS_ROUTE_53_RECORD_SET_ID} \
             --change-batch ${changeBatch}
 
           # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-lamp-amazon-linux-2.html
+          # https://certbot.eff.org/lets-encrypt/centosrhel7-apache
           yum update -y
-          amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
-          yum install -y httpd mariadb-server
+          amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2 epel
+          yum install -y httpd mariadb-server git certbot python2-certbot-apache
           systemctl start httpd
           systemctl enable httpd
           systemctl start mariadb
@@ -213,10 +214,10 @@ export const resolvers = {
 
           # install wp-graphql plugin
           cd wp-content/plugins
-          yum install git
           git clone https://github.com/wp-graphql/wp-graphql
-          wp plugins activate wp-graphql
+          wp plugin activate wp-graphql
 
+          # TODO: pretty URLs
           # TODO: install SSL via certbot
         `
       );
