@@ -65,6 +65,10 @@ function createChangeBatch(Action, Name, Value) {
   };
 }
 
+function createInstanceDomain(subdomain) {
+  return `${subdomain}.saucer.dev`;
+}
+
 export const resolvers = {
   DateTime: GraphQLDateTime,
   Instance: {
@@ -156,7 +160,7 @@ export const resolvers = {
           capitalization: 'lowercase'
         });
 
-      const instanceDomain = `${instanceName}.saucer.dev`;
+      const instanceDomain = createInstanceDomain(instanceName);
       const changeBatch = JSON.stringify(
         JSON.stringify(
           createChangeBatch('CREATE', instanceDomain, '$ip_address')
@@ -318,16 +322,35 @@ export const resolvers = {
       }));
 
       const route53 = new Route53();
-      await route53
-        .changeResourceRecordSets({
+      const instanceDomain = createInstanceDomain(Name);
+      const StartRecordName = instanceDomain + '.';
+
+      // check for DNS records for this instance
+      const {ResourceRecordSets} = await route53
+        .listResourceRecordSets({
           HostedZoneId: AWS_ROUTE_53_HOSTED_ZONE_ID,
-          ChangeBatch: createChangeBatch(
-            'DELETE',
-            `${Name}.saucer.dev`,
-            instance.PublicIpAddress
-          )
+          StartRecordName,
+          StartRecordType: 'A',
+          MaxItems: '1'
         })
         .promise();
+
+      if (
+        ResourceRecordSets.length &&
+        ResourceRecordSets[0].Name === StartRecordName
+      ) {
+        // clean them up if they exist
+        await route53
+          .changeResourceRecordSets({
+            HostedZoneId: AWS_ROUTE_53_HOSTED_ZONE_ID,
+            ChangeBatch: createChangeBatch(
+              'DELETE',
+              instanceDomain,
+              instance.PublicIpAddress
+            )
+          })
+          .promise();
+      }
 
       return TerminatingInstances[0].InstanceId;
     }
