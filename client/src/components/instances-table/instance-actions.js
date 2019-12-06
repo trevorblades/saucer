@@ -26,7 +26,7 @@ const DELETE_INSTANCE = gql`
 export default function InstanceActions(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteInstance, {loading}] = useMutation(DELETE_INSTANCE, {
+  const [deleteInstance, {loading, error}] = useMutation(DELETE_INSTANCE, {
     variables: {
       id: props.instance.id
     },
@@ -82,6 +82,11 @@ export default function InstanceActions(props) {
               Are you sure?
             </Typography>
           </Box>
+          {error && (
+            <Typography paragraph color="error">
+              {error.message}
+            </Typography>
+          )}
           <Typography paragraph>
             Deleting is permanent! Once you delete{' '}
             <em>{props.instance.name}</em>, you won&apos;t be able to recover

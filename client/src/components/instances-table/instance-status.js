@@ -52,7 +52,7 @@ export default function InstanceStatus(props) {
     case 'pending':
       return (
         <PollInstance variables={{id: props.instance.id}}>
-          <StatusMessage color="gold">Starting</StatusMessage>
+          <StatusMessage color="gold">Starting...</StatusMessage>
         </PollInstance>
       );
     case 'stopping':

@@ -2,7 +2,7 @@ import axios from 'axios';
 import base64 from 'base-64';
 import jwt from 'jsonwebtoken';
 import {AuthenticationError, ForbiddenError, gql} from 'apollo-server';
-import {EC2} from 'aws-sdk';
+import {EC2, Route53} from 'aws-sdk';
 import {GraphQLDateTime} from 'graphql-iso-date';
 import {User} from './db';
 import {
@@ -18,7 +18,7 @@ const {
   TOKEN_SECRET,
   GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET,
-  AWS_ROUTE_53_RECORD_SET_ID
+  AWS_ROUTE_53_HOSTED_ZONE_ID
 } = process.env;
 
 export const typeDefs = gql`
@@ -48,6 +48,22 @@ export const typeDefs = gql`
     createdAt: DateTime
   }
 `;
+
+function createChangeBatch(Action, Name, Value) {
+  return {
+    Changes: [
+      {
+        Action,
+        ResourceRecordSet: {
+          Name,
+          ResourceRecords: [{Value}],
+          TTL: 3600,
+          Type: 'A'
+        }
+      }
+    ]
+  };
+}
 
 export const resolvers = {
   DateTime: GraphQLDateTime,
@@ -140,21 +156,11 @@ export const resolvers = {
           capitalization: 'lowercase'
         });
 
-      const instanceUrl = `${instanceName}.saucer.dev`;
+      const instanceDomain = `${instanceName}.saucer.dev`;
       const changeBatch = JSON.stringify(
-        JSON.stringify({
-          Changes: [
-            {
-              Action: 'CREATE',
-              ResourceRecordSet: {
-                Name: instanceUrl,
-                ResourceRecords: [{Value: '$ip_address'}],
-                TTL: 3600,
-                Type: 'A'
-              }
-            }
-          ]
-        })
+        JSON.stringify(
+          createChangeBatch('CREATE', instanceDomain, '$ip_address')
+        )
       );
 
       const dbName = 'wordpress';
@@ -167,7 +173,7 @@ export const resolvers = {
           # find public IP address and set an A record
           ip_address=$(curl 169.254.169.254/latest/meta-data/public-ipv4)
           aws route53 change-resource-record-sets \
-            --hosted-zone-id ${AWS_ROUTE_53_RECORD_SET_ID} \
+            --hosted-zone-id ${AWS_ROUTE_53_HOSTED_ZONE_ID} \
             --change-batch ${changeBatch}
 
           # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-lamp-amazon-linux-2.html
@@ -181,15 +187,15 @@ export const resolvers = {
           systemctl enable mariadb
 
           # https://bertvv.github.io/notes-to-self/2015/11/16/automating-mysql_secure_installation/
-          mysql --user=root <<_EOF_
-            UPDATE mysql.user SET Password=PASSWORD('${dbPass}') WHERE User='root';
-            DELETE FROM mysql.user WHERE User='';
-            DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-            DROP DATABASE IF EXISTS test;
-            DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
-            CREATE DATABASE ${dbName};
-            FLUSH PRIVILEGES;
-          _EOF_
+          mysql --user=root <<EOF
+          UPDATE mysql.user SET Password=PASSWORD('${dbPass}') WHERE User='root';
+          DELETE FROM mysql.user WHERE User='';
+          DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+          DROP DATABASE IF EXISTS test;
+          DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+          CREATE DATABASE ${dbName};
+          FLUSH PRIVILEGES;
+          EOF
 
           # https://make.wordpress.org/cli/handbook/installing/
           curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -209,21 +215,45 @@ export const resolvers = {
             --dbpass=${dbPass}
 
           wp core install \
-            --url=${instanceUrl} \
+            --url=${instanceDomain} \
             --title=${args.title} \
             --admin_user=${args.adminUser} \
             --admin_password=${args.adminPassword} \
             --admin_email=${args.adminEmail}
+
+          # enable pretty URLs and regenerate .htaccess
+          # https://developer.wordpress.org/cli/commands/rewrite/structure/
+          cat >> wp-cli.yml <<EOF
+          apache_modules:
+            - mod_rewrite
+          EOF
+          touch .htaccess
+          wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'
 
           # install wp-graphql plugin
           cd wp-content/plugins
           git clone https://github.com/wp-graphql/wp-graphql
           wp plugin activate wp-graphql
 
-          # enable pretty URLs
-          wp rewrite structure '/%year%/%monthnum%/%postname%/'
+          # add host for port 80 (needed for certbot)
+          cat >> /etc/httpd/conf/httpd.conf <<EOF
+          <Directory /var/www/html>
+            AllowOverride All
+          </Directory>
+          <VirtualHost *:80>
+            DocumentRoot /var/www/html
+            ServerName ${instanceDomain}
+          </VirtualHost>
+          EOF
 
-          # TODO: install SSL via certbot
+          # generate SSL certs and install them
+          certbot \
+            --non-interactive \
+            --apache \
+            --agree-tos \
+            --email ssl@saucer.dev \
+            --domain ${instanceDomain} \
+            --redirect
         `
       );
 
@@ -236,7 +266,7 @@ export const resolvers = {
           MaxCount: 1,
           UserData,
           IamInstanceProfile: {
-            Arn: 'arn:aws:iam::724863139036:instance-profile/SaucerSetup'
+            Arn: 'arn:aws:iam::724863139036:instance-profile/SaucerRole'
           }
         })
         .promise();
@@ -282,7 +312,22 @@ export const resolvers = {
         })
         .promise();
 
-      // TODO: delete route53 record set
+      const {Name} = instance.Tags.reduce((acc, tag) => ({
+        ...acc,
+        [tag.Key]: tag.Value
+      }));
+
+      const route53 = new Route53();
+      await route53
+        .changeResourceRecordSets({
+          HostedZoneId: AWS_ROUTE_53_HOSTED_ZONE_ID,
+          ChangeBatch: createChangeBatch(
+            'DELETE',
+            `${Name}.saucer.dev`,
+            instance.PublicIpAddress
+          )
+        })
+        .promise();
 
       return TerminatingInstances[0].InstanceId;
     }
