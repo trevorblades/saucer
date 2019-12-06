@@ -259,6 +259,10 @@ export const resolvers = {
             --email ssl@saucer.dev \
             --domain ${instanceDomain} \
             --redirect
+
+          # set up a cronjob for automatic cert renewal
+          echo "39 1,13 * * * root certbot renew --no-self-upgrade" >> /etc/crontab
+          systemctl restart crond
         `
       );
 
