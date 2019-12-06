@@ -135,7 +135,10 @@ export const resolvers = {
           separator: '-'
         }) +
         '-' +
-        generate(6);
+        generate({
+          length: 6,
+          capitalization: 'lowercase'
+        });
 
       const instanceUrl = `${instanceName}.saucer.dev`;
       const changeBatch = JSON.stringify(
