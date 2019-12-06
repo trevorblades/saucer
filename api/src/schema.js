@@ -57,7 +57,7 @@ function createChangeBatch(Action, Name, Value) {
         ResourceRecordSet: {
           Name,
           ResourceRecords: [{Value}],
-          TTL: 3600,
+          TTL: 300,
           Type: 'A'
         }
       }
