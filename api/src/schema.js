@@ -320,13 +320,6 @@ export const resolvers = {
         throw new ForbiddenError('You do not have access to this instance');
       }
 
-      const ec2 = new EC2();
-      const {TerminatingInstances} = await ec2
-        .terminateInstances({
-          InstanceIds: [instance.InstanceId]
-        })
-        .promise();
-
       const {Name} = instance.Tags.reduce((acc, tag) => ({
         ...acc,
         [tag.Key]: tag.Value
@@ -362,6 +355,13 @@ export const resolvers = {
           })
           .promise();
       }
+
+      const ec2 = new EC2();
+      const {TerminatingInstances} = await ec2
+        .terminateInstances({
+          InstanceIds: [instance.InstanceId]
+        })
+        .promise();
 
       return TerminatingInstances[0].InstanceId;
     }
