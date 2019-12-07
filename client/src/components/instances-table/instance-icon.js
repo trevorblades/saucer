@@ -12,7 +12,7 @@ export default function InstanceIcon(props) {
       display="flex"
       p={0.5}
       mr={2}
-      borderRadius="borderRadius"
+      borderRadius="calc(100% / 3)"
       bgcolor={color}
     >
       <FaWordpressSimple size={20} fill={palette.getContrastText(color)} />

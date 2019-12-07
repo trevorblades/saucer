@@ -21,6 +21,7 @@ export const INSTANCE_FRAGMENT = gql`
     id
     name
     status
+    isReady
     createdAt
   }
 `;

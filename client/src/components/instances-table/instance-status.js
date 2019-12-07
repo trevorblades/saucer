@@ -9,6 +9,7 @@ const GET_INSTANCE = gql`
     instance(id: $id) {
       id
       status
+      isReady
     }
   }
 `;
@@ -44,17 +45,22 @@ function PollInstance(props) {
 }
 
 export default function InstanceStatus(props) {
-  const {status} = props.instance;
+  const {status, isReady} = props.instance;
   switch (status) {
     case 'running':
-      // TODO: look for indication that post-boot script has finished
-      return <StatusMessage color="limegreen">Active</StatusMessage>;
-    case 'pending':
+    case 'pending': {
+      const isRunning = status === 'running';
+      if (isRunning && isReady) {
+        return <StatusMessage color="limegreen">Active</StatusMessage>;
+      }
       return (
         <PollInstance variables={{id: props.instance.id}}>
-          <StatusMessage color="gold">Starting...</StatusMessage>
+          <StatusMessage color="gold">
+            {isRunning ? 'Installing' : 'Starting'}...
+          </StatusMessage>
         </PollInstance>
       );
+    }
     case 'stopping':
     case 'stopped':
       return (

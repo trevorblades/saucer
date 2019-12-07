@@ -45,6 +45,7 @@ export const typeDefs = gql`
     id: ID
     name: String
     status: String
+    isReady: Boolean
     createdAt: DateTime
   }
 `;
@@ -69,21 +70,29 @@ function createInstanceDomain(subdomain) {
   return subdomain + '.saucer.dev';
 }
 
+function reduceTags(tags) {
+  return tags.reduce(
+    (acc, tag) => ({
+      ...acc,
+      [tag.Key]: tag.Value
+    }),
+    {}
+  );
+}
+
 export const resolvers = {
   DateTime: GraphQLDateTime,
   Instance: {
     id: instance => instance.InstanceId,
     name: instance => {
-      const {Name} = instance.Tags.reduce(
-        (acc, tag) => ({
-          ...acc,
-          [tag.Key]: tag.Value
-        }),
-        {}
-      );
+      const {Name} = reduceTags(instance.Tags);
       return Name;
     },
     status: instance => instance.State.Name,
+    isReady: instance => {
+      const {Status} = reduceTags(instance.Tags);
+      return Status === 'ready';
+    },
     createdAt: instance => instance.LaunchTime
   },
   Query: {
@@ -176,6 +185,7 @@ export const resolvers = {
           dbname=wordpress
           dbpass=${generate()}
           ip_address=$(curl 169.254.169.254/latest/meta-data/public-ipv4)
+          instance_id=$(curl 169.254.169.254/latest/meta-data/instance-id)
 
           # find public IP address and set an A record
           aws route53 change-resource-record-sets \
@@ -271,6 +281,12 @@ export const resolvers = {
           # set up a cronjob for automatic cert renewal
           echo "39 1,13 * * * root certbot renew --no-self-upgrade" >> /etc/crontab
           systemctl restart crond
+
+          # give an indication that setup has finished
+          aws ec2 create-tags \
+            --resource "$instance_id" \
+            --tags Key=Status,Value=ready \
+            --region us-west-2
         `
       );
 
