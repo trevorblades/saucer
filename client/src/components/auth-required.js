@@ -28,15 +28,8 @@ export default function AuthRequired(props) {
 
   return (
     <Box height="100vh" display="flex">
-      <Box m="auto">
-        <Box
-          component={Logo}
-          width={72}
-          height={72}
-          mb={4}
-          display="block"
-          mx="auto"
-        />
+      <Box m="auto" display="flex" flexDirection="column" alignItems="center">
+        <Box component={Logo} width={72} height={72} mb={4} />
         <LoginButton />
       </Box>
     </Box>
