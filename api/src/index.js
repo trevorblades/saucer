@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {ApolloServer} from 'apollo-server';
-import {Client, query as q} from 'faunadb';
+import {Client, query} from 'faunadb';
 import {resolvers, typeDefs} from './schema';
 
 const client = new Client({
@@ -17,7 +17,7 @@ const server = new ApolloServer({
       try {
         const {sub} = jwt.verify(matches[1], process.env.TOKEN_SECRET);
         const response = await client.query(
-          q.Get(q.Ref(q.Collection('users'), sub))
+          query.Get(query.Ref(query.Collection('users'), sub))
         );
         user = response.data;
       } catch (error) {
