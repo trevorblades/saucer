@@ -240,7 +240,8 @@ export const resolvers = {
           cd wp-content/plugins
           git clone https://github.com/wp-graphql/wp-graphql
           git clone https://github.com/wp-graphql/wp-graphiql
-          wp plugin activate wp-fail2ban wp-graphql wp-graphiql
+          git clone https://github.com/staticfuse/gatsby-toolkit
+          wp plugin activate wp-fail2ban wp-graphql wp-graphiql gatsby-toolkit
 
           # give wordpress access to filesystem
           echo "define( 'FS_METHOD', 'direct' );" >> wp-config.php
