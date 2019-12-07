@@ -157,6 +157,7 @@ export const resolvers = {
         '-' +
         generate({
           length: 6,
+          charset: 'hex',
           capitalization: 'lowercase'
         });
 
