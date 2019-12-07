@@ -246,7 +246,7 @@ export const resolvers = {
 
           # give wordpress access to filesystem
           echo "define( 'FS_METHOD', 'direct' );" >> wp-config.php
-          chmod -R apache:apache /var/www/html
+          chown -R apache:apache /var/www/html/*
 
           # add host for port 80 (needed for certbot)
           cat >> /etc/httpd/conf/httpd.conf <<EOF
