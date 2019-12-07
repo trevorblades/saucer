@@ -86,7 +86,7 @@ export default function InstanceForm(props) {
   const user = useContext(UserContext);
   const [locale, setLocale] = useState('en_US');
   const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {
-    onCompleted: props.onCancel,
+    onCompleted: props.onCompleted,
     update(cache, {data}) {
       const {instances} = cache.readQuery({
         query: LIST_INSTANCES
@@ -235,5 +235,6 @@ export default function InstanceForm(props) {
 }
 
 InstanceForm.propTypes = {
-  onCancel: PropTypes.func.isRequired
+  onCancel: PropTypes.func.isRequired,
+  onCompleted: PropTypes.func.isRequired
 };
