@@ -8,10 +8,12 @@ import visa from 'payment-icons/min/flat/visa.svg';
 import {
   Box,
   Button,
+  Checkbox,
   DialogActions,
   DialogContent,
   DialogContentText,
   FormControl,
+  FormControlLabel,
   FormHelperText,
   Grid,
   InputLabel,
@@ -174,7 +176,7 @@ export default function InstanceForm(props) {
           name="adminPassword"
         />
         <LabeledSelect
-          label="Locale"
+          label="Language"
           helperText={
             <Fragment>
               Don&apos;t see your language?{' '}
@@ -197,6 +199,22 @@ export default function InstanceForm(props) {
             </MenuItem>
           ))}
         </LabeledSelect>
+        <Box mt={2}>
+          <Typography variant="subtitle2">
+            Install more plugins? (optional)
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <FormControlLabel
+                control={<Checkbox />}
+                label="Advanced Custom Fields"
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControlLabel control={<Checkbox />} label="WooCommerce" />
+            </Grid>
+          </Grid>
+        </Box>
         <LabeledSelect label="Payment method" value="1">
           <MenuItem value="1">
             <Box component="span" display="flex" alignItems="center">
