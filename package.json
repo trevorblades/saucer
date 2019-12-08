@@ -2,6 +2,7 @@
   "scripts": {
     "start": "gatsby develop",
     "build": "gatsby build",
+    "postinstall": "netlify-lambda install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "eslintConfig": {
@@ -35,7 +36,7 @@
   },
   "devDependencies": {
     "@trevorblades/eslint-config": "^7.0.2",
-    "dotenv": "^8.2.0",
-    "eslint": "^6.6.0"
+    "eslint": "^6.6.0",
+    "netlify-lambda": "^1.6.3"
   }
 }

@@ -1,6 +1,6 @@
-import {EC2} from 'aws-sdk';
+const EC2 = require('aws-sdk/clients/ec2');
 
-export async function findInstancesForUser(user, options) {
+exports.findInstancesForUser = async (user, options) => {
   const ec2 = new EC2();
   const {Reservations} = await ec2
     .describeInstances({
@@ -18,9 +18,9 @@ export async function findInstancesForUser(user, options) {
     })
     .promise();
   return Reservations.flatMap(reservation => reservation.Instances);
-}
+};
 
-export function createChangeBatch(Action, Name, Value) {
+exports.createChangeBatch = (Action, Name, Value) => {
   return {
     Changes: [
       {
@@ -34,8 +34,6 @@ export function createChangeBatch(Action, Name, Value) {
       }
     ]
   };
-}
+};
 
-export function createInstanceDomain(subdomain) {
-  return subdomain + '.saucer.dev';
-}
+exports.createInstanceDomain = subdomain => subdomain + '.saucer.dev';

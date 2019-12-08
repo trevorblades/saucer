@@ -1,16 +1,16 @@
-import base64 from 'base-64';
-import {AuthenticationError} from 'apollo-server';
-import {EC2} from 'aws-sdk';
-import {
+const base64 = require('base-64');
+const {AuthenticationError} = require('apollo-server-lambda');
+const {EC2} = require('aws-sdk');
+const {
   adjectives,
   animals,
   uniqueNamesGenerator
-} from 'unique-names-generator';
-import {createChangeBatch, createInstanceDomain} from '../utils';
-import {generate} from 'randomstring';
-import {outdent} from 'outdent';
+} = require('unique-names-generator');
+const {createChangeBatch, createInstanceDomain} = require('../utils');
+const {generate} = require('randomstring');
+const {outdent} = require('outdent');
 
-export default async function createInstance(parent, args, {user}) {
+module.exports = async function createInstance(parent, args, {user}) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
@@ -183,4 +183,4 @@ export default async function createInstance(parent, args, {user}) {
     ...Instance,
     Tags
   };
-}
+};

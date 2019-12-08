@@ -1,11 +1,15 @@
-import createInstance from './resolvers/create-instance';
-import deleteInstance from './resolvers/delete-instance';
-import logIn from './resolvers/log-in';
-import {AuthenticationError, ForbiddenError, gql} from 'apollo-server';
-import {GraphQLDateTime} from 'graphql-iso-date';
-import {findInstancesForUser} from './utils';
+const createInstance = require('./resolvers/create-instance');
+const deleteInstance = require('./resolvers/delete-instance');
+const logIn = require('./resolvers/log-in');
+const {
+  AuthenticationError,
+  ForbiddenError,
+  gql
+} = require('apollo-server-lambda');
+const {GraphQLDateTime} = require('graphql-iso-date');
+const {findInstancesForUser} = require('./utils');
 
-export const typeDefs = gql`
+exports.typeDefs = gql`
   scalar DateTime
 
   type Query {
@@ -44,7 +48,7 @@ function reduceTags(tags) {
   );
 }
 
-export const resolvers = {
+exports.resolvers = {
   DateTime: GraphQLDateTime,
   Instance: {
     id: instance => instance.InstanceId,

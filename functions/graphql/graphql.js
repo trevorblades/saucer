@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
-import {ApolloServer} from 'apollo-server';
-import {Client, query} from 'faunadb';
-import {resolvers, typeDefs} from './schema';
+const jwt = require('jsonwebtoken');
+const {ApolloServer} = require('apollo-server-lambda');
+const {Client, query} = require('faunadb');
+const {resolvers, typeDefs} = require('./schema');
 
 const client = new Client({
   secret: process.env.FAUNADB_SERVER_SECRET
@@ -10,10 +10,10 @@ const client = new Client({
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  async context({req}) {
+  async context({event}) {
     let user;
-    if (req.headers.authorization) {
-      const matches = req.headers.authorization.match(/bearer (\S+)/i);
+    if (event.headers.authorization) {
+      const matches = event.headers.authorization.match(/bearer (\S+)/i);
       try {
         const {sub} = jwt.verify(matches[1], process.env.TOKEN_SECRET);
         const response = await client.query(
@@ -33,6 +33,9 @@ const server = new ApolloServer({
   }
 });
 
-server
-  .listen({port: process.env.PORT})
-  .then(({url}) => console.log(`🛸 Server ready at ${url}`));
+exports.handler = server.createHandler({
+  cors: {
+    origin: true,
+    credentials: true
+  }
+});

@@ -1,12 +1,12 @@
-import {AuthenticationError, ForbiddenError} from 'apollo-server';
-import {EC2, Route53} from 'aws-sdk';
-import {
+const {AuthenticationError, ForbiddenError} = require('apollo-server-lambda');
+const {EC2, Route53} = require('aws-sdk');
+const {
   createChangeBatch,
   createInstanceDomain,
   findInstancesForUser
-} from '../utils';
+} = require('../utils');
 
-export default async function deleteInstance(parent, args, {user}) {
+module.exports = async function deleteInstance(parent, args, {user}) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
@@ -66,4 +66,4 @@ export default async function deleteInstance(parent, args, {user}) {
     .promise();
 
   return TerminatingInstances[0].InstanceId;
-}
+};

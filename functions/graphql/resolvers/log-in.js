@@ -1,7 +1,9 @@
-import axios from 'axios';
-import jwt from 'jsonwebtoken';
-import {parse} from 'querystring';
-import {query} from 'faunadb';
+require('dotenv').config();
+
+const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const {parse} = require('querystring');
+const {query} = require('faunadb');
 
 function tokenizeResponse(response) {
   return jwt.sign(response.data, process.env.TOKEN_SECRET, {
@@ -9,11 +11,11 @@ function tokenizeResponse(response) {
   });
 }
 
-export default async function logIn(parent, args, {client}) {
+module.exports = async function logIn(parent, args, {client}) {
   const accessToken = await axios
     .post('https://github.com/login/oauth/access_token', {
-      client_id: process.env.GITHUB_CLIENT_ID,
-      client_secret: process.env.GITHUB_CLIENT_SECRET,
+      client_id: '6840e46ecf83810fe3c7',
+      client_secret: '4d3d27fb421e889f6fdb91a1cf58dcd32efb47eb',
       code: args.code
     })
     .then(({data}) => parse(data).access_token);
@@ -55,4 +57,4 @@ export default async function logIn(parent, args, {client}) {
   );
 
   return tokenizeResponse(response);
-}
+};
