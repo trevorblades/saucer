@@ -1,13 +1,22 @@
 import InstanceForm from '../components/instance-form';
 import InstancesTable from '../components/instances-table';
 import React, {Fragment, useState} from 'react';
-import {Box, Button, Dialog, Typography} from '@material-ui/core';
+import {
+  Box,
+  Button,
+  Dialog,
+  IconButton,
+  Snackbar,
+  Typography
+} from '@material-ui/core';
+import {FiX} from 'react-icons/fi';
 import {Helmet} from 'react-helmet';
 import {LIST_INSTANCES} from '../utils';
 import {useQuery} from '@apollo/client';
 
 export default function Home() {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const {data, loading, error} = useQuery(LIST_INSTANCES);
 
   function openDialog() {
@@ -16,6 +25,19 @@ export default function Home() {
 
   function closeDialog() {
     setDialogOpen(false);
+  }
+
+  function handleSnackbarClose(event, reason) {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
+  }
+
+  function handleCompleted() {
+    closeDialog();
+    setSnackbarOpen(true);
   }
 
   return (
@@ -42,9 +64,24 @@ export default function Home() {
         error={error}
         onCreateInstance={openDialog}
       />
-      <Dialog fullWidth open={dialogOpen} onClose={closeDialog}>
-        <InstanceForm onCancel={closeDialog} />
+      <Dialog fullWidth scroll="body" open={dialogOpen} onClose={closeDialog}>
+        <InstanceForm onCancel={closeDialog} onCompleted={handleCompleted} />
       </Dialog>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right'
+        }}
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        message="Instance created 🎉"
+        action={
+          <IconButton size="small" color="inherit">
+            <FiX size={20} />
+          </IconButton>
+        }
+      />
     </Fragment>
   );
 }

@@ -19,16 +19,14 @@ import {gql, useMutation} from '@apollo/client';
 
 const DELETE_INSTANCE = gql`
   mutation DeleteInstance($id: ID!) {
-    deleteInstance(id: $id) {
-      id
-    }
+    deleteInstance(id: $id)
   }
 `;
 
 export default function InstanceActions(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteInstance, {loading}] = useMutation(DELETE_INSTANCE, {
+  const [deleteInstance, {loading, error}] = useMutation(DELETE_INSTANCE, {
     variables: {
       id: props.instance.id
     },
@@ -41,7 +39,7 @@ export default function InstanceActions(props) {
         query: LIST_INSTANCES,
         data: {
           instances: instances.filter(
-            instance => instance.id !== data.deleteInstance.id
+            instance => instance.id !== data.deleteInstance
           )
         }
       });
@@ -84,6 +82,11 @@ export default function InstanceActions(props) {
               Are you sure?
             </Typography>
           </Box>
+          {error && (
+            <Typography paragraph color="error">
+              {error.message}
+            </Typography>
+          )}
           <Typography paragraph>
             Deleting is permanent! Once you delete{' '}
             <em>{props.instance.name}</em>, you won&apos;t be able to recover

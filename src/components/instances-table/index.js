@@ -1,4 +1,5 @@
 import InstanceActions from './instance-actions';
+import InstanceIcon from './instance-icon';
 import InstanceStatus from './instance-status';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
@@ -15,7 +16,6 @@ import {
   Tooltip,
   Typography
 } from '@material-ui/core';
-import {FaWordpressSimple} from 'react-icons/fa';
 import {formatDistanceToNow} from 'date-fns';
 
 export default function InstancesTable(props) {
@@ -66,19 +66,16 @@ export default function InstancesTable(props) {
               <TableRow key={instance.id}>
                 <TableCell padding="none">
                   <Box display="flex" alignItems="center">
-                    <Box mr={2} component={FaWordpressSimple} size={20} />
-                    {instance.status === 'active' &&
-                    instance.tags.includes('provisioned') ? (
-                      <Link
-                        href={`https://${instance.name}.saucer.dev/wp-admin`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {instance.name}
-                      </Link>
-                    ) : (
-                      instance.name
-                    )}
+                    <InstanceIcon name={instance.name} />
+                    <Link
+                      color="inherit"
+                      href={`https://${instance.name}.saucer.dev/wp-admin`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      disabled={instance.status !== 'running'}
+                    >
+                      {instance.name}
+                    </Link>
                   </Box>
                 </TableCell>
                 <TableCell padding="none">

@@ -29,7 +29,11 @@ export default function LoginButton() {
 
   return (
     <Fragment>
-      {error && <Typography color="error">{error.message}</Typography>}
+      {error && (
+        <Typography paragraph color="error">
+          {error.message}
+        </Typography>
+      )}
       <Button
         size="large"
         variant="outlined"
