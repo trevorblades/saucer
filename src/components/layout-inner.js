@@ -16,7 +16,7 @@ import {ReactComponent as Wordmark} from '../assets/wordmark.svg';
 
 const navItems = {
   '/': 'Instances',
-  '/tools': 'Tools',
+  '/quick-start': 'Quick start',
   '/billing': 'Billing',
   '/support': 'Support',
   '/account': 'Account'
