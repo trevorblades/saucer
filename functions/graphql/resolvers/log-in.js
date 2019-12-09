@@ -29,7 +29,13 @@ module.exports = async function logIn(parent, args, {client}) {
         : GITHUB_CLIENT_SECRET_DEV,
       code: args.code
     })
-    .then(({data}) => parse(data).access_token);
+    .then(({data}) => {
+      const {error, error_description, access_token} = parse(data);
+      if (error) {
+        throw new Error(error_description);
+      }
+      return access_token;
+    });
 
   const githubApi = axios.create({
     baseURL: 'https://api.github.com',
