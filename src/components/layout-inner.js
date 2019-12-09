@@ -80,8 +80,10 @@ export default function LayoutInner(props) {
       >
         <Box p={4}>{props.children}</Box>
         <Box component="footer" mt="auto" py={2} mx={4}>
-          <Typography variant="caption" color="textSecondary">
-            &copy; {new Date().getFullYear()} Saucer. Illustrations by{' '}
+          <Typography display="block" variant="caption" color="textSecondary">
+            &copy; {new Date().getFullYear()} Saucer
+            <br />
+            Illustrations by{' '}
             <MuiLink
               color="inherit"
               href="https://icons8.com"

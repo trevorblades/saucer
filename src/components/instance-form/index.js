@@ -7,11 +7,8 @@ import mirageComeBackLater from '../../assets/mirage-come-back-later.png';
 import visa from 'payment-icons/min/flat/visa.svg';
 import {
   Box,
-  Button,
+  CardActionArea,
   Checkbox,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -23,6 +20,7 @@ import {
   Typography
 } from '@material-ui/core';
 import {FaDrupal, FaWordpressSimple} from 'react-icons/fa';
+import {FiUploadCloud} from 'react-icons/fi';
 import {INSTANCE_FRAGMENT, LIST_INSTANCES, UserContext} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 
@@ -121,14 +119,16 @@ export default function InstanceForm(props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <DialogContent>
+    <Box width={600} component="form" onSubmit={handleSubmit}>
+      <Box py={3} px={4}>
         <Box textAlign="center" mb={3}>
-          <img src={mirageComeBackLater} height={150} />
+          <img src={mirageComeBackLater} height={180} />
           <Typography variant="h5">What do you want to build today?</Typography>
         </Box>
         {error && (
-          <DialogContentText color="error">{error.message}</DialogContentText>
+          <Typography paragraph color="error">
+            {error.message}
+          </Typography>
         )}
         <Box mb={1}>
           <Grid container spacing={2}>
@@ -223,18 +223,30 @@ export default function InstanceForm(props) {
             </Box>
           </MenuItem>
         </LabeledSelect>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={props.onCancel}>Cancel</Button>
-        <Button disabled={loading} type="submit" color="primary">
-          Create instance
-        </Button>
-      </DialogActions>
-    </form>
+      </Box>
+      <Box position="sticky" bottom={0}>
+        <CardActionArea disabled={loading} type="submit">
+          <Box
+            bgcolor="primary.main"
+            color="white"
+            p={2.5}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Box component={FiUploadCloud} mr={2} size={24} />
+            <Typography variant="button">
+              <Box component="span" fontSize="body1.fontSize">
+                Create instance
+              </Box>
+            </Typography>
+          </Box>
+        </CardActionArea>
+      </Box>
+    </Box>
   );
 }
 
 InstanceForm.propTypes = {
-  onCancel: PropTypes.func.isRequired,
   onCompleted: PropTypes.func.isRequired
 };

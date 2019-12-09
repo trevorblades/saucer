@@ -4,7 +4,7 @@ import React, {Fragment, useState} from 'react';
 import {
   Box,
   Button,
-  Dialog,
+  Drawer,
   IconButton,
   Snackbar,
   Typography
@@ -64,9 +64,9 @@ export default function Home() {
         error={error}
         onCreateInstance={openDialog}
       />
-      <Dialog fullWidth scroll="body" open={dialogOpen} onClose={closeDialog}>
+      <Drawer anchor="right" open={dialogOpen} onClose={closeDialog}>
         <InstanceForm onCancel={closeDialog} onCompleted={handleCompleted} />
-      </Dialog>
+      </Drawer>
       <Snackbar
         anchorOrigin={{
           vertical: 'top',
