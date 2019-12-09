@@ -10,13 +10,13 @@ function tokenizeResponse(response) {
 }
 
 const {
-  NODE_ENV,
+  CONTEXT,
   GATSBY_GITHUB_CLIENT_ID_PROD,
   GATSBY_GITHUB_CLIENT_ID_DEV,
   GITHUB_CLIENT_SECRET_DEV,
   GITHUB_CLIENT_SECRET_PROD
 } = process.env;
-const isProduction = NODE_ENV === 'production';
+const isProduction = CONTEXT === 'production';
 
 module.exports = async function logIn(parent, args, {client}) {
   const accessToken = await axios
