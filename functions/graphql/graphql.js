@@ -1,8 +1,8 @@
+const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const {ApolloServer} = require('apollo-server-lambda');
 const {Client, query} = require('faunadb');
 const {resolvers, typeDefs} = require('./schema');
-const AWS = require('aws-sdk');
 
 const {
   ACCESS_KEY_ID,

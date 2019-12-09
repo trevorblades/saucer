@@ -191,6 +191,7 @@ export default function InstanceForm(props) {
             </Fragment>
           }
           value={locale}
+          disabled={loading}
           onChange={handleLocaleChange}
         >
           {Object.entries(locales).map(([label, code]) => (
@@ -206,16 +207,21 @@ export default function InstanceForm(props) {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <FormControlLabel
+                disabled={loading}
                 control={<Checkbox />}
                 label="Advanced Custom Fields"
               />
             </Grid>
             <Grid item xs={6}>
-              <FormControlLabel control={<Checkbox />} label="WooCommerce" />
+              <FormControlLabel
+                disabled={loading}
+                control={<Checkbox />}
+                label="WooCommerce"
+              />
             </Grid>
           </Grid>
         </Box>
-        <LabeledSelect label="Payment method" value="1">
+        <LabeledSelect label="Payment method" value="1" disabled={loading}>
           <MenuItem value="1">
             <Box component="span" display="flex" alignItems="center">
               <Box component="img" src={visa} height="1em" mr={1} />
@@ -224,10 +230,10 @@ export default function InstanceForm(props) {
           </MenuItem>
         </LabeledSelect>
       </Box>
-      <Box position="sticky" bottom={0}>
+      <Box position="sticky" bottom={0} bgcolor="background.paper">
         <CardActionArea disabled={loading} type="submit">
           <Box
-            bgcolor="primary.main"
+            bgcolor={loading ? 'action.disabled' : 'primary.main'}
             color="white"
             p={2.5}
             display="flex"
