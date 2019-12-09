@@ -9,11 +9,24 @@ function tokenizeResponse(response) {
   });
 }
 
+const {
+  NODE_ENV,
+  GATSBY_GITHUB_CLIENT_ID_PROD,
+  GATSBY_GITHUB_CLIENT_ID_DEV,
+  GITHUB_CLIENT_SECRET_DEV,
+  GITHUB_CLIENT_SECRET_PROD
+} = process.env;
+const isProduction = NODE_ENV === 'production';
+
 module.exports = async function logIn(parent, args, {client}) {
   const accessToken = await axios
     .post('https://github.com/login/oauth/access_token', {
-      client_id: process.env.GATSBY_GITHUB_CLIENT_ID,
-      client_secret: process.env.GITHUB_CLIENT_SECRET,
+      client_id: isProduction
+        ? GATSBY_GITHUB_CLIENT_ID_PROD
+        : GATSBY_GITHUB_CLIENT_ID_DEV,
+      client_secret: isProduction
+        ? GITHUB_CLIENT_SECRET_PROD
+        : GITHUB_CLIENT_SECRET_DEV,
       code: args.code
     })
     .then(({data}) => parse(data).access_token);

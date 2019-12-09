@@ -39,7 +39,11 @@ export default function LoginButton() {
         variant="outlined"
         component={GitHubLogin}
         disabled={loading}
-        clientId={process.env.GATSBY_GITHUB_CLIENT_ID}
+        clientId={
+          process.env.NODE_ENV === 'production'
+            ? process.env.GATSBY_GITHUB_CLIENT_ID_PROD
+            : process.env.GATSBY_GITHUB_CLIENT_ID_DEV
+        }
         onSuccess={handleSuccess}
         // pass an empty string as the redirectUri
         redirectUri=""

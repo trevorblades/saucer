@@ -6,6 +6,8 @@ const {
 } = require('../utils');
 const {EC2, Route53} = require('aws-sdk');
 
+const {ROUTE_53_HOSTED_ZONE_ID} = process.env;
+
 module.exports = async function deleteInstance(parent, args, {user}) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
@@ -34,7 +36,7 @@ module.exports = async function deleteInstance(parent, args, {user}) {
   const route53 = new Route53();
   const {ResourceRecordSets} = await route53
     .listResourceRecordSets({
-      HostedZoneId: process.env.ROUTE_53_HOSTED_ZONE_ID,
+      HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,
       StartRecordName,
       StartRecordType: 'A',
       MaxItems: '1'
@@ -48,7 +50,7 @@ module.exports = async function deleteInstance(parent, args, {user}) {
     // clean them up if they exist
     await route53
       .changeResourceRecordSets({
-        HostedZoneId: process.env.ROUTE_53_HOSTED_ZONE_ID,
+        HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,
         ChangeBatch: createChangeBatch(
           'DELETE',
           instanceDomain,
