@@ -2,6 +2,15 @@ const jwt = require('jsonwebtoken');
 const {ApolloServer} = require('apollo-server-lambda');
 const {Client, query} = require('faunadb');
 const {resolvers, typeDefs} = require('./schema');
+const AWS = require('aws-sdk');
+
+AWS.config.update({
+  region: 'us-west-2',
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY
+  }
+});
 
 const client = new Client({
   secret: process.env.FAUNADB_SERVER_SECRET

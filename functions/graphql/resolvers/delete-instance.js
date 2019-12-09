@@ -1,10 +1,10 @@
 const {AuthenticationError, ForbiddenError} = require('apollo-server-lambda');
-const {EC2, Route53} = require('aws-sdk');
 const {
   createChangeBatch,
   createInstanceDomain,
   findInstancesForUser
 } = require('../utils');
+const {EC2, Route53} = require('aws-sdk');
 
 module.exports = async function deleteInstance(parent, args, {user}) {
   if (!user) {
@@ -27,14 +27,14 @@ module.exports = async function deleteInstance(parent, args, {user}) {
     {}
   );
 
-  const route53 = new Route53();
   const instanceDomain = createInstanceDomain(Name);
   const StartRecordName = instanceDomain + '.';
 
   // check for DNS records for this instance
+  const route53 = new Route53();
   const {ResourceRecordSets} = await route53
     .listResourceRecordSets({
-      HostedZoneId: process.env.AWS_ROUTE_53_HOSTED_ZONE_ID,
+      HostedZoneId: process.env.ROUTE_53_HOSTED_ZONE_ID,
       StartRecordName,
       StartRecordType: 'A',
       MaxItems: '1'
@@ -48,7 +48,7 @@ module.exports = async function deleteInstance(parent, args, {user}) {
     // clean them up if they exist
     await route53
       .changeResourceRecordSets({
-        HostedZoneId: process.env.AWS_ROUTE_53_HOSTED_ZONE_ID,
+        HostedZoneId: process.env.ROUTE_53_HOSTED_ZONE_ID,
         ChangeBatch: createChangeBatch(
           'DELETE',
           instanceDomain,

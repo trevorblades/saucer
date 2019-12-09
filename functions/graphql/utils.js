@@ -1,4 +1,4 @@
-const EC2 = require('aws-sdk/clients/ec2');
+const {EC2} = require('aws-sdk');
 
 exports.findInstancesForUser = async (user, options) => {
   const ec2 = new EC2();
