@@ -10,23 +10,22 @@ function tokenizeResponse(response) {
 }
 
 const {
-  CONTEXT,
+  NETLIFY_DEV,
   GATSBY_GITHUB_CLIENT_ID_PROD,
   GATSBY_GITHUB_CLIENT_ID_DEV,
   GITHUB_CLIENT_SECRET_DEV,
   GITHUB_CLIENT_SECRET_PROD
 } = process.env;
-const isProduction = CONTEXT === 'production';
 
 module.exports = async function logIn(parent, args, {client}) {
   const accessToken = await axios
     .post('https://github.com/login/oauth/access_token', {
-      client_id: isProduction
-        ? GATSBY_GITHUB_CLIENT_ID_PROD
-        : GATSBY_GITHUB_CLIENT_ID_DEV,
-      client_secret: isProduction
-        ? GITHUB_CLIENT_SECRET_PROD
-        : GITHUB_CLIENT_SECRET_DEV,
+      client_id: NETLIFY_DEV
+        ? GATSBY_GITHUB_CLIENT_ID_DEV
+        : GATSBY_GITHUB_CLIENT_ID_PROD,
+      client_secret: NETLIFY_DEV
+        ? GITHUB_CLIENT_SECRET_DEV
+        : GITHUB_CLIENT_SECRET_PROD,
       code: args.code
     })
     .then(({data}) => {
