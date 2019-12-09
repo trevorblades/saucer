@@ -8,7 +8,11 @@ import {
 import {userFromToken} from '../utils';
 
 const httpLink = new HttpLink({
-  uri: `${process.env.GATSBY_API_URL}/graphql`,
+  uri: `${
+    process.env.NODE_ENV === 'production'
+      ? './netlify/functions/graphql'
+      : 'http://localhost:34567'
+  }/graphql`,
   fetch
 });
 
