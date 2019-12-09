@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "gatsby develop",
-    "postinstall": "netlify-lambda install"
+    "build": "gatsby build",
+    "postbuild": "netlify-lambda install"
   },
   "eslintConfig": {
     "extends": "@trevorblades/eslint-config/react"
