@@ -4,6 +4,7 @@ import React from 'react';
 import ufo from '../assets/ufo.png';
 import {Box, Typography} from '@material-ui/core';
 import {Button, Link} from 'gatsby-theme-material-ui';
+import {ReactComponent as Favicon} from '../assets/favicon.svg';
 import {FiChevronRight} from 'react-icons/fi';
 
 export default function Home() {
@@ -69,6 +70,7 @@ export default function Home() {
       </CenteredBox>
       <Box component="footer" mt="auto" bgcolor="black" color="white">
         <CenteredBox px={8} py={6}>
+          <Box component={Favicon} width={40} display="block" mb={2} />
           <Typography display="block" variant="caption">
             &copy; {new Date().getFullYear()} Saucer
             <br />
