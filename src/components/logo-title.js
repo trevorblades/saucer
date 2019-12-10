@@ -6,7 +6,7 @@ import {ReactComponent as Wordmark} from '../assets/wordmark.svg';
 
 export default function LogoTitle(props) {
   return (
-    <Box {...LogoTitleProps.root} {...props}>
+    <Box {...LogoTitleProps.root} color="text.primary" {...props}>
       <Logo width="1em" fill="currentColor" />
       <Box
         component={Wordmark}

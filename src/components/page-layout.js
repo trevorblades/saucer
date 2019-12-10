@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {Box, Typography} from '@material-ui/core';
 import {ReactComponent as Favicon} from '../assets/favicon.svg';
-import {Link} from 'gatsby-theme-material-ui';
+import {Link} from 'gatsby';
+import {Link as MuiLink} from 'gatsby-theme-material-ui';
 
 export default function PageLayout(props) {
   return (
@@ -24,10 +25,10 @@ export default function PageLayout(props) {
             px={3}
             offset={0}
           >
-            <LogoTitle mr="auto" />
-            <Link variant="body1" to="/dashboard/">
+            <LogoTitle component={Link} to="/" mr="auto" />
+            <MuiLink variant="body1" to="/dashboard/">
               Dashboard
-            </Link>
+            </MuiLink>
           </CenteredBox>
         </Box>
         {props.children}
@@ -38,14 +39,14 @@ export default function PageLayout(props) {
               &copy; {new Date().getFullYear()} Saucer
               <br />
               Illustrations by{' '}
-              <Link
+              <MuiLink
                 color="inherit"
                 href="https://icons8.com"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Ouch.pics
-              </Link>
+              </MuiLink>
             </Typography>
           </CenteredBox>
         </Box>
