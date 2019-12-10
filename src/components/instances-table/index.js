@@ -3,7 +3,7 @@ import InstanceIcon from './instance-icon';
 import InstanceStatus from './instance-status';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
-import mirageListIsEmpty from '../../assets/mirage-list-is-empty.png';
+import empty from '../../assets/empty.png';
 import {
   Box,
   Button,
@@ -30,7 +30,7 @@ export default function InstancesTable(props) {
   if (!props.data.instances.length) {
     return (
       <Box border={1} borderColor="divider" p={4} mt={3} textAlign="center">
-        <img height={200} src={mirageListIsEmpty} />
+        <img height={200} src={empty} />
         <Box mt={2} mb={3}>
           <Typography variant="h5" gutterBottom>
             You have no instances

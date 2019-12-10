@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
-import mirageDelete from '../../assets/mirage-delete.png';
+import del from '../../assets/del.png';
 import {
   Box,
   Button,
@@ -77,7 +77,7 @@ export default function InstanceActions(props) {
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
         <DialogContent>
           <Box textAlign="center">
-            <img src={mirageDelete} height={150} />
+            <img src={del} height={150} />
             <Typography gutterBottom variant="h5">
               Are you sure?
             </Typography>

@@ -1,87 +1,79 @@
-import InstanceForm from '../components/instance-form';
-import InstancesTable from '../components/instances-table';
-import React, {Fragment, useState} from 'react';
-import {
-  Box,
-  Button,
-  Drawer,
-  IconButton,
-  Snackbar,
-  Typography
-} from '@material-ui/core';
-import {FiX} from 'react-icons/fi';
-import {Helmet} from 'react-helmet';
-import {LIST_INSTANCES} from '../utils';
-import {useQuery} from '@apollo/client';
+import LogoTitle from '../components/logo-title';
+import React from 'react';
+import hero from '../assets/hero.png';
+import {Box, Typography, useTheme} from '@material-ui/core';
+import {Link} from 'gatsby-theme-material-ui';
 
 export default function Home() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const {data, loading, error} = useQuery(LIST_INSTANCES);
-
-  function openDialog() {
-    setDialogOpen(true);
-  }
-
-  function closeDialog() {
-    setDialogOpen(false);
-  }
-
-  function handleSnackbarClose(event, reason) {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setSnackbarOpen(false);
-  }
-
-  function handleCompleted() {
-    closeDialog();
-    setSnackbarOpen(true);
-  }
-
+  const {breakpoints, palette} = useTheme();
   return (
-    <Fragment>
-      <Helmet>
-        <title>Instances</title>
-      </Helmet>
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        mb={2}
-      >
-        <Typography variant="h4">My instances</Typography>
-        {data && data.instances.length > 0 && (
-          <Button onClick={openDialog} color="primary" variant="outlined">
-            Create instance
-          </Button>
-        )}
+    <Box minHeight="100vh" display="flex" flexDirection="column">
+      <Box bgcolor="background.paper">
+        <Box
+          display="flex"
+          alignItems="center"
+          width="100%"
+          height={64}
+          px={3}
+          maxWidth={breakpoints.values.lg}
+          mx="auto"
+        >
+          <LogoTitle mr="auto" />
+          <Link variant="body1" to="/dashboard/">
+            Dashboard
+          </Link>
+        </Box>
       </Box>
-      <InstancesTable
-        data={data}
-        loading={loading}
-        error={error}
-        onCreateInstance={openDialog}
-      />
-      <Drawer anchor="right" open={dialogOpen} onClose={closeDialog}>
-        <InstanceForm onCancel={closeDialog} onCompleted={handleCompleted} />
-      </Drawer>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
+      <Box
+        bgcolor="primary.900"
+        color="white"
+        style={{
+          backgroundImage: `radial-gradient(${[
+            palette.primary[900],
+            palette.common.black
+          ]})`
         }}
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        message="Instance created 🎉"
-        action={
-          <IconButton size="small" color="inherit">
-            <FiX size={20} />
-          </IconButton>
-        }
-      />
-    </Fragment>
+      >
+        <Box
+          width="100%"
+          maxWidth={breakpoints.values.lg}
+          mx="auto"
+          py={12}
+          px={8}
+          style={{
+            backgroundImage: `url(${hero})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <Box width={1 / 2}>
+            <Typography gutterBottom variant="h2">
+              Headless Wordpress + GraphQL
+            </Typography>
+            <Typography paragraph variant="h6">
+              Deploy a Wordpress site in minutes and consume the data using your
+              favourite JavaScript framework.
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+      <Box component="footer" mt="auto" bgcolor="grey.100">
+        <Box width="100%" maxWidth={breakpoints.values.lg} mx="auto" p={3}>
+          <Typography display="block" variant="caption" color="textSecondary">
+            &copy; {new Date().getFullYear()} Saucer
+            <br />
+            Illustrations by{' '}
+            <Link
+              color="inherit"
+              href="https://icons8.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ouch.pics
+            </Link>
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   );
 }
