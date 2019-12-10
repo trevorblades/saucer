@@ -4,6 +4,7 @@ import React from 'react';
 import ufo from '../assets/ufo.png';
 import {Box, Typography} from '@material-ui/core';
 import {Button, Link} from 'gatsby-theme-material-ui';
+import {FiChevronRight} from 'react-icons/fi';
 
 export default function Home() {
   return (
@@ -49,11 +50,17 @@ export default function Home() {
       </div>
       <Box bgcolor="black" color="white">
         <CenteredBox py={6} px={8} textAlign="center">
-          <Typography gutterBottom variant="h3">
+          <Typography paragraph variant="h4">
             Try Saucer free for 7 days
           </Typography>
-          <Button variant="contained" color="primary" size="large">
+          <Button
+            to="/dashboard"
+            variant="contained"
+            color="primary"
+            size="large"
+          >
             Get started
+            <Box component={FiChevronRight} size={22} ml={1} mr={-1} />
           </Button>
         </CenteredBox>
       </Box>
