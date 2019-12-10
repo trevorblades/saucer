@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
-import del from '../../assets/del.png';
+import plant from '../../assets/plant.png';
 import {
   Box,
   Button,
@@ -77,7 +77,7 @@ export default function InstanceActions(props) {
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
         <DialogContent>
           <Box textAlign="center">
-            <img src={del} height={150} />
+            <img src={plant} height={200} />
             <Typography gutterBottom variant="h5">
               Are you sure?
             </Typography>

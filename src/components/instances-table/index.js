@@ -30,7 +30,7 @@ export default function InstancesTable(props) {
   if (!props.data.instances.length) {
     return (
       <Box border={1} borderColor="divider" p={4} mt={3} textAlign="center">
-        <img height={200} src={empty} />
+        <img height={250} src={empty} />
         <Box mt={2} mb={3}>
           <Typography variant="h5" gutterBottom>
             You have no instances

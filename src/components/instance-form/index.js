@@ -3,7 +3,7 @@ import FormField, {PasswordField} from './form-field';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useState} from 'react';
 import localeEmoji from 'locale-emoji';
-import robot from '../../assets/robot.png';
+import puzzle from '../../assets/puzzle.png';
 import visa from 'payment-icons/min/flat/visa.svg';
 import {
   Box,
@@ -122,7 +122,7 @@ export default function InstanceForm(props) {
     <Box width={600} component="form" onSubmit={handleSubmit}>
       <Box py={3} px={4}>
         <Box textAlign="center" mb={3}>
-          <img src={robot} height={180} />
+          <Box component="img" mb={2} src={puzzle} height={200} />
           <Typography variant="h5">What do you want to build today?</Typography>
         </Box>
         {error && (

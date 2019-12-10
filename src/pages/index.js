@@ -1,65 +1,68 @@
+import CenteredBox from '../components/centered-box';
 import LogoTitle from '../components/logo-title';
 import React from 'react';
-import hero from '../assets/hero.png';
-import {Box, Typography, useTheme} from '@material-ui/core';
-import {Link} from 'gatsby-theme-material-ui';
+import ufo from '../assets/ufo.png';
+import {Box, Typography} from '@material-ui/core';
+import {Button, Link} from 'gatsby-theme-material-ui';
 
 export default function Home() {
-  const {breakpoints, palette} = useTheme();
   return (
     <Box minHeight="100vh" display="flex" flexDirection="column">
-      <Box bgcolor="background.paper">
-        <Box
+      <Box
+        component="header"
+        bgcolor="background.paper"
+        position="sticky"
+        top={0}
+      >
+        <CenteredBox
           display="flex"
           alignItems="center"
-          width="100%"
           height={64}
           px={3}
-          maxWidth={breakpoints.values.lg}
-          mx="auto"
+          offset={80}
         >
           <LogoTitle mr="auto" />
           <Link variant="body1" to="/dashboard/">
             Dashboard
           </Link>
-        </Box>
+        </CenteredBox>
       </Box>
-      <Box
-        bgcolor="primary.900"
-        color="white"
+      <div
         style={{
-          backgroundImage: `radial-gradient(${[
-            palette.primary[900],
-            palette.common.black
-          ]})`
+          backgroundImage: `url(${ufo})`,
+          backgroundSize: 800,
+          backgroundPosition: '50vw center',
+          backgroundRepeat: 'no-repeat'
         }}
       >
-        <Box
-          width="100%"
-          maxWidth={breakpoints.values.lg}
-          mx="auto"
-          py={12}
-          px={8}
-          style={{
-            backgroundImage: `url(${hero})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
+        <CenteredBox py={12} px={8}>
           <Box width={1 / 2}>
             <Typography gutterBottom variant="h2">
-              Headless Wordpress + GraphQL
+              Headless Wordpress + GraphQL on demand
             </Typography>
             <Typography paragraph variant="h6">
               Deploy a Wordpress site in minutes and consume the data using your
               favourite JavaScript framework.
             </Typography>
           </Box>
-        </Box>
+        </CenteredBox>
+      </div>
+      <Box bgcolor="black" color="white">
+        <CenteredBox py={6} px={8} textAlign="center">
+          <Typography gutterBottom variant="h3">
+            Try Saucer free for 7 days
+          </Typography>
+          <Button variant="contained" color="primary" size="large">
+            Get started
+          </Button>
+        </CenteredBox>
       </Box>
-      <Box component="footer" mt="auto" bgcolor="grey.100">
-        <Box width="100%" maxWidth={breakpoints.values.lg} mx="auto" p={3}>
-          <Typography display="block" variant="caption" color="textSecondary">
+      <CenteredBox py={6} px={8}>
+        <Typography variant="h3">List of features</Typography>
+      </CenteredBox>
+      <Box component="footer" mt="auto" bgcolor="black" color="white">
+        <CenteredBox px={8} py={6}>
+          <Typography display="block" variant="caption">
             &copy; {new Date().getFullYear()} Saucer
             <br />
             Illustrations by{' '}
@@ -72,7 +75,7 @@ export default function Home() {
               Ouch.pics
             </Link>
           </Typography>
-        </Box>
+        </CenteredBox>
       </Box>
     </Box>
   );
