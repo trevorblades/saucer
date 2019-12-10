@@ -1,34 +1,14 @@
 import CenteredBox from '../components/centered-box';
-import LogoTitle from '../components/logo-title';
+import PageLayout from '../components/page-layout';
 import React from 'react';
 import ufo from '../assets/ufo.png';
 import {Box, Typography} from '@material-ui/core';
-import {Button, Link} from 'gatsby-theme-material-ui';
-import {ReactComponent as Favicon} from '../assets/favicon.svg';
+import {Button} from 'gatsby-theme-material-ui';
 import {FiChevronRight} from 'react-icons/fi';
 
 export default function Home() {
   return (
-    <Box minHeight="100vh" display="flex" flexDirection="column">
-      <Box
-        component="header"
-        bgcolor="background.paper"
-        position="sticky"
-        top={0}
-      >
-        <CenteredBox
-          display="flex"
-          alignItems="center"
-          height={64}
-          px={3}
-          offset={80}
-        >
-          <LogoTitle mr="auto" />
-          <Link variant="body1" to="/dashboard/">
-            Dashboard
-          </Link>
-        </CenteredBox>
-      </Box>
+    <PageLayout>
       <div
         style={{
           backgroundImage: `url(${ufo})`,
@@ -68,24 +48,6 @@ export default function Home() {
       <CenteredBox py={6} px={8}>
         <Typography variant="h3">List of features</Typography>
       </CenteredBox>
-      <Box component="footer" mt="auto" bgcolor="black" color="white">
-        <CenteredBox px={8} py={6}>
-          <Box component={Favicon} width={40} display="block" mb={2} />
-          <Typography display="block" variant="caption">
-            &copy; {new Date().getFullYear()} Saucer
-            <br />
-            Illustrations by{' '}
-            <Link
-              color="inherit"
-              href="https://icons8.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Ouch.pics
-            </Link>
-          </Typography>
-        </CenteredBox>
-      </Box>
-    </Box>
+    </PageLayout>
   );
 }

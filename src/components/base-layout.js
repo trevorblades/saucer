@@ -3,7 +3,7 @@ import React, {Fragment} from 'react';
 import {Helmet} from 'react-helmet';
 import {graphql, useStaticQuery} from 'gatsby';
 
-export default function BasicLayout(props) {
+export default function BaseLayout(props) {
   const data = useStaticQuery(
     graphql`
       {
@@ -28,6 +28,6 @@ export default function BasicLayout(props) {
   );
 }
 
-BasicLayout.propTypes = {
+BaseLayout.propTypes = {
   children: PropTypes.node.isRequired
 };

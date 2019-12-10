@@ -1,4 +1,3 @@
-import BasicLayout from '../components/basic-layout';
 import DashboardLayout from '../components/dashboard-layout';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -12,7 +11,7 @@ export default function Layout(props) {
     );
   }
 
-  return <BasicLayout>{props.children}</BasicLayout>;
+  return props.children;
 }
 
 Layout.propTypes = {

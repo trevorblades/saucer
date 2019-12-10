@@ -1,5 +1,5 @@
 import AuthRequired from './auth-required';
-import BasicLayout from './basic-layout';
+import BaseLayout from './base-layout';
 import Logo from './logo';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -27,7 +27,7 @@ const navItems = {
 export default function DashboardLayout(props) {
   const {breakpoints, shape} = useTheme();
   return (
-    <BasicLayout>
+    <BaseLayout>
       <Helmet>
         <meta name="robots" content="noindex" />
       </Helmet>
@@ -93,7 +93,7 @@ export default function DashboardLayout(props) {
           </Box>
         </AuthRequired>
       </NoSsr>
-    </BasicLayout>
+    </BaseLayout>
   );
 }
 

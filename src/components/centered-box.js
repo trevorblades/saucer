@@ -15,7 +15,7 @@ export default function CenteredBox({offset, ...props}) {
 }
 
 CenteredBox.defaultProps = {
-  offset: 0
+  offset: -80
 };
 
 CenteredBox.propTypes = {
