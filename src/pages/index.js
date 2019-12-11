@@ -3,7 +3,7 @@ import PageLayout from '../components/page-layout';
 import React from 'react';
 import ufo from '../assets/ufo.png';
 import {Box, Typography} from '@material-ui/core';
-import {Button} from 'gatsby-theme-material-ui';
+import {Button, Fab} from 'gatsby-theme-material-ui';
 import {FiChevronRight} from 'react-icons/fi';
 
 export default function Home() {
@@ -26,6 +26,9 @@ export default function Home() {
               Deploy a Wordpress site in minutes and consume the data using your
               favourite JavaScript framework.
             </Typography>
+            <Fab variant="extended" color="primary">
+              Learn more
+            </Fab>
           </Box>
         </CenteredBox>
       </div>
@@ -36,8 +39,8 @@ export default function Home() {
           </Typography>
           <Button
             to="/dashboard"
-            variant="contained"
-            color="primary"
+            color="inherit"
+            variant="outlined"
             size="large"
           >
             Get started
