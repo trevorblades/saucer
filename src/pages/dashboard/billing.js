@@ -4,6 +4,7 @@ import React, {Fragment, useState} from 'react';
 import StripeElementsProvider from '../../components/stripe-elements-provider';
 import dog from '../../assets/dog.png';
 import {
+  Chip,
   Dialog,
   Table,
   TableBody,
@@ -22,6 +23,7 @@ const LIST_CARDS = gql`
       last4
       expMonth
       expYear
+      isDefault
     }
   }
 `;
@@ -65,7 +67,8 @@ export default function Billing() {
               {data.cards.map(card => (
                 <TableRow key={card.id}>
                   <TableCell padding="none">
-                    {card.brand} xxxx {card.last4}
+                    {card.brand} xxxx {card.last4}{' '}
+                    {card.isDefault && <Chip size="small" label="Default" />}
                   </TableCell>
                   <TableCell>
                     {card.expMonth.toString().padStart(2, '0')}/

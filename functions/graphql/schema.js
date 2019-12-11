@@ -38,6 +38,7 @@ exports.typeDefs = gql`
     last4: String
     expMonth: Int
     expYear: Int
+    isDefault: Boolean
   }
 
   type Instance {
@@ -76,7 +77,11 @@ exports.resolvers = {
   },
   Card: {
     expMonth: card => card.exp_month,
-    expYear: card => card.exp_year
+    expYear: card => card.exp_year,
+    async isDefault(card, args, {stripe}) {
+      const customer = await stripe.customers.retrieve(card.customer);
+      return card.id === customer.default_source;
+    }
   },
   Query: {
     async instance(parent, args, {user}) {
