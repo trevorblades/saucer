@@ -50,10 +50,11 @@ export default function Home() {
           </Box>
         </CenteredBox>
       </div>
-      <Box bgcolor="black" color="white">
-        <CenteredBox py={6} px={8} textAlign="center">
-          <Typography paragraph variant="h4">
-            Try Saucer free for 14 days
+      <CenteredBox px={8}>
+        <Box p={4} textAlign="center" border={3} bgcolor="background.paper">
+          <Typography variant="h4">Try Saucer free for 14 days</Typography>
+          <Typography paragraph variant="h6">
+            No credit card required
           </Typography>
           <Button
             to="/dashboard"
@@ -64,8 +65,8 @@ export default function Home() {
             Get started
             <Box component={FiChevronRight} size={22} ml={1} mr={-1} />
           </Button>
-        </CenteredBox>
-      </Box>
+        </Box>
+      </CenteredBox>
       <CenteredBox py={6} px={8} display="flex" alignItems="flex-start">
         <img src={robots} height={400} />
         <Box py={4} ml={4}>
