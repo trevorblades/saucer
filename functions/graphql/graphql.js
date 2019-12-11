@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_DEV);
 const {ApolloServer} = require('apollo-server-lambda');
 const {Client, query} = require('faunadb');
 const {resolvers, typeDefs} = require('./schema');
@@ -32,10 +33,9 @@ const server = new ApolloServer({
       const matches = event.headers.authorization.match(/bearer (\S+)/i);
       try {
         const {sub} = jwt.verify(matches[1], TOKEN_SECRET);
-        const response = await client.query(
+        user = await client.query(
           query.Get(query.Ref(query.Collection('users'), sub))
         );
-        user = response.data;
       } catch (error) {
         console.log(error);
         // let errors pass
@@ -44,7 +44,8 @@ const server = new ApolloServer({
 
     return {
       user,
-      client
+      client,
+      stripe
     };
   }
 });

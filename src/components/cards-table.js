@@ -39,7 +39,7 @@ export default function CardsTable(props) {
   return (
     <div>
       {data.cards.map(card => (
-        <div key={card.id} />
+        <div key={card.id}>{card.id}</div>
       ))}
     </div>
   );

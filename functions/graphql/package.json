@@ -9,6 +9,7 @@
     "jsonwebtoken": "^8.5.1",
     "outdent": "^0.7.0",
     "randomstring": "^1.1.5",
+    "stripe": "^7.14.0",
     "unique-names-generator": "^4.1.1"
   }
 }

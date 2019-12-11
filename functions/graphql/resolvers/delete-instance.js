@@ -51,11 +51,11 @@ module.exports = async function deleteInstance(parent, args, {user}) {
     await route53
       .changeResourceRecordSets({
         HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,
-        ChangeBatch: createChangeBatch(
-          'DELETE',
-          instanceDomain,
-          instance.PublicIpAddress
-        )
+        ChangeBatch: createChangeBatch({
+          Action: 'DELETE',
+          Name: instanceDomain,
+          Value: instance.PublicIpAddress
+        })
       })
       .promise();
   }

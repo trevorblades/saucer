@@ -3,10 +3,12 @@ import React, {useState} from 'react';
 import StripeInput from './stripe-input';
 import {
   Button,
+  Checkbox,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControlLabel,
   TextField,
   useTheme
 } from '@material-ui/core';
@@ -14,8 +16,8 @@ import {gql, useMutation} from '@apollo/client';
 import {injectStripe} from 'react-stripe-elements';
 
 const CREATE_CARD = gql`
-  mutation CreateCard($source: String) {
-    createCard(source: $source) {
+  mutation CreateCard($source: String!, $isDefault: Boolean) {
+    createCard(source: $source, isDefault: $isDefault) {
       id
     }
   }
@@ -30,11 +32,13 @@ function CardForm(props) {
     event.preventDefault();
     setStripeLoading(true);
 
+    const {isDefault} = event.target;
     const {token} = await props.stripe.createToken();
     if (token) {
       createCard({
         variables: {
-          source: token.id
+          source: token.id,
+          isDefault: isDefault.checked
         }
       });
     }
@@ -42,6 +46,7 @@ function CardForm(props) {
     setStripeLoading(false);
   }
 
+  const isLoading = stripeLoading || loading;
   return (
     <form onSubmit={handleSubmit}>
       <DialogTitle>Add a card</DialogTitle>
@@ -53,7 +58,7 @@ function CardForm(props) {
           fullWidth
           margin="normal"
           label="Your payment information"
-          disabled={stripeLoading || loading}
+          disabled={isLoading}
           InputLabelProps={{shrink: true}}
           InputProps={{inputComponent: StripeInput}}
           inputProps={{
@@ -66,14 +71,15 @@ function CardForm(props) {
             }
           }}
         />
+        <FormControlLabel
+          disabled={isLoading}
+          control={<Checkbox name="isDefault" />}
+          label="Set as default payment method"
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={props.onCancel}>Cancel</Button>
-        <Button
-          disabled={stripeLoading || loading}
-          type="submit"
-          color="primary"
-        >
+        <Button disabled={isLoading} type="submit" color="primary">
           Add card
         </Button>
       </DialogActions>

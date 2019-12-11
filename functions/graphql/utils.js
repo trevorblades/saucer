@@ -8,7 +8,7 @@ exports.findInstancesForUser = async (user, options) => {
       Filters: [
         {
           Name: 'tag:Owner',
-          Values: [user.id]
+          Values: [user.data.id]
         },
         {
           Name: 'instance-state-name',
@@ -20,7 +20,7 @@ exports.findInstancesForUser = async (user, options) => {
   return Reservations.flatMap(reservation => reservation.Instances);
 };
 
-exports.createChangeBatch = (Action, Name, Value) => {
+exports.createChangeBatch = ({Action, Name, Value}) => {
   return {
     Changes: [
       {

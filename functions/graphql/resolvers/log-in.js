@@ -3,19 +3,20 @@ const jwt = require('jsonwebtoken');
 const {parse} = require('querystring');
 const {query} = require('faunadb');
 
-function tokenizeResponse(response) {
-  return jwt.sign(response.data, process.env.TOKEN_SECRET, {
-    subject: response.ref.id
-  });
-}
-
 const {
   NETLIFY_DEV,
+  TOKEN_SECRET,
   GATSBY_GITHUB_CLIENT_ID_PROD,
   GATSBY_GITHUB_CLIENT_ID_DEV,
   GITHUB_CLIENT_SECRET_DEV,
   GITHUB_CLIENT_SECRET_PROD
 } = process.env;
+
+function tokenizeResponse(response) {
+  return jwt.sign(response.data, TOKEN_SECRET, {
+    subject: response.ref.id
+  });
+}
 
 module.exports = async function logIn(parent, args, {client}) {
   const accessToken = await axios

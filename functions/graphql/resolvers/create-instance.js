@@ -30,7 +30,13 @@ module.exports = async function createInstance(parent, args, {user}) {
 
   const instanceDomain = createInstanceDomain(instanceName);
   const changeBatch = JSON.stringify(
-    JSON.stringify(createChangeBatch('CREATE', instanceDomain, '$ip_address'))
+    JSON.stringify(
+      createChangeBatch({
+        Action: 'CREATE',
+        Name: instanceDomain,
+        Value: '$ip_address'
+      })
+    )
   );
 
   const UserData = base64.encode(
@@ -168,7 +174,7 @@ module.exports = async function createInstance(parent, args, {user}) {
     },
     {
       Key: 'Owner',
-      Value: user.id
+      Value: user.data.id
     }
   ];
 
