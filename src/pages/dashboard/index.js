@@ -53,8 +53,8 @@ export default function Dashboard() {
       >
         <Typography variant="h4">My instances</Typography>
         {data && data.instances.length > 0 && (
-          <Button onClick={openDialog} color="primary" variant="outlined">
-            Create instance
+          <Button onClick={openDialog} color="primary" variant="contained">
+            New instance
           </Button>
         )}
       </Box>

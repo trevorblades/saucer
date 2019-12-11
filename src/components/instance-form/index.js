@@ -1,5 +1,4 @@
-import FormButton from './form-button';
-import FormField, {PasswordField} from './form-field';
+import PasswordField from './password-field';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useState} from 'react';
 import localeEmoji from 'locale-emoji';
@@ -14,19 +13,22 @@ import {
   FormHelperText,
   Grid,
   InputLabel,
-  Link,
   MenuItem,
+  Link as MuiLink,
   Select,
   Typography
 } from '@material-ui/core';
 import {FaDrupal, FaWordpressSimple} from 'react-icons/fa';
 import {FiUploadCloud} from 'react-icons/fi';
 import {
+  FormField,
   INSTANCE_FRAGMENT,
   LIST_INSTANCES,
   UserContext,
   locales
 } from '../../utils';
+import {Link} from 'gatsby';
+import {PaymentOption, PlatformButton} from './form-button';
 import {gql, useMutation} from '@apollo/client';
 
 const CREATE_INSTANCE = gql`
@@ -118,15 +120,20 @@ export default function InstanceForm(props) {
         <Box mb={1}>
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <FormButton selected disabled={loading} icon={FaWordpressSimple}>
-                <Typography>Wordpress</Typography>
-              </FormButton>
+              <PlatformButton
+                selected
+                disabled={loading}
+                icon={FaWordpressSimple}
+                label="Wordpress"
+              />
             </Grid>
             <Grid item xs={6}>
-              <FormButton disabled icon={FaDrupal}>
-                <Typography>Drupal</Typography>
-                <Typography variant="caption">(Coming later)</Typography>
-              </FormButton>
+              <PlatformButton
+                disabled
+                icon={FaDrupal}
+                label="Drupal"
+                caption="Coming soon"
+              />
             </Grid>
           </Grid>
         </Box>
@@ -165,13 +172,13 @@ export default function InstanceForm(props) {
           helperText={
             <Fragment>
               Don&apos;t see your language?{' '}
-              <Link
+              <MuiLink
                 href="mailto:hello@saucer.dev?subject=Please add my language"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Let us know
-              </Link>{' '}
+              </MuiLink>{' '}
               and we&apos;ll add it.
             </Fragment>
           }
@@ -185,7 +192,7 @@ export default function InstanceForm(props) {
             </MenuItem>
           ))}
         </LabeledSelect>
-        <Box mt={2}>
+        <Box my={2}>
           <Typography variant="subtitle2">
             Install more plugins? (optional)
           </Typography>
@@ -206,7 +213,28 @@ export default function InstanceForm(props) {
             </Grid>
           </Grid>
         </Box>
+        <Typography variant="subtitle2">Billing options</Typography>
+        <Box my={1.5}>
+          <Grid container spacing={2}>
+            <Grid item xs={4}>
+              <PaymentOption disabled cost="Free" label="14-day trial" />
+            </Grid>
+            <Grid item xs={4}>
+              <PaymentOption selected cost="$12" label="per month" />
+            </Grid>
+            <Grid item xs={4}>
+              <PaymentOption cost="$120" label="per year" />
+            </Grid>
+          </Grid>
+        </Box>
+        <Typography variant="body2" color="textSecondary">
+          Trial instances are only available to users with no existing
+          instances.
+        </Typography>
         <LabeledSelect label="Payment method" value="1" disabled={loading}>
+          <MenuItem component={Link} to="/dashboard/billing">
+            Add a new card
+          </MenuItem>
           <MenuItem value="1">
             <Box component="span" display="flex" alignItems="center">
               <Box component="img" src={visa} height="1em" mr={1} />

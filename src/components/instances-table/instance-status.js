@@ -56,7 +56,7 @@ export default function InstanceStatus(props) {
       return (
         <PollInstance variables={{id: props.instance.id}}>
           <StatusMessage color="gold">
-            {isRunning ? 'Installing' : 'Starting'}...
+            {isRunning ? 'Installing' : 'Starting'}
           </StatusMessage>
         </PollInstance>
       );

@@ -1,18 +1,9 @@
 import React, {useState} from 'react';
-import {
-  Box,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Tooltip
-} from '@material-ui/core';
+import {Box, IconButton, InputAdornment, Tooltip} from '@material-ui/core';
 import {FiEye, FiEyeOff} from 'react-icons/fi';
+import {FormField} from '../../utils';
 
-export default function FormField(props) {
-  return <TextField fullWidth margin="normal" {...props} />;
-}
-
-export function PasswordField(props) {
+export default function PasswordField(props) {
   const [passwordShown, setPasswordShown] = useState(false);
 
   function togglePasswordShown() {

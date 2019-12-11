@@ -72,7 +72,9 @@ export default function InstancesTable(props) {
                       href={`https://${instance.name}.saucer.dev/wp-admin`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      disabled={instance.status !== 'running'}
+                      disabled={
+                        instance.status !== 'running' || !instance.isReady
+                      }
                     >
                       {instance.name}
                     </Link>

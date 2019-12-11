@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {Box, CardActionArea, useTheme} from '@material-ui/core';
+import {Box, CardActionArea, Typography, useTheme} from '@material-ui/core';
 
 export default function FormButton(props) {
   const {shape} = useTheme();
@@ -13,7 +13,7 @@ export default function FormButton(props) {
       }}
     >
       <Box
-        p={2}
+        p={2.5}
         height={1}
         border={1}
         borderColor={props.selected ? 'primary.main' : 'divider'}
@@ -24,7 +24,6 @@ export default function FormButton(props) {
         alignItems="center"
         justifyContent="center"
       >
-        <Box component={props.icon} mb={1} size={32} />
         {props.children}
       </Box>
     </CardActionArea>
@@ -34,6 +33,35 @@ export default function FormButton(props) {
 FormButton.propTypes = {
   disabled: PropTypes.bool,
   selected: PropTypes.bool,
-  icon: PropTypes.func.isRequired,
   children: PropTypes.node.isRequired
+};
+
+export function PlatformButton({icon, label, caption, ...props}) {
+  return (
+    <FormButton {...props}>
+      <Box component={icon} mb={1} size={32} />
+      <Typography>{label}</Typography>
+      {caption && <Typography variant="caption">{caption}</Typography>}
+    </FormButton>
+  );
+}
+
+PlatformButton.propTypes = {
+  icon: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired,
+  caption: PropTypes.string
+};
+
+export function PaymentOption({cost, label, ...props}) {
+  return (
+    <FormButton {...props}>
+      <Typography variant="h6">{cost}</Typography>
+      <Typography variant="body2">{label}</Typography>
+    </FormButton>
+  );
+}
+
+PaymentOption.propTypes = {
+  cost: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired
 };
