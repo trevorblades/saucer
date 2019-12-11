@@ -51,7 +51,13 @@ export default function Home() {
         </CenteredBox>
       </div>
       <CenteredBox px={8}>
-        <Box p={4} textAlign="center" border={2} bgcolor="background.paper">
+        <Box
+          p={4}
+          textAlign="center"
+          border={2}
+          borderColor="primary.main"
+          bgcolor="background.paper"
+        >
           <Typography variant="h4">Try Saucer free for 14 days</Typography>
           <Typography paragraph variant="h6">
             No credit card required
