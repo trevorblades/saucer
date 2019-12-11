@@ -34,6 +34,10 @@ exports.typeDefs = gql`
 
   type Card {
     id: ID
+    brand: String
+    last4: String
+    expMonth: Int
+    expYear: Int
   }
 
   type Instance {
@@ -69,6 +73,10 @@ exports.resolvers = {
       return Status === 'ready';
     },
     createdAt: instance => instance.LaunchTime
+  },
+  Card: {
+    expMonth: card => card.exp_month,
+    expYear: card => card.exp_year
   },
   Query: {
     async instance(parent, args, {user}) {

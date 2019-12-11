@@ -1,23 +1,16 @@
 import InstanceForm from '../../components/instance-form';
 import InstancesTable from '../../components/instances-table';
+import QueryTable from '../../components/query-table';
 import React, {Fragment, useState} from 'react';
-import {
-  Box,
-  Button,
-  Drawer,
-  IconButton,
-  Snackbar,
-  Typography
-} from '@material-ui/core';
+import egg from '../../assets/egg.png';
+import {Drawer, IconButton, Snackbar} from '@material-ui/core';
 import {FiX} from 'react-icons/fi';
 import {Helmet} from 'react-helmet';
 import {LIST_INSTANCES} from '../../utils';
-import {useQuery} from '@apollo/client';
 
 export default function Dashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const {data, loading, error} = useQuery(LIST_INSTANCES);
 
   function openDrawer() {
     setDrawerOpen(true);
@@ -40,37 +33,33 @@ export default function Dashboard() {
     setSnackbarOpen(true);
   }
 
-  const hasInstances = Boolean(data) && data.instances.length > 0;
   return (
     <Fragment>
       <Helmet>
         <title>Instances</title>
       </Helmet>
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        mb={2}
+      <QueryTable
+        title="My instances"
+        query={LIST_INSTANCES}
+        dataKey="instances"
+        EmptyStateProps={{
+          image: egg,
+          title: 'You have no instances',
+          subtitle: "Luckily, it's really easy to create one!",
+          buttonText: 'Create instance',
+          onButtonClick: openDrawer
+        }}
+        renderTable={data => <InstancesTable instances={data.instances} />}
       >
-        <Typography variant="h4">My instances</Typography>
-        {hasInstances && (
-          <Button onClick={openDrawer} color="primary" variant="contained">
-            New instance
-          </Button>
+        {hasInstances => (
+          <Drawer anchor="right" open={drawerOpen} onClose={closeDrawer}>
+            <InstanceForm
+              isTrialDisabled={hasInstances}
+              onCompleted={handleCompleted}
+            />
+          </Drawer>
         )}
-      </Box>
-      <InstancesTable
-        data={data}
-        loading={loading}
-        error={error}
-        onCreateInstance={openDrawer}
-      />
-      <Drawer anchor="right" open={drawerOpen} onClose={closeDrawer}>
-        <InstanceForm
-          isTrialDisabled={hasInstances}
-          onCompleted={handleCompleted}
-        />
-      </Drawer>
+      </QueryTable>
       <Snackbar
         anchorOrigin={{
           vertical: 'top',

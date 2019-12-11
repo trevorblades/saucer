@@ -1,0 +1,75 @@
+import EmptyState from './empty-state';
+import PropTypes from 'prop-types';
+import React, {Fragment} from 'react';
+import {Box, Button, Typography} from '@material-ui/core';
+import {useQuery} from '@apollo/client';
+
+function QueryTableHeader(props) {
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      mb={2}
+    >
+      <Typography variant="h4">{props.title}</Typography>
+      {props.children}
+    </Box>
+  );
+}
+
+QueryTableHeader.propTypes = {
+  children: PropTypes.node,
+  title: PropTypes.string.isRequired
+};
+
+export default function QueryTable(props) {
+  const {data, loading, error} = useQuery(props.query);
+
+  if (loading || error) {
+    return (
+      <Fragment>
+        <QueryTableHeader title={props.title} />
+        <Typography color={error ? 'error' : 'textSecondary'} variant="h6">
+          {error ? error.message : 'Loading...'}
+        </Typography>
+      </Fragment>
+    );
+  }
+
+  if (!data[props.dataKey].length) {
+    return (
+      <Fragment>
+        <QueryTableHeader title={props.title} />
+        <EmptyState {...props.EmptyStateProps} />
+        {props.children(false)}
+      </Fragment>
+    );
+  }
+
+  const {onButtonClick, buttonText} = props.EmptyStateProps;
+  return (
+    <Fragment>
+      <QueryTableHeader title={props.title}>
+        <Button onClick={onButtonClick} color="primary" variant="contained">
+          {buttonText}
+        </Button>
+      </QueryTableHeader>
+      {props.renderTable(data)}
+      {props.children(true)}
+    </Fragment>
+  );
+}
+
+QueryTable.propTypes = {
+  query: PropTypes.object.isRequired,
+  title: PropTypes.string.isRequired,
+  dataKey: PropTypes.string.isRequired,
+  children: PropTypes.func,
+  renderTable: PropTypes.func.isRequired,
+  EmptyStateProps: PropTypes.shape(EmptyState.propTypes).isRequired
+};
+
+QueryTable.defaultProps = {
+  children: () => null
+};
