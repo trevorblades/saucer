@@ -66,7 +66,7 @@ export default function Home() {
           </Button>
         </CenteredBox>
       </Box>
-      <CenteredBox p={8} display="flex" alignItems="flex-start">
+      <CenteredBox py={6} px={8} display="flex" alignItems="flex-start">
         <img src={robots} height={400} />
         <Box py={4} ml={4}>
           <Typography gutterBottom variant="h3">
