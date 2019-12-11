@@ -8,6 +8,14 @@ import {ReactComponent as Favicon} from '../assets/favicon.svg';
 import {Link} from 'gatsby';
 import {Link as MuiLink} from 'gatsby-theme-material-ui';
 
+function NavLink(props) {
+  return (
+    <Box component="span" ml={2.5}>
+      <MuiLink color="inherit" variant="body1" {...props} />
+    </Box>
+  );
+}
+
 export default function PageLayout(props) {
   return (
     <BaseLayout>
@@ -17,6 +25,7 @@ export default function PageLayout(props) {
           bgcolor="background.paper"
           position="sticky"
           top={0}
+          zIndex={1}
         >
           <CenteredBox
             display="flex"
@@ -25,10 +34,12 @@ export default function PageLayout(props) {
             px={3}
             offset={0}
           >
-            <LogoTitle component={Link} to="/" mr="auto" />
-            <MuiLink variant="body1" to="/dashboard/">
-              Dashboard
-            </MuiLink>
+            <LogoTitle component={Link} to="/" />
+            <Box component="nav" ml="auto">
+              <NavLink to="/quick-start">Quick start</NavLink>
+              <NavLink to="/pricing">Pricing</NavLink>
+              <NavLink to="/dashboard">Dashboard</NavLink>
+            </Box>
           </CenteredBox>
         </Box>
         {props.children}

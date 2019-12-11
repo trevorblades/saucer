@@ -1,6 +1,8 @@
 import CenteredBox from '../components/centered-box';
+import FeaturesList from '../components/features-list';
 import PageLayout from '../components/page-layout';
 import React from 'react';
+import robots from '../assets/robots.png';
 import ufo from '../assets/ufo.png';
 import {Box, Typography} from '@material-ui/core';
 import {Button, Fab} from 'gatsby-theme-material-ui';
@@ -20,11 +22,12 @@ export default function Home() {
         <CenteredBox py={12} px={8}>
           <Box width={1 / 2}>
             <Typography gutterBottom variant="h2">
-              Headless Wordpress + GraphQL on demand
+              Hassle-free Wordpress with GraphQL
             </Typography>
             <Typography paragraph variant="h6">
-              Deploy a Wordpress site in minutes and consume the data using your
-              favourite JavaScript framework.
+              Saucer lets you deploy a headless Wordpress CMS in minutes, and
+              access your data using a GraphQL API to build fast websites with
+              modern tools.
             </Typography>
             <Fab variant="extended" color="primary">
               Learn more
@@ -35,7 +38,7 @@ export default function Home() {
       <Box bgcolor="black" color="white">
         <CenteredBox py={6} px={8} textAlign="center">
           <Typography paragraph variant="h4">
-            Try Saucer free for 7 days
+            Try Saucer free for 14 days
           </Typography>
           <Button
             to="/dashboard"
@@ -48,8 +51,19 @@ export default function Home() {
           </Button>
         </CenteredBox>
       </Box>
-      <CenteredBox py={6} px={8}>
-        <Typography variant="h3">List of features</Typography>
+      <CenteredBox py={6} px={8} display="flex" alignItems="flex-start">
+        <img src={robots} height={400} />
+        <Box py={4} ml={6}>
+          <Typography gutterBottom variant="h3">
+            What&apos;s included?
+          </Typography>
+          <Typography paragraph variant="h6">
+            Every Saucer instance comes pre-installed with everything you need
+            to get your Wordpress-backed GraphQL website up and running with no
+            hassle. This includes:
+          </Typography>
+          <FeaturesList />
+        </Box>
       </CenteredBox>
     </PageLayout>
   );

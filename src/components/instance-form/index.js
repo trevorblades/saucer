@@ -21,7 +21,12 @@ import {
 } from '@material-ui/core';
 import {FaDrupal, FaWordpressSimple} from 'react-icons/fa';
 import {FiUploadCloud} from 'react-icons/fi';
-import {INSTANCE_FRAGMENT, LIST_INSTANCES, UserContext} from '../../utils';
+import {
+  INSTANCE_FRAGMENT,
+  LIST_INSTANCES,
+  UserContext,
+  locales
+} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 
 const CREATE_INSTANCE = gql`
@@ -58,26 +63,6 @@ function LabeledSelect({label, helperText, ...props}) {
 LabeledSelect.propTypes = {
   label: PropTypes.string.isRequired,
   helperText: PropTypes.node
-};
-
-const locales = {
-  English: 'en_US',
-  'English (UK)': 'en_GB',
-  Русский: 'ru_RU',
-  Deutsch: 'de_DE',
-  日本語: 'ja',
-  Español: 'es_ES',
-  Français: 'fr_FR',
-  Português: 'pt_PT',
-  'Português do Brasil': 'pt_BR',
-  简体中文: 'zh_CN',
-  Italiano: 'it_IT',
-  Polski: 'pl_PL',
-  한국어: 'ko_KR',
-  हिन्दी: 'hi_IN',
-  Svenska: 'sv_SE',
-  'Tiếng Việt': 'vi',
-  Nederlands: 'nl_NL'
 };
 
 export default function InstanceForm(props) {

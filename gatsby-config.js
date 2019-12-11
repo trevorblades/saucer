@@ -20,6 +20,14 @@ module.exports = {
       options: {
         icon: 'src/assets/favicon.svg'
       }
+    },
+    {
+      resolve: 'gatsby-source-apiserver',
+      options: {
+        name: 'wordpressVersion',
+        entityLevel: 'offers',
+        url: 'https://api.wordpress.org/core/version-check/1.7'
+      }
     }
   ]
 };

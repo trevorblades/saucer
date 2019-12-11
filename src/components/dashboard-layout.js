@@ -17,11 +17,11 @@ import {LogoTitleProps} from '@trevorblades/mui-theme';
 import {ReactComponent as Wordmark} from '../assets/wordmark.svg';
 
 const navItems = {
-  '/dashboard/': 'Instances',
-  '/dashboard/quick-start/': 'Quick start',
-  '/dashboard/billing/': 'Billing',
-  '/dashboard/support/': 'Support',
-  '/dashboard/account/': 'Account'
+  '/dashboard': 'Instances',
+  '/dashboard/quick-start': 'Quick start',
+  '/dashboard/billing': 'Billing',
+  '/dashboard/support': 'Support',
+  '/dashboard/account': 'Account'
 };
 
 export default function DashboardLayout(props) {
