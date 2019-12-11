@@ -15,6 +15,7 @@ exports.typeDefs = gql`
   type Query {
     instance(id: ID!): Instance
     instances: [Instance]
+    paymentMethods: [PaymentMethod]
   }
 
   type Mutation {
@@ -35,6 +36,10 @@ exports.typeDefs = gql`
     status: String
     isReady: Boolean
     createdAt: DateTime
+  }
+
+  type PaymentMethod {
+    id: ID
   }
 `;
 
@@ -85,6 +90,13 @@ exports.resolvers = {
       }
 
       return findInstancesForUser(user);
+    },
+    paymentMethods(parent, args, {user}) {
+      if (!user) {
+        throw new AuthenticationError('Unauthorized');
+      }
+
+      return [];
     }
   },
   Mutation: {

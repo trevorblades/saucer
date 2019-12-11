@@ -1,12 +1,12 @@
+import EmptyState from '../empty-state';
 import InstanceActions from './instance-actions';
 import InstanceIcon from './instance-icon';
 import InstanceStatus from './instance-status';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
-import empty from '../../assets/empty.png';
+import egg from '../../assets/egg.png';
 import {
   Box,
-  Button,
   Link,
   Table,
   TableBody,
@@ -29,23 +29,13 @@ export default function InstancesTable(props) {
 
   if (!props.data.instances.length) {
     return (
-      <Box border={1} borderColor="divider" p={4} mt={3} textAlign="center">
-        <img height={250} src={empty} />
-        <Box mt={2} mb={3}>
-          <Typography variant="h5" gutterBottom>
-            You have no instances
-          </Typography>
-          <Typography>Luckily, it&apos;s really easy to create one!</Typography>
-        </Box>
-        <Button
-          onClick={props.onCreateInstance}
-          size="large"
-          color="primary"
-          variant="contained"
-        >
-          Create instance
-        </Button>
-      </Box>
+      <EmptyState
+        image={egg}
+        title="You have no instances"
+        subtitle="Luckily, it's really easy to create one!"
+        buttonText="Create instance"
+        onButtonClick={props.onCreateInstance}
+      />
     );
   }
 

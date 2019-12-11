@@ -10,7 +10,7 @@ export default function QuickStart() {
       <Helmet>
         <title>Quick start</title>
       </Helmet>
-      <CenteredBox px={8} py={10}>
+      <CenteredBox px={8} py={12}>
         <Typography variant="h2">Quick start</Typography>
       </CenteredBox>
     </PageLayout>

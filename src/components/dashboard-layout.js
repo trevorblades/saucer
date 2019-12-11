@@ -18,10 +18,10 @@ import {ReactComponent as Wordmark} from '../assets/wordmark.svg';
 
 const navItems = {
   '/dashboard': 'Instances',
-  '/dashboard/quick-start': 'Quick start',
   '/dashboard/billing': 'Billing',
   '/dashboard/support': 'Support',
-  '/dashboard/account': 'Account'
+  '/dashboard/account': 'Account',
+  '/quick-start': 'Quick start'
 };
 
 export default function DashboardLayout(props) {
