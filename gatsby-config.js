@@ -16,6 +16,12 @@ module.exports = {
     'gatsby-plugin-layout',
     'gatsby-plugin-svgr',
     {
+      resolve: 'gatsby-plugin-stripe',
+      options: {
+        async: true
+      }
+    },
+    {
       resolve: 'gatsby-plugin-manifest',
       options: {
         icon: 'src/assets/favicon.svg'

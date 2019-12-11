@@ -1,9 +1,21 @@
-import PaymentMethodsTable from '../../components/payment-methods-table';
-import React, {Fragment} from 'react';
+import CardForm from '../../components/card-form';
+import CardsTable from '../../components/cards-table';
+import React, {Fragment, useState} from 'react';
+import StripeElementsProvider from '../../components/stripe-elements-provider';
+import {Dialog, Typography} from '@material-ui/core';
 import {Helmet} from 'react-helmet';
-import {Typography} from '@material-ui/core';
 
 export default function Billing() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  function openDialog() {
+    setDialogOpen(true);
+  }
+
+  function closeDialog() {
+    setDialogOpen(false);
+  }
+
   return (
     <Fragment>
       <Helmet>
@@ -12,7 +24,12 @@ export default function Billing() {
       <Typography gutterBottom variant="h4">
         Billing settings
       </Typography>
-      <PaymentMethodsTable />
+      <CardsTable onAddCard={openDialog} />
+      <Dialog fullWidth open={dialogOpen} onClose={closeDialog}>
+        <StripeElementsProvider>
+          <CardForm onCancel={closeDialog} />
+        </StripeElementsProvider>
+      </Dialog>
     </Fragment>
   );
 }

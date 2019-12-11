@@ -15,7 +15,7 @@ exports.typeDefs = gql`
   type Query {
     instance(id: ID!): Instance
     instances: [Instance]
-    paymentMethods: [PaymentMethod]
+    cards: [Card]
   }
 
   type Mutation {
@@ -28,6 +28,11 @@ exports.typeDefs = gql`
       adminEmail: String!
     ): Instance
     deleteInstance(id: ID!): ID
+    createCard(source: String): Card
+  }
+
+  type Card {
+    id: ID
   }
 
   type Instance {
@@ -36,10 +41,6 @@ exports.typeDefs = gql`
     status: String
     isReady: Boolean
     createdAt: DateTime
-  }
-
-  type PaymentMethod {
-    id: ID
   }
 `;
 
@@ -91,7 +92,7 @@ exports.resolvers = {
 
       return findInstancesForUser(user);
     },
-    paymentMethods(parent, args, {user}) {
+    cards(parent, args, {user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
@@ -102,6 +103,15 @@ exports.resolvers = {
   Mutation: {
     logIn,
     createInstance,
-    deleteInstance
+    deleteInstance,
+    createCard(parent, args, {user}) {
+      if (!user) {
+        throw new AuthenticationError('Unauthorized');
+      }
+
+      console.log(args.source);
+
+      throw new Error('what');
+    }
   }
 };

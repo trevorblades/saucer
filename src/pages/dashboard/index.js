@@ -15,16 +15,16 @@ import {LIST_INSTANCES} from '../../utils';
 import {useQuery} from '@apollo/client';
 
 export default function Dashboard() {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const {data, loading, error} = useQuery(LIST_INSTANCES);
 
-  function openDialog() {
-    setDialogOpen(true);
+  function openDrawer() {
+    setDrawerOpen(true);
   }
 
-  function closeDialog() {
-    setDialogOpen(false);
+  function closeDrawer() {
+    setDrawerOpen(false);
   }
 
   function handleSnackbarClose(event, reason) {
@@ -36,7 +36,7 @@ export default function Dashboard() {
   }
 
   function handleCompleted() {
-    closeDialog();
+    closeDrawer();
     setSnackbarOpen(true);
   }
 
@@ -54,7 +54,7 @@ export default function Dashboard() {
       >
         <Typography variant="h4">My instances</Typography>
         {hasInstances && (
-          <Button onClick={openDialog} color="primary" variant="contained">
+          <Button onClick={openDrawer} color="primary" variant="contained">
             New instance
           </Button>
         )}
@@ -63,9 +63,9 @@ export default function Dashboard() {
         data={data}
         loading={loading}
         error={error}
-        onCreateInstance={openDialog}
+        onCreateInstance={openDrawer}
       />
-      <Drawer anchor="right" open={dialogOpen} onClose={closeDialog}>
+      <Drawer anchor="right" open={drawerOpen} onClose={closeDrawer}>
         <InstanceForm
           isTrialDisabled={hasInstances}
           onCompleted={handleCompleted}

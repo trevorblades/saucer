@@ -17,6 +17,7 @@
     "gatsby-plugin-layout": "^1.1.16",
     "gatsby-plugin-manifest": "^2.2.30",
     "gatsby-plugin-react-helmet": "^3.1.15",
+    "gatsby-plugin-stripe": "^1.2.3",
     "gatsby-plugin-svgr": "^2.0.2",
     "gatsby-source-apiserver": "^2.1.4",
     "gatsby-source-rest-api": "^0.2.1",
@@ -31,7 +32,8 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-helmet": "^5.2.1",
-    "react-icons": "^3.8.0"
+    "react-icons": "^3.8.0",
+    "react-stripe-elements": "^6.0.1"
   },
   "devDependencies": {
     "@trevorblades/eslint-config": "^7.0.2",

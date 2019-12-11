@@ -1,19 +1,20 @@
 import EmptyState from './empty-state';
+import PropTypes from 'prop-types';
 import React from 'react';
 import dog from '../assets/dog.png';
 import {Typography} from '@material-ui/core';
 import {gql, useQuery} from '@apollo/client';
 
-const LIST_PAYMENT_METHODS = gql`
+const LIST_CARDS = gql`
   {
-    paymentMethods {
+    cards {
       id
     }
   }
 `;
 
-export default function PaymentMethodsTable() {
-  const {data, loading, error} = useQuery(LIST_PAYMENT_METHODS);
+export default function CardsTable(props) {
+  const {data, loading, error} = useQuery(LIST_CARDS);
 
   if (loading || error) {
     return (
@@ -23,23 +24,27 @@ export default function PaymentMethodsTable() {
     );
   }
 
-  if (!data.paymentMethods.length) {
+  if (!data.cards.length) {
     return (
       <EmptyState
         image={dog}
         title="You have no payment methods"
         subtitle="Configure a credit card here"
-        buttonText="Add a card"
-        onButtonClick={() => {}}
+        buttonText="Add card"
+        onButtonClick={props.onAddCard}
       />
     );
   }
 
   return (
     <div>
-      {data.paymentMethods.map(paymentMethod => (
-        <div key={paymentMethod.id} />
+      {data.cards.map(card => (
+        <div key={card.id} />
       ))}
     </div>
   );
 }
+
+CardsTable.propTypes = {
+  onAddCard: PropTypes.func.isRequired
+};

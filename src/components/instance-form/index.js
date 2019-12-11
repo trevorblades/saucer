@@ -242,7 +242,12 @@ export default function InstanceForm(props) {
                 <PaymentOption value="month" cost="$12" label="per month" />
               </Grid>
               <Grid item xs={4}>
-                <PaymentOption value="year" cost="$120" label="per year" />
+                <PaymentOption
+                  disabled
+                  value="year"
+                  cost="$120"
+                  label="per year"
+                />
               </Grid>
             </Grid>
           </PaymentOptionContext.Provider>
