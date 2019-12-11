@@ -1,7 +1,5 @@
-import React, {createContext} from 'react';
 import decode from 'jwt-decode';
-import {TextField} from '@material-ui/core';
-
+import {createContext} from 'react';
 import {gql} from '@apollo/client';
 
 export function userFromToken(token) {
@@ -56,7 +54,3 @@ export const locales = {
   'Tiếng Việt': 'vi',
   Nederlands: 'nl_NL'
 };
-
-export function FormField(props) {
-  return <TextField fullWidth margin="normal" {...props} />;
-}

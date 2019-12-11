@@ -44,8 +44,14 @@ export default function PageLayout(props) {
         </Box>
         {props.children}
         <Box component="footer" mt="auto" bgcolor="black" color="white">
-          <CenteredBox px={8} py={6}>
-            <Box component={Favicon} width={40} display="block" mb={2} />
+          <CenteredBox px={8} py={6} textAlign="center">
+            <Box
+              component={Favicon}
+              width={40}
+              display="block"
+              mb={2}
+              mx="auto"
+            />
             <Typography display="block" variant="caption">
               &copy; {new Date().getFullYear()} Saucer
               <br />

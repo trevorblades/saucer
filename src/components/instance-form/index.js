@@ -1,3 +1,4 @@
+import FormField from '../form-field';
 import PasswordField from './password-field';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useState} from 'react';
@@ -21,7 +22,6 @@ import {
 import {FaDrupal, FaWordpressSimple} from 'react-icons/fa';
 import {FiUploadCloud} from 'react-icons/fi';
 import {
-  FormField,
   INSTANCE_FRAGMENT,
   LIST_INSTANCES,
   UserContext,

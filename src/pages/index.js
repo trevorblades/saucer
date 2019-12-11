@@ -1,24 +1,15 @@
 import CenteredBox from '../components/centered-box';
 import FeaturesList from '../components/features-list';
+import HeroButton from '../components/hero-button';
 import PageLayout from '../components/page-layout';
 import React from 'react';
 import robots from '../assets/robots.png';
 import ufo from '../assets/ufo.png';
-import {Box, Typography, makeStyles} from '@material-ui/core';
+import {Box, Typography} from '@material-ui/core';
 import {Button} from 'gatsby-theme-material-ui';
 import {FiChevronRight} from 'react-icons/fi';
 
-const useStyles = makeStyles({
-  heroButton: {
-    borderWidth: 2,
-    borderRadius: 1000,
-    fontSize: '1rem',
-    padding: '8px 24px'
-  }
-});
-
 export default function Home() {
-  const {heroButton} = useStyles();
   return (
     <PageLayout>
       <div
@@ -39,14 +30,7 @@ export default function Home() {
               access your data using a GraphQL API to build fast websites with
               modern tools.
             </Typography>
-            <Button
-              size="large"
-              variant="outlined"
-              color="inherit"
-              className={heroButton}
-            >
-              Learn more
-            </Button>
+            <HeroButton>Learn more</HeroButton>
           </Box>
         </CenteredBox>
       </div>

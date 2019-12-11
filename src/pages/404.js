@@ -1,14 +1,18 @@
 import CenteredBox from '../components/centered-box';
+import HeroButton from '../components/hero-button';
 import PageLayout from '../components/page-layout';
 import React from 'react';
 import notFound from '../assets/not-found.png';
 import {Box, Typography} from '@material-ui/core';
-import {Button} from 'gatsby-theme-material-ui';
 import {FiChevronLeft} from 'react-icons/fi';
+import {Helmet} from 'react-helmet';
 
 export default function NotFound() {
   return (
     <PageLayout>
+      <Helmet>
+        <title>Page not found</title>
+      </Helmet>
       <CenteredBox textAlign="center" p={8}>
         <Box
           component="img"
@@ -21,10 +25,10 @@ export default function NotFound() {
         <Typography paragraph variant="h4">
           Page not found
         </Typography>
-        <Button variant="outlined" to="/">
-          <Box component={FiChevronLeft} size={20} ml={-1} mr={1} />
-          Go back to home
-        </Button>
+        <HeroButton to="/">
+          <Box component={FiChevronLeft} size={24} ml={-1} mr={1} />
+          Back to home
+        </HeroButton>
       </CenteredBox>
     </PageLayout>
   );
