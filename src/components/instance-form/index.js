@@ -28,7 +28,11 @@ import {
   locales
 } from '../../utils';
 import {Link} from 'gatsby';
-import {PaymentOption, PlatformButton} from './form-button';
+import {
+  PaymentOption,
+  PaymentOptionContext,
+  PlatformButton
+} from './form-button';
 import {gql, useMutation} from '@apollo/client';
 
 const CREATE_INSTANCE = gql`
@@ -70,7 +74,15 @@ LabeledSelect.propTypes = {
 export default function InstanceForm(props) {
   const user = useContext(UserContext);
   const [locale, setLocale] = useState('en_US');
+  const [paymentOption, setPaymentOption] = useState(
+    props.isTrialDisabled ? 'month' : 'trial'
+  );
+
   const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {
+    variables: {
+      locale,
+      paymentOption
+    },
     onCompleted: props.onCompleted,
     update(cache, {data}) {
       const {instances} = cache.readQuery({
@@ -92,7 +104,6 @@ export default function InstanceForm(props) {
     const {title, adminEmail, adminUser, adminPassword} = event.target;
     createInstance({
       variables: {
-        locale,
         title: title.value,
         adminEmail: adminEmail.value,
         adminUser: adminUser.value,
@@ -213,19 +224,28 @@ export default function InstanceForm(props) {
             </Grid>
           </Grid>
         </Box>
-        <Typography variant="subtitle2">Billing options</Typography>
+        <Typography variant="subtitle2">Payment options</Typography>
         <Box my={1.5}>
-          <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <PaymentOption disabled cost="Free" label="14-day trial" />
+          <PaymentOptionContext.Provider
+            value={{paymentOption, setPaymentOption}}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={4}>
+                <PaymentOption
+                  disabled={props.isTrialDisabled}
+                  value="trial"
+                  cost="Free"
+                  label="14-day trial"
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <PaymentOption value="month" cost="$12" label="per month" />
+              </Grid>
+              <Grid item xs={4}>
+                <PaymentOption value="year" cost="$120" label="per year" />
+              </Grid>
             </Grid>
-            <Grid item xs={4}>
-              <PaymentOption selected cost="$12" label="per month" />
-            </Grid>
-            <Grid item xs={4}>
-              <PaymentOption cost="$120" label="per year" />
-            </Grid>
-          </Grid>
+          </PaymentOptionContext.Provider>
         </Box>
         <Typography variant="body2" color="textSecondary">
           Trial instances are only available to users with no existing
@@ -267,5 +287,6 @@ export default function InstanceForm(props) {
 }
 
 InstanceForm.propTypes = {
-  onCompleted: PropTypes.func.isRequired
+  onCompleted: PropTypes.func.isRequired,
+  isTrialDisabled: PropTypes.bool.isRequired
 };

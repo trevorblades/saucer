@@ -40,6 +40,7 @@ export default function Dashboard() {
     setSnackbarOpen(true);
   }
 
+  const hasInstances = Boolean(data) && data.instances.length > 0;
   return (
     <Fragment>
       <Helmet>
@@ -52,7 +53,7 @@ export default function Dashboard() {
         mb={2}
       >
         <Typography variant="h4">My instances</Typography>
-        {data && data.instances.length > 0 && (
+        {hasInstances && (
           <Button onClick={openDialog} color="primary" variant="contained">
             New instance
           </Button>
@@ -65,7 +66,10 @@ export default function Dashboard() {
         onCreateInstance={openDialog}
       />
       <Drawer anchor="right" open={dialogOpen} onClose={closeDialog}>
-        <InstanceForm onCancel={closeDialog} onCompleted={handleCompleted} />
+        <InstanceForm
+          isTrialDisabled={hasInstances}
+          onCompleted={handleCompleted}
+        />
       </Drawer>
       <Snackbar
         anchorOrigin={{

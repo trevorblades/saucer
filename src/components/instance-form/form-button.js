@@ -1,12 +1,13 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {createContext, useContext} from 'react';
 import {Box, CardActionArea, Typography, useTheme} from '@material-ui/core';
 
-export default function FormButton(props) {
+export default function FormButton({disabled, selected, children, ...props}) {
   const {shape} = useTheme();
   return (
     <CardActionArea
-      disabled={props.disabled}
+      {...props}
+      disabled={disabled}
       style={{
         height: '100%',
         borderRadius: shape.borderRadius
@@ -16,15 +17,15 @@ export default function FormButton(props) {
         p={2.5}
         height={1}
         border={1}
-        borderColor={props.selected ? 'primary.main' : 'divider'}
-        color={props.disabled ? 'action.disabled' : 'inherit'}
+        borderColor={selected ? 'primary.main' : 'divider'}
+        color={disabled ? 'action.disabled' : 'inherit'}
         borderRadius="inherit"
         display="flex"
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
       >
-        {props.children}
+        {children}
       </Box>
     </CardActionArea>
   );
@@ -52,9 +53,21 @@ PlatformButton.propTypes = {
   caption: PropTypes.string
 };
 
-export function PaymentOption({cost, label, ...props}) {
+export const PaymentOptionContext = createContext();
+
+export function PaymentOption({cost, label, value, ...props}) {
+  const {paymentOption, setPaymentOption} = useContext(PaymentOptionContext);
+
+  function handleClick() {
+    setPaymentOption(value);
+  }
+
   return (
-    <FormButton {...props}>
+    <FormButton
+      {...props}
+      onClick={handleClick}
+      selected={paymentOption === value}
+    >
       <Typography variant="h6">{cost}</Typography>
       <Typography variant="body2">{label}</Typography>
     </FormButton>
@@ -63,5 +76,6 @@ export function PaymentOption({cost, label, ...props}) {
 
 PaymentOption.propTypes = {
   cost: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired
 };
