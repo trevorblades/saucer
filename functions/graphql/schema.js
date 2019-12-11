@@ -64,12 +64,12 @@ exports.resolvers = {
   DateTime: GraphQLDateTime,
   Instance: {
     id: instance => instance.InstanceId,
-    name: instance => {
+    name(instance) {
       const {Name} = reduceTags(instance.Tags);
       return Name;
     },
     status: instance => instance.State.Name,
-    isReady: instance => {
+    isReady(instance) {
       const {Status} = reduceTags(instance.Tags);
       return Status === 'ready';
     },
