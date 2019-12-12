@@ -107,8 +107,10 @@ function CardForm(props) {
           }}
         />
         <FormControlLabel
-          disabled={isLoading}
-          control={<Checkbox name="isDefault" />}
+          disabled={isLoading || props.isDefault}
+          control={
+            <Checkbox name="isDefault" defaultChecked={props.isDefault} />
+          }
           label="Set as default payment method"
         />
       </DialogContent>
@@ -125,6 +127,7 @@ function CardForm(props) {
 CardForm.propTypes = {
   stripe: PropTypes.object,
   onCancel: PropTypes.func.isRequired,
+  isDefault: PropTypes.bool.isRequired,
   onCompleted: PropTypes.func.isRequired
 };
 

@@ -68,12 +68,19 @@ export default function Billing() {
             </TableBody>
           </Table>
         )}
-      />
-      <Dialog fullWidth open={modalOpen} onClose={closeModal}>
-        <StripeElementsProvider>
-          <CardForm onCancel={closeModal} onCompleted={handleCompleted} />
-        </StripeElementsProvider>
-      </Dialog>
+      >
+        {data => (
+          <Dialog fullWidth open={modalOpen} onClose={closeModal}>
+            <StripeElementsProvider>
+              <CardForm
+                isDefault={!data.cards.length}
+                onCancel={closeModal}
+                onCompleted={handleCompleted}
+              />
+            </StripeElementsProvider>
+          </Dialog>
+        )}
+      </QueryTable>
       <SuccessToast
         open={snackbarOpen}
         onClose={closeSnackbar}
