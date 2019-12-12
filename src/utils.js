@@ -41,6 +41,26 @@ export const LIST_INSTANCES = gql`
   ${INSTANCE_FRAGMENT}
 `;
 
+export const CARD_FRAGMENT = gql`
+  fragment CardFragment on Card {
+    id
+    brand
+    last4
+    expMonth
+    expYear
+    isDefault
+  }
+`;
+
+export const LIST_CARDS = gql`
+  {
+    cards {
+      ...CardFragment
+    }
+  }
+  ${CARD_FRAGMENT}
+`;
+
 export const locales = {
   English: 'en_US',
   'English (UK)': 'en_GB',

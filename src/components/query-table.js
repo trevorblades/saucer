@@ -1,8 +1,39 @@
 import EmptyState from './empty-state';
 import PropTypes from 'prop-types';
-import React, {Fragment} from 'react';
+import React, {Fragment, useState} from 'react';
 import {Box, Button, Typography} from '@material-ui/core';
 import {useQuery} from '@apollo/client';
+
+export function useQueryTable() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  function openModal() {
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    setModalOpen(false);
+  }
+
+  function closeSnackbar() {
+    setSnackbarOpen(false);
+  }
+
+  function handleCompleted() {
+    closeModal();
+    setSnackbarOpen(true);
+  }
+
+  return {
+    modalOpen,
+    openModal,
+    closeModal,
+    snackbarOpen,
+    closeSnackbar,
+    handleCompleted
+  };
+}
 
 function QueryTableHeader(props) {
   return (

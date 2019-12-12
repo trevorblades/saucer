@@ -12,29 +12,61 @@ import {
   TextField,
   useTheme
 } from '@material-ui/core';
+import {CARD_FRAGMENT, LIST_CARDS} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 import {injectStripe} from 'react-stripe-elements';
 
 const CREATE_CARD = gql`
   mutation CreateCard($source: String!, $isDefault: Boolean) {
     createCard(source: $source, isDefault: $isDefault) {
-      id
+      ...CardFragment
     }
   }
+  ${CARD_FRAGMENT}
 `;
 
 function CardForm(props) {
   const {typography, palette} = useTheme();
   const [stripeLoading, setStripeLoading] = useState(false);
-  const [createCard, {loading, error}] = useMutation(CREATE_CARD);
+  const [stripeError, setStripeError] = useState(null);
+  const [createCard, {loading, error}] = useMutation(CREATE_CARD, {
+    onCompleted: props.onCompleted,
+    update(cache, {data}) {
+      const {cards} = cache.readQuery({
+        query: LIST_CARDS
+      });
+
+      const existingCards = data.createCard.isDefault
+        ? cards.map(card => ({
+            ...card,
+            isDefault: false
+          }))
+        : cards;
+
+      cache.writeQuery({
+        query: LIST_CARDS,
+        data: {
+          cards: [data.createCard, ...existingCards].sort(
+            (a, b) => b.isDefault - a.isDefault
+          )
+        }
+      });
+    }
+  });
 
   async function handleSubmit(event) {
     event.preventDefault();
+
     setStripeLoading(true);
+    if (stripeError) {
+      setStripeError(null);
+    }
 
     const {isDefault} = event.target;
-    const {token} = await props.stripe.createToken();
-    if (token) {
+    const {token, error} = await props.stripe.createToken();
+    if (error) {
+      setStripeError(error);
+    } else {
       createCard({
         variables: {
           source: token.id,
@@ -47,12 +79,15 @@ function CardForm(props) {
   }
 
   const isLoading = stripeLoading || loading;
+  const allError = stripeError || error;
   return (
     <form onSubmit={handleSubmit}>
       <DialogTitle>Add a card</DialogTitle>
       <DialogContent>
-        {error && (
-          <DialogContentText color="error">{error.message}</DialogContentText>
+        {allError && (
+          <DialogContentText color="error">
+            {allError.message}
+          </DialogContentText>
         )}
         <TextField
           fullWidth
@@ -88,8 +123,9 @@ function CardForm(props) {
 }
 
 CardForm.propTypes = {
+  stripe: PropTypes.object,
   onCancel: PropTypes.func.isRequired,
-  stripe: PropTypes.object
+  onCompleted: PropTypes.func.isRequired
 };
 
 export default injectStripe(CardForm);

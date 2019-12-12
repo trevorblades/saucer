@@ -1,8 +1,9 @@
 import CardForm from '../../components/card-form';
 import PaymentMethod from '../../components/payment-method';
-import QueryTable from '../../components/query-table';
-import React, {Fragment, useState} from 'react';
+import QueryTable, {useQueryTable} from '../../components/query-table';
+import React, {Fragment} from 'react';
 import StripeElementsProvider from '../../components/stripe-elements-provider';
+import SuccessToast from '../../components/success-toast';
 import dog from '../../assets/dog.png';
 import {
   Chip,
@@ -14,39 +15,24 @@ import {
   TableRow
 } from '@material-ui/core';
 import {Helmet} from 'react-helmet';
-import {gql} from '@apollo/client';
-
-const LIST_CARDS = gql`
-  {
-    cards {
-      id
-      brand
-      last4
-      expMonth
-      expYear
-      isDefault
-    }
-  }
-`;
+import {LIST_CARDS} from '../../utils';
 
 export default function Billing() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  function openDialog() {
-    setDialogOpen(true);
-  }
-
-  function closeDialog() {
-    setDialogOpen(false);
-  }
-
+  const {
+    modalOpen,
+    openModal,
+    closeModal,
+    snackbarOpen,
+    closeSnackbar,
+    handleCompleted
+  } = useQueryTable();
   return (
     <Fragment>
       <Helmet>
         <title>Billing</title>
       </Helmet>
       <QueryTable
-        title="Billing settings"
+        title="Payment methods"
         query={LIST_CARDS}
         dataKey="cards"
         EmptyStateProps={{
@@ -54,7 +40,7 @@ export default function Billing() {
           title: 'You have no payment methods',
           subtitle: 'Configure a credit card here',
           buttonText: 'Add card',
-          onButtonClick: openDialog
+          onButtonClick: openModal
         }}
         renderTable={cards => (
           <Table>
@@ -83,11 +69,16 @@ export default function Billing() {
           </Table>
         )}
       />
-      <Dialog fullWidth open={dialogOpen} onClose={closeDialog}>
+      <Dialog fullWidth open={modalOpen} onClose={closeModal}>
         <StripeElementsProvider>
-          <CardForm onCancel={closeDialog} />
+          <CardForm onCancel={closeModal} onCompleted={handleCompleted} />
         </StripeElementsProvider>
       </Dialog>
+      <SuccessToast
+        open={snackbarOpen}
+        onClose={closeSnackbar}
+        message="Card added 🤑"
+      />
     </Fragment>
   );
 }
