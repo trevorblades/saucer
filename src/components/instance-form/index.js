@@ -130,9 +130,18 @@ export default function InstanceForm(props) {
   return (
     <Box width={600} component="form" onSubmit={handleSubmit}>
       <Box py={3} px={4}>
-        <Box textAlign="center" mb={3}>
-          <Box component="img" mb={2} src={puzzle} height={250} />
-          <Typography variant="h5">What do you want to build today?</Typography>
+        <Box mb={3}>
+          <Box
+            display="block"
+            mx="auto"
+            component="img"
+            mb={2}
+            src={puzzle}
+            height={250}
+          />
+          <Typography align="center" variant="h5">
+            What do you want to build today?
+          </Typography>
         </Box>
         {error && (
           <Typography paragraph color="error">

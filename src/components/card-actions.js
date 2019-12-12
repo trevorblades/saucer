@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
 import grimReaper from '../assets/grim-reaper.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
+import {LIST_CARDS, LIST_INSTANCES} from '../utils';
 import {gql} from '@apollo/client';
 
 const DELETE_CARD = gql`
@@ -14,7 +15,6 @@ const DELETE_CARD = gql`
 
 export default function CardActions(props) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  // TODO: refetch instances query after delete
 
   function closeDialog() {
     setDialogOpen(false);
@@ -42,6 +42,17 @@ export default function CardActions(props) {
           mutationOptions={{
             variables: {
               id: props.card.id
+            },
+            // also refetches cards (for new default)
+            refetchQueries: [{query: LIST_INSTANCES}],
+            update(cache, {data}) {
+              const {cards} = cache.readQuery({query: LIST_CARDS});
+              cache.writeQuery({
+                query: LIST_CARDS,
+                data: {
+                  cards: cards.filter(card => card.id !== data.deleteCard)
+                }
+              });
             }
           }}
         >

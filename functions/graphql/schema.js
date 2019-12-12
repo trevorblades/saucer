@@ -30,6 +30,7 @@ exports.typeDefs = gql`
     ): Instance
     deleteInstance(id: ID!): ID
     createCard(source: String!, isDefault: Boolean): Card
+    deleteCard(id: ID!): ID
   }
 
   type Card {
@@ -124,6 +125,18 @@ exports.resolvers = {
     logIn,
     createInstance,
     deleteInstance,
-    createCard
+    createCard,
+    async deleteCard(parent, args, {user, stripe}) {
+      if (!user) {
+        throw new AuthenticationError('Unauthorized');
+      }
+
+      const source = await stripe.customers.deleteSource(
+        user.data.customerId,
+        args.id
+      );
+
+      return source.id;
+    }
   }
 };
