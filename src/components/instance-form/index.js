@@ -58,7 +58,7 @@ const CREATE_INSTANCE = gql`
 
 function LabeledSelect({label, helperText, ...props}) {
   return (
-    <FormControl required margin="normal" fullWidth>
+    <FormControl margin="normal" fullWidth>
       <InputLabel>{label}</InputLabel>
       <Select {...props} />
       {helperText && <FormHelperText>{helperText}</FormHelperText>}
