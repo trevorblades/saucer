@@ -31,6 +31,12 @@ export const LIST_INSTANCES = gql`
     instances {
       ...InstanceFragment
     }
+    cards {
+      id
+      last4
+      brand
+      isDefault
+    }
   }
   ${INSTANCE_FRAGMENT}
 `;

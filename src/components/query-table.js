@@ -37,12 +37,13 @@ export default function QueryTable(props) {
     );
   }
 
-  if (!data[props.dataKey].length) {
+  const results = data[props.dataKey];
+  if (!results.length) {
     return (
       <Fragment>
         <QueryTableHeader title={props.title} />
         <EmptyState {...props.EmptyStateProps} />
-        {props.children(false)}
+        {props.children(data)}
       </Fragment>
     );
   }
@@ -55,8 +56,8 @@ export default function QueryTable(props) {
           {buttonText}
         </Button>
       </QueryTableHeader>
-      {props.renderTable(data)}
-      {props.children(true)}
+      {props.renderTable(results)}
+      {props.children(data)}
     </Fragment>
   );
 }

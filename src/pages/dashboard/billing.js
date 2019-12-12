@@ -1,4 +1,5 @@
 import CardForm from '../../components/card-form';
+import PaymentMethod from '../../components/payment-method';
 import QueryTable from '../../components/query-table';
 import React, {Fragment, useState} from 'react';
 import StripeElementsProvider from '../../components/stripe-elements-provider';
@@ -55,7 +56,7 @@ export default function Billing() {
           buttonText: 'Add card',
           onButtonClick: openDialog
         }}
-        renderTable={data => (
+        renderTable={cards => (
           <Table>
             <TableHead>
               <TableRow>
@@ -64,11 +65,13 @@ export default function Billing() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.cards.map(card => (
+              {cards.map(card => (
                 <TableRow key={card.id}>
                   <TableCell padding="none">
-                    {card.brand} xxxx {card.last4}{' '}
-                    {card.isDefault && <Chip size="small" label="Default" />}
+                    <PaymentMethod
+                      card={card}
+                      defaultIndicator={<Chip size="small" label="Default" />}
+                    />
                   </TableCell>
                   <TableCell>
                     {card.expMonth.toString().padStart(2, '0')}/

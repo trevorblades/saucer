@@ -24,7 +24,6 @@ export default function Dashboard() {
     if (reason === 'clickaway') {
       return;
     }
-
     setSnackbarOpen(false);
   }
 
@@ -49,12 +48,13 @@ export default function Dashboard() {
           buttonText: 'Create instance',
           onButtonClick: openDrawer
         }}
-        renderTable={data => <InstancesTable instances={data.instances} />}
+        renderTable={instances => <InstancesTable instances={instances} />}
       >
-        {hasInstances => (
+        {data => (
           <Drawer anchor="right" open={drawerOpen} onClose={closeDrawer}>
             <InstanceForm
-              isTrialDisabled={hasInstances}
+              isTrialDisabled={data.instances.length > 0}
+              cards={data.cards}
               onCompleted={handleCompleted}
             />
           </Drawer>

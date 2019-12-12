@@ -1,10 +1,10 @@
 import FormField from '../form-field';
 import PasswordField from './password-field';
+import PaymentMethod from '../payment-method';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useState} from 'react';
 import localeEmoji from 'locale-emoji';
 import puzzle from '../../assets/puzzle.png';
-import visa from 'payment-icons/min/flat/visa.svg';
 import {
   Box,
   CardActionArea,
@@ -74,6 +74,10 @@ LabeledSelect.propTypes = {
 export default function InstanceForm(props) {
   const user = useContext(UserContext);
   const [locale, setLocale] = useState('en_US');
+  const [source, setSource] = useState(
+    props.cards.length ? props.cards.find(card => card.isDefault).id : ''
+  );
+
   const [paymentOption, setPaymentOption] = useState(
     props.isTrialDisabled ? 'month' : 'trial'
   );
@@ -114,6 +118,10 @@ export default function InstanceForm(props) {
 
   function handleLocaleChange(event) {
     setLocale(event.target.value);
+  }
+
+  function handleSourceChange(event) {
+    setSource(event.target.value);
   }
 
   return (
@@ -256,16 +264,20 @@ export default function InstanceForm(props) {
           Trial instances are only available to users with no existing
           instances.
         </Typography>
-        <LabeledSelect label="Payment method" value="1" disabled={loading}>
+        <LabeledSelect
+          label="Payment method"
+          value={source}
+          onChange={handleSourceChange}
+          disabled={loading}
+        >
           <MenuItem component={Link} to="/dashboard/billing">
             Add a new card
           </MenuItem>
-          <MenuItem value="1">
-            <Box component="span" display="flex" alignItems="center">
-              <Box component="img" src={visa} height="1em" mr={1} />
-              Trevor Blades xxxx-4242
-            </Box>
-          </MenuItem>
+          {props.cards.map(card => (
+            <MenuItem key={card.id} value={card.id}>
+              <PaymentMethod card={card} />
+            </MenuItem>
+          ))}
         </LabeledSelect>
       </Box>
       <Box position="sticky" bottom={0} bgcolor="background.paper">
@@ -292,6 +304,7 @@ export default function InstanceForm(props) {
 }
 
 InstanceForm.propTypes = {
+  cards: PropTypes.array.isRequired,
   onCompleted: PropTypes.func.isRequired,
   isTrialDisabled: PropTypes.bool.isRequired
 };
