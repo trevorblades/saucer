@@ -121,14 +121,17 @@ export default function InstanceForm(props) {
   }
 
   function handleSourceChange(event) {
-    setSource(event.target.value);
+    const {value} = event.target;
+    if (value) {
+      setSource(event.target.value);
+    }
   }
 
   return (
     <Box width={600} component="form" onSubmit={handleSubmit}>
       <Box py={3} px={4}>
         <Box textAlign="center" mb={3}>
-          <Box component="img" mb={2} src={puzzle} height={200} />
+          <Box component="img" mb={2} src={puzzle} height={250} />
           <Typography variant="h5">What do you want to build today?</Typography>
         </Box>
         {error && (
