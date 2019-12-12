@@ -1,3 +1,4 @@
+import ActionMenu from '../../components/action-menu';
 import CardForm from '../../components/card-form';
 import PaymentMethod from '../../components/payment-method';
 import QueryTable, {useQueryTable} from '../../components/query-table';
@@ -8,6 +9,7 @@ import dog from '../../assets/dog.png';
 import {
   Chip,
   Dialog,
+  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -47,7 +49,7 @@ export default function Billing() {
             <TableHead>
               <TableRow>
                 <TableCell padding="none">Card number</TableCell>
-                <TableCell>Expiry</TableCell>
+                <TableCell colSpan={2}>Expiry</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -62,6 +64,9 @@ export default function Billing() {
                   <TableCell>
                     {card.expMonth.toString().padStart(2, '0')}/
                     {card.expYear.toString().slice(2)}
+                  </TableCell>
+                  <TableCell align="right" padding="checkbox">
+                    <ActionMenu>{() => <MenuItem>Hello</MenuItem>}</ActionMenu>
                   </TableCell>
                 </TableRow>
               ))}

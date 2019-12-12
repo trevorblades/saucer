@@ -1,3 +1,4 @@
+import ActionMenu from '../action-menu';
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
 import plant from '../../assets/plant.png';
@@ -7,13 +8,9 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  IconButton,
-  Menu,
   MenuItem,
-  Tooltip,
   Typography
 } from '@material-ui/core';
-import {FiMoreHorizontal} from 'react-icons/fi';
 import {LIST_INSTANCES} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 
@@ -24,7 +21,6 @@ const DELETE_INSTANCE = gql`
 `;
 
 export default function InstanceActions(props) {
-  const [anchorEl, setAnchorEl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteInstance, {loading, error}] = useMutation(DELETE_INSTANCE, {
     variables: {
@@ -46,37 +42,34 @@ export default function InstanceActions(props) {
     }
   });
 
-  function handleClick(event) {
-    setAnchorEl(event.currentTarget);
-  }
-
-  function closeMenu() {
-    setAnchorEl(null);
-  }
-
-  function handleDeleteClick() {
-    closeMenu();
-    setDialogOpen(true);
-  }
-
   function closeDialog() {
     setDialogOpen(false);
   }
 
   return (
     <Fragment>
-      <Tooltip title="More actions">
-        <IconButton size="small" onClick={handleClick}>
-          <FiMoreHorizontal size={24} />
-        </IconButton>
-      </Tooltip>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
-        <MenuItem disabled>Edit instance</MenuItem>
-        {props.instance.status === 'stopped' && (
-          <MenuItem>Restart instance</MenuItem>
-        )}
-        <MenuItem onClick={handleDeleteClick}>Delete instance</MenuItem>
-      </Menu>
+      <ActionMenu>
+        {closeMenu => [
+          <MenuItem key="edit" disabled>
+            Edit instance
+          </MenuItem>,
+          <MenuItem
+            key="restart"
+            disabled={props.instance.status !== 'stopped'}
+          >
+            Restart instance
+          </MenuItem>,
+          <MenuItem
+            key="delete"
+            onClick={() => {
+              closeMenu();
+              setDialogOpen(true);
+            }}
+          >
+            Delete instance
+          </MenuItem>
+        ]}
+      </ActionMenu>
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
         <DialogContent>
           <Box textAlign="center">
