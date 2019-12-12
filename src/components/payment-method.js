@@ -26,10 +26,10 @@ export default function PaymentMethod(props) {
       <Box
         component="img"
         src={getIconForBrand(brand)}
-        height="1.2em"
+        width="2em"
         title={brand}
       />
-      <Box mx={1.5} style={{letterSpacing: 1}}>
+      <Box mx={2} style={{letterSpacing: 1}}>
         xxxx {last4}
       </Box>
       {isDefault && props.defaultIndicator}
