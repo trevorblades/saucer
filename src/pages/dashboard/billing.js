@@ -1,4 +1,4 @@
-import ActionMenu from '../../components/action-menu';
+import CardActions from '../../components/card-actions';
 import CardForm from '../../components/card-form';
 import PaymentMethod from '../../components/payment-method';
 import QueryTable, {useQueryTable} from '../../components/query-table';
@@ -9,7 +9,6 @@ import dog from '../../assets/dog.png';
 import {
   Chip,
   Dialog,
-  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -66,7 +65,7 @@ export default function Billing() {
                     {card.expYear.toString().slice(2)}
                   </TableCell>
                   <TableCell align="right" padding="checkbox">
-                    <ActionMenu>{() => <MenuItem>Hello</MenuItem>}</ActionMenu>
+                    <CardActions card={card} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -75,7 +74,7 @@ export default function Billing() {
         )}
       >
         {data => (
-          <Dialog fullWidth open={modalOpen} onClose={closeModal}>
+          <Dialog fullWidth maxWidth="xs" open={modalOpen} onClose={closeModal}>
             <StripeElementsProvider>
               <CardForm
                 isDefault={!data.cards.length}

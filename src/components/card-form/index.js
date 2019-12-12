@@ -1,15 +1,17 @@
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 import StripeInput from './stripe-input';
+import payment from '../../assets/payment.png';
 import {
+  Box,
   Button,
   Checkbox,
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   FormControlLabel,
   TextField,
+  Typography,
   useTheme
 } from '@material-ui/core';
 import {CARD_FRAGMENT, LIST_CARDS} from '../../utils';
@@ -82,8 +84,17 @@ function CardForm(props) {
   const allError = stripeError || error;
   return (
     <form onSubmit={handleSubmit}>
-      <DialogTitle>Add a card</DialogTitle>
       <DialogContent>
+        <Box
+          component="img"
+          height={200}
+          display="block"
+          mx="auto"
+          src={payment}
+        />
+        <Typography paragraph variant="h5" align="center">
+          Add a credit card
+        </Typography>
         {allError && (
           <DialogContentText color="error">
             {allError.message}
