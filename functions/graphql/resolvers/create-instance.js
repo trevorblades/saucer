@@ -19,6 +19,7 @@ module.exports = async function createInstance(parent, args, {user, stripe}) {
     throw new AuthenticationError('Unauthorized');
   }
 
+  let subscription;
   if (!args.source) {
     const instances = await findInstancesForUser(user);
     if (instances.length) {
@@ -26,6 +27,12 @@ module.exports = async function createInstance(parent, args, {user, stripe}) {
         'Free trial limit reached. Please provide a payment method.'
       );
     }
+  } else {
+    subscription = await stripe.subscriptions.create({
+      customer: user.data.customerId,
+      default_source: args.source,
+      items: [{plan: process.env.STRIPE_PLAN_ID}]
+    });
   }
 
   const instanceName =
@@ -179,7 +186,6 @@ module.exports = async function createInstance(parent, args, {user, stripe}) {
     })
     .promise();
 
-  const [Instance] = data.Instances;
   const Tags = [
     {
       Key: 'Name',
@@ -191,23 +197,29 @@ module.exports = async function createInstance(parent, args, {user, stripe}) {
     }
   ];
 
-  await ec2
-    .createTags({
-      Resources: [Instance.InstanceId],
-      Tags
-    })
-    .promise();
+  const [Instance] = data.Instances;
+  const promises = [
+    ec2
+      .createTags({
+        Resources: [Instance.InstanceId],
+        Tags
+      })
+      .promise()
+  ];
 
-  if (args.source) {
-    await stripe.subscriptions.create({
-      customer: user.data.customerId,
-      default_source: args.source,
-      items: [{plan: process.env.STRIPE_PLAN_ID}],
-      metadata: {
-        instance_id: Instance.InstanceId
-      }
-    });
+  if (subscription) {
+    // update the subscription with metadata about the instance
+    promises.push(
+      stripe.subscriptions.update(subscription.id, {
+        metadata: {
+          instance_id: Instance.InstanceId
+        }
+      })
+    );
   }
+
+  // wait for final actions to complete and return the new instance
+  await Promise.all(promises);
 
   return {
     ...Instance,
