@@ -62,6 +62,7 @@ export default function CardActions(props) {
             new payment method is set up for them:
           </Typography>
           <ul>
+            {/* TODO: list actual instance names */}
             <Typography component="li" gutterBottom>
               instance-name-2
             </Typography>

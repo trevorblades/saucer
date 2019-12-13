@@ -2,6 +2,7 @@ const createInstance = require('./resolvers/create-instance');
 const deleteInstance = require('./resolvers/delete-instance');
 const logIn = require('./resolvers/log-in');
 const createCard = require('./resolvers/create-card');
+const deleteCard = require('./resolvers/delete-card');
 const {
   AuthenticationError,
   ForbiddenError,
@@ -27,6 +28,7 @@ exports.typeDefs = gql`
       adminUser: String!
       adminPassword: String!
       adminEmail: String!
+      source: String
     ): Instance
     deleteInstance(id: ID!): ID
     createCard(source: String!, isDefault: Boolean): Card
@@ -126,17 +128,6 @@ exports.resolvers = {
     createInstance,
     deleteInstance,
     createCard,
-    async deleteCard(parent, args, {user, stripe}) {
-      if (!user) {
-        throw new AuthenticationError('Unauthorized');
-      }
-
-      const source = await stripe.customers.deleteSource(
-        user.data.customerId,
-        args.id
-      );
-
-      return source.id;
-    }
+    deleteCard
   }
 };

@@ -2,7 +2,7 @@ import FormField from '../form-field';
 import PasswordField from './password-field';
 import PaymentMethod from '../payment-method';
 import PropTypes from 'prop-types';
-import React, {Fragment, useContext, useState} from 'react';
+import React, {Fragment, useContext, useRef, useState} from 'react';
 import localeEmoji from 'locale-emoji';
 import puzzle from '../../assets/puzzle.png';
 import {
@@ -28,11 +28,7 @@ import {
   locales
 } from '../../utils';
 import {Link} from 'gatsby';
-import {
-  PaymentOption,
-  PaymentOptionContext,
-  PlatformButton
-} from './form-button';
+import {PlanButton, PlanButtonContext, PlatformButton} from './form-button';
 import {gql, useMutation} from '@apollo/client';
 
 const CREATE_INSTANCE = gql`
@@ -42,6 +38,7 @@ const CREATE_INSTANCE = gql`
     $adminEmail: String!
     $adminUser: String!
     $adminPassword: String!
+    $source: String
   ) {
     createInstance(
       title: $title
@@ -49,6 +46,7 @@ const CREATE_INSTANCE = gql`
       adminEmail: $adminEmail
       adminUser: $adminUser
       adminPassword: $adminPassword
+      source: $source
     ) {
       ...InstanceFragment
     }
@@ -73,19 +71,18 @@ LabeledSelect.propTypes = {
 
 export default function InstanceForm(props) {
   const user = useContext(UserContext);
+  const formRef = useRef(null);
   const [locale, setLocale] = useState('en_US');
+  const [plan, setPlan] = useState(props.isTrialDisabled ? 'month' : 'trial');
   const [source, setSource] = useState(
     props.cards.length ? props.cards.find(card => card.isDefault).id : ''
   );
 
-  const [paymentOption, setPaymentOption] = useState(
-    props.isTrialDisabled ? 'month' : 'trial'
-  );
-
   const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {
-    variables: {
-      locale,
-      paymentOption
+    variables: {locale},
+    onError() {
+      // scroll to the top of the form to show the error message
+      formRef.current.parentNode.scrollTo(0, 0);
     },
     onCompleted: props.onCompleted,
     update(cache, {data}) {
@@ -105,13 +102,14 @@ export default function InstanceForm(props) {
   function handleSubmit(event) {
     event.preventDefault();
 
-    const {title, adminEmail, adminUser, adminPassword} = event.target;
+    const {title, adminEmail, adminUser, adminPassword, source} = event.target;
     createInstance({
       variables: {
         title: title.value,
         adminEmail: adminEmail.value,
         adminUser: adminUser.value,
-        adminPassword: adminPassword.value
+        adminPassword: adminPassword.value,
+        source: source && source.value
       }
     });
   }
@@ -121,14 +119,15 @@ export default function InstanceForm(props) {
   }
 
   function handleSourceChange(event) {
+    // avoid a warning when the "add card" link is clicked (no value)
     const {value} = event.target;
     if (value) {
-      setSource(event.target.value);
+      setSource(value);
     }
   }
 
   return (
-    <Box width={600} component="form" onSubmit={handleSubmit}>
+    <Box width={600} component="form" onSubmit={handleSubmit} ref={formRef}>
       <Box py={3} px={4}>
         <Box mb={3}>
           <Box
@@ -246,12 +245,10 @@ export default function InstanceForm(props) {
         </Box>
         <Typography variant="subtitle2">Payment options</Typography>
         <Box my={1.5}>
-          <PaymentOptionContext.Provider
-            value={{paymentOption, setPaymentOption}}
-          >
+          <PlanButtonContext.Provider value={{plan, setPlan}}>
             <Grid container spacing={2}>
               <Grid item xs={4}>
-                <PaymentOption
+                <PlanButton
                   disabled={props.isTrialDisabled}
                   value="trial"
                   cost="Free"
@@ -259,10 +256,10 @@ export default function InstanceForm(props) {
                 />
               </Grid>
               <Grid item xs={4}>
-                <PaymentOption value="month" cost="$12" label="per month" />
+                <PlanButton value="month" cost="$12" label="per month" />
               </Grid>
               <Grid item xs={4}>
-                <PaymentOption
+                <PlanButton
                   disabled
                   value="year"
                   cost="$120"
@@ -270,27 +267,30 @@ export default function InstanceForm(props) {
                 />
               </Grid>
             </Grid>
-          </PaymentOptionContext.Provider>
+          </PlanButtonContext.Provider>
         </Box>
         <Typography variant="body2" color="textSecondary">
-          Trial instances are only available to users with no existing
+          Free trial instances are available to users with no existing
           instances.
         </Typography>
-        <LabeledSelect
-          label="Payment method"
-          value={source}
-          onChange={handleSourceChange}
-          disabled={loading}
-        >
-          <MenuItem component={Link} to="/dashboard/billing">
-            Add a new card
-          </MenuItem>
-          {props.cards.map(card => (
-            <MenuItem key={card.id} value={card.id}>
-              <PaymentMethod card={card} />
+        {plan !== 'trial' && (
+          <LabeledSelect
+            label="Payment method"
+            value={source}
+            name="source"
+            onChange={handleSourceChange}
+            disabled={loading}
+          >
+            <MenuItem component={Link} to="/dashboard/billing">
+              Add a new card
             </MenuItem>
-          ))}
-        </LabeledSelect>
+            {props.cards.map(card => (
+              <MenuItem key={card.id} value={card.id}>
+                <PaymentMethod card={card} />
+              </MenuItem>
+            ))}
+          </LabeledSelect>
+        )}
       </Box>
       <Box position="sticky" bottom={0} bgcolor="background.paper">
         <CardActionArea disabled={loading} type="submit">

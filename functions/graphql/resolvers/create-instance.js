@@ -1,18 +1,31 @@
 const base64 = require('base-64');
-const {AuthenticationError} = require('apollo-server-lambda');
+const {AuthenticationError, UserInputError} = require('apollo-server-lambda');
 const {
   adjectives,
   animals,
   uniqueNamesGenerator
 } = require('unique-names-generator');
-const {createChangeBatch, createInstanceDomain} = require('../utils');
+const {
+  createChangeBatch,
+  createInstanceDomain,
+  findInstancesForUser
+} = require('../utils');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
 const {EC2} = require('aws-sdk');
 
-module.exports = async function createInstance(parent, args, {user}) {
+module.exports = async function createInstance(parent, args, {user, stripe}) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
+  }
+
+  if (!args.source) {
+    const instances = await findInstancesForUser(user);
+    if (instances.length) {
+      throw new UserInputError(
+        'Free trial limit reached. Please provide a payment method.'
+      );
+    }
   }
 
   const instanceName =
@@ -184,6 +197,17 @@ module.exports = async function createInstance(parent, args, {user}) {
       Tags
     })
     .promise();
+
+  if (args.source) {
+    await stripe.subscriptions.create({
+      customer: user.data.customerId,
+      default_source: args.source,
+      items: [{plan: process.env.STRIPE_PLAN_ID}],
+      metadata: {
+        instance_id: Instance.InstanceId
+      }
+    });
+  }
 
   return {
     ...Instance,

@@ -67,5 +67,7 @@ module.exports = async function deleteInstance(parent, args, {user}) {
     })
     .promise();
 
+  // TODO: cancel subscriptions in stripe
+
   return TerminatingInstances[0].InstanceId;
 };

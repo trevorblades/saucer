@@ -53,28 +53,23 @@ PlatformButton.propTypes = {
   caption: PropTypes.string
 };
 
-export const PaymentOptionContext = createContext();
-
-export function PaymentOption({cost, label, value, ...props}) {
-  const {paymentOption, setPaymentOption} = useContext(PaymentOptionContext);
+export const PlanButtonContext = createContext();
+export function PlanButton({cost, label, value, ...props}) {
+  const {plan, setPlan} = useContext(PlanButtonContext);
 
   function handleClick() {
-    setPaymentOption(value);
+    setPlan(value);
   }
 
   return (
-    <FormButton
-      {...props}
-      onClick={handleClick}
-      selected={paymentOption === value}
-    >
+    <FormButton {...props} onClick={handleClick} selected={plan === value}>
       <Typography variant="h6">{cost}</Typography>
       <Typography variant="body2">{label}</Typography>
     </FormButton>
   );
 }
 
-PaymentOption.propTypes = {
+PlanButton.propTypes = {
   cost: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired
