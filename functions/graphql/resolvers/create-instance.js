@@ -35,7 +35,7 @@ module.exports = async function createInstance(
     subscription = await stripe.subscriptions.create({
       customer: user.data.customerId,
       default_source: args.source,
-      items: [{plan: process.env.STRIPE_PLAN_ID}]
+      items: [{plan: process.env.STRIPE_PLAN_ID_DEV}]
     });
   }
 

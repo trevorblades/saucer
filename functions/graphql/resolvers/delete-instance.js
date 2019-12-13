@@ -2,7 +2,7 @@ const {AuthenticationError, ForbiddenError} = require('apollo-server-lambda');
 const {
   createChangeBatch,
   createInstanceDomain,
-  findInstancesForUser
+  findInstanceForUser
 } = require('../utils');
 
 const {ROUTE_53_HOSTED_ZONE_ID} = process.env;
@@ -16,10 +16,7 @@ module.exports = async function deleteInstance(
     throw new AuthenticationError('Unauthorized');
   }
 
-  const [instance] = await findInstancesForUser(ec2, user, {
-    InstanceIds: [args.id]
-  });
-
+  const instance = await findInstanceForUser(ec2, user, args.id);
   if (!instance) {
     throw new ForbiddenError('You do not have access to this instance');
   }

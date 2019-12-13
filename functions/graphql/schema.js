@@ -1,5 +1,6 @@
 const createInstance = require('./resolvers/create-instance');
 const deleteInstance = require('./resolvers/delete-instance');
+const startInstance = require('./resolvers/start-instance');
 const stopInstance = require('./resolvers/stop-instance');
 const logIn = require('./resolvers/log-in');
 const createCard = require('./resolvers/create-card');
@@ -10,7 +11,7 @@ const {
   gql
 } = require('apollo-server-lambda');
 const {GraphQLDateTime} = require('graphql-iso-date');
-const {findInstancesForUser} = require('./utils');
+const {findInstancesForUser, findInstanceForUser} = require('./utils');
 
 exports.typeDefs = gql`
   scalar DateTime
@@ -32,8 +33,8 @@ exports.typeDefs = gql`
       source: String
     ): Instance
     deleteInstance(id: ID!): ID
+    startInstance(id: ID!, source: String!): Instance
     stopInstance(id: ID!): Instance
-    startInstance(id: ID!): Instance
     createCard(source: String!, isDefault: Boolean): Card
     deleteCard(id: ID!): ID
   }
@@ -95,10 +96,7 @@ exports.resolvers = {
         throw new AuthenticationError('Unauthorized');
       }
 
-      const [instance] = await findInstancesForUser(ec2, user, {
-        InstanceIds: [args.id]
-      });
-
+      const instance = await findInstanceForUser(ec2, user, args.id);
       if (!instance) {
         throw new ForbiddenError('You do not have access to this instance');
       }
@@ -130,9 +128,7 @@ exports.resolvers = {
     logIn,
     createInstance,
     deleteInstance,
-    startInstance() {
-      return null;
-    },
+    startInstance,
     stopInstance,
     createCard,
     deleteCard
