@@ -8,7 +8,7 @@ const {EC2, Route53} = require('aws-sdk');
 
 const {ROUTE_53_HOSTED_ZONE_ID} = process.env;
 
-module.exports = async function deleteInstance(parent, args, {user}) {
+module.exports = async function deleteInstance(parent, args, {user, stripe}) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
@@ -19,6 +19,21 @@ module.exports = async function deleteInstance(parent, args, {user}) {
 
   if (!instance) {
     throw new ForbiddenError('You do not have access to this instance');
+  }
+
+  const {customerId} = user.data;
+  if (customerId) {
+    const {data} = await stripe.subscriptions.list({
+      customer: customerId,
+      limit: 100
+    });
+
+    for (const subscription of data) {
+      if (subscription.metadata.instance_id === instance.InstanceId) {
+        await stripe.subscriptions.del(subscription.id);
+        break;
+      }
+    }
   }
 
   const {Name} = instance.Tags.reduce(
@@ -66,8 +81,6 @@ module.exports = async function deleteInstance(parent, args, {user}) {
       InstanceIds: [instance.InstanceId]
     })
     .promise();
-
-  // TODO: cancel subscriptions in stripe
 
   return TerminatingInstances[0].InstanceId;
 };
