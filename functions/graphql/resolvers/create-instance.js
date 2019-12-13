@@ -28,6 +28,7 @@ module.exports = async function createInstance(parent, args, {user, stripe}) {
       );
     }
   } else {
+    // create the subscription before doing anything else
     subscription = await stripe.subscriptions.create({
       customer: user.data.customerId,
       default_source: args.source,
