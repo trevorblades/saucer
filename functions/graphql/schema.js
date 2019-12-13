@@ -103,12 +103,12 @@ exports.resolvers = {
 
       return instance;
     },
-    instances(parent, args, {user}) {
+    instances(parent, args, {ec2, user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
 
-      return findInstancesForUser(user);
+      return findInstancesForUser(ec2, user);
     },
     async cards(parent, args, {user, stripe}) {
       if (!user) {
