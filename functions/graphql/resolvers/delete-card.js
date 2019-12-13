@@ -1,7 +1,6 @@
 const {AuthenticationError} = require('apollo-server-lambda');
-const {EC2} = require('aws-sdk');
 
-module.exports = async function deleteCard(parent, args, {user, stripe}) {
+module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
@@ -15,14 +14,15 @@ module.exports = async function deleteCard(parent, args, {user, stripe}) {
     customer: user.data.customerId
   });
 
-  const ec2 = new EC2();
   const promises = data
     .filter(subscription => subscription.default_source === source.id)
     .flatMap(subscription => [
       // cancel the subscription and stop associated instances
       stripe.subscriptions.del(subscription.id),
       ec2
-        .stopInstances({InstanceIds: [subscription.metadata.instance_id]})
+        .stopInstances({
+          InstanceIds: [subscription.metadata.instance_id]
+        })
         .promise()
     ]);
 

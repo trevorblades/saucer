@@ -1,7 +1,4 @@
-const {EC2} = require('aws-sdk');
-
-exports.findInstancesForUser = async (user, options) => {
-  const ec2 = new EC2();
+exports.findInstancesForUser = async (ec2, user, options) => {
   const {Reservations} = await ec2
     .describeInstances({
       ...options,

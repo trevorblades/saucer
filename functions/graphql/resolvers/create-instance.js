@@ -12,16 +12,19 @@ const {
 } = require('../utils');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
-const {EC2} = require('aws-sdk');
 
-module.exports = async function createInstance(parent, args, {user, stripe}) {
+module.exports = async function createInstance(
+  parent,
+  args,
+  {user, ec2, stripe}
+) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
 
   let subscription;
   if (!args.source) {
-    const instances = await findInstancesForUser(user);
+    const instances = await findInstancesForUser(ec2, user);
     if (instances.length) {
       throw new UserInputError(
         'Free trial limit reached. Please provide a payment method.'
@@ -173,7 +176,6 @@ module.exports = async function createInstance(parent, args, {user, stripe}) {
     `
   );
 
-  const ec2 = new EC2();
   const data = await ec2
     .runInstances({
       ImageId: 'ami-0c5204531f799e0c6',

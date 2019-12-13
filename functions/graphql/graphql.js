@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_DEV);
+const {EC2, Route53} = require('aws-sdk');
 const {ApolloServer} = require('apollo-server-lambda');
 const {Client, query} = require('faunadb');
 const {resolvers, typeDefs} = require('./schema');
@@ -19,6 +20,9 @@ AWS.config.update({
     secretAccessKey: SECRET_ACCESS_KEY
   }
 });
+
+const ec2 = new EC2();
+const route53 = new Route53();
 
 const client = new Client({
   secret: FAUNADB_SERVER_SECRET
@@ -44,6 +48,8 @@ const server = new ApolloServer({
 
     return {
       user,
+      ec2,
+      route53,
       client,
       stripe
     };

@@ -4,16 +4,19 @@ const {
   createInstanceDomain,
   findInstancesForUser
 } = require('../utils');
-const {EC2, Route53} = require('aws-sdk');
 
 const {ROUTE_53_HOSTED_ZONE_ID} = process.env;
 
-module.exports = async function deleteInstance(parent, args, {user, stripe}) {
+module.exports = async function deleteInstance(
+  parent,
+  args,
+  {user, ec2, route53, stripe}
+) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
 
-  const [instance] = await findInstancesForUser(user, {
+  const [instance] = await findInstancesForUser(ec2, user, {
     InstanceIds: [args.id]
   });
 
@@ -48,7 +51,6 @@ module.exports = async function deleteInstance(parent, args, {user, stripe}) {
   const StartRecordName = instanceDomain + '.';
 
   // check for DNS records for this instance
-  const route53 = new Route53();
   const {ResourceRecordSets} = await route53
     .listResourceRecordSets({
       HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,
@@ -75,7 +77,6 @@ module.exports = async function deleteInstance(parent, args, {user, stripe}) {
       .promise();
   }
 
-  const ec2 = new EC2();
   const {TerminatingInstances} = await ec2
     .terminateInstances({
       InstanceIds: [instance.InstanceId]

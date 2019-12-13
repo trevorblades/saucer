@@ -1,5 +1,6 @@
 const createInstance = require('./resolvers/create-instance');
 const deleteInstance = require('./resolvers/delete-instance');
+const stopInstance = require('./resolvers/stop-instance');
 const logIn = require('./resolvers/log-in');
 const createCard = require('./resolvers/create-card');
 const deleteCard = require('./resolvers/delete-card');
@@ -31,6 +32,8 @@ exports.typeDefs = gql`
       source: String
     ): Instance
     deleteInstance(id: ID!): ID
+    stopInstance(id: ID!): Instance
+    startInstance(id: ID!): Instance
     createCard(source: String!, isDefault: Boolean): Card
     deleteCard(id: ID!): ID
   }
@@ -87,12 +90,12 @@ exports.resolvers = {
     }
   },
   Query: {
-    async instance(parent, args, {user}) {
+    async instance(parent, args, {user, ec2}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
 
-      const [instance] = await findInstancesForUser(user, {
+      const [instance] = await findInstancesForUser(ec2, user, {
         InstanceIds: [args.id]
       });
 
@@ -127,6 +130,10 @@ exports.resolvers = {
     logIn,
     createInstance,
     deleteInstance,
+    startInstance() {
+      return null;
+    },
+    stopInstance,
     createCard,
     deleteCard
   }
