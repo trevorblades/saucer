@@ -8,7 +8,8 @@ const {
 const {
   createChangeBatch,
   createInstanceDomain,
-  findInstancesForUser
+  findInstancesForUser,
+  findSubscriptionForSource
 } = require('../utils');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
@@ -22,7 +23,7 @@ module.exports = async function createInstance(
     throw new AuthenticationError('Unauthorized');
   }
 
-  let subscription;
+  let subscriptionItem;
   if (!args.source) {
     const instances = await findInstancesForUser(ec2, user);
     if (instances.length) {
@@ -31,11 +32,25 @@ module.exports = async function createInstance(
       );
     }
   } else {
-    // create the subscription before doing anything else
-    subscription = await stripe.subscriptions.create({
-      customer: user.data.customerId,
-      default_source: args.source,
-      items: [{plan: process.env.STRIPE_PLAN_ID_DEV}]
+    // try to find an existing subscription for this source
+    let subscription = await findSubscriptionForSource(
+      stripe,
+      user,
+      args.source
+    );
+
+    if (!subscription) {
+      // create a subscription if one doesn't exist
+      subscription = await stripe.subscriptions.create({
+        customer: user.data.customerId,
+        default_source: args.source
+      });
+    }
+
+    // add a new item to the subscription
+    subscriptionItem = await stripe.subscriptionItem.create({
+      subscription: subscription.id,
+      plan: process.env.STRIPE_PLAN_ID_DEV
     });
   }
 
@@ -189,6 +204,7 @@ module.exports = async function createInstance(
     })
     .promise();
 
+  const [Instance] = data.Instances;
   const Tags = [
     {
       Key: 'Name',
@@ -200,29 +216,22 @@ module.exports = async function createInstance(
     }
   ];
 
-  const [Instance] = data.Instances;
-  const promises = [
-    ec2
-      .createTags({
-        Resources: [Instance.InstanceId],
-        Tags
-      })
-      .promise()
-  ];
+  // add tags to the newly created instance
+  await ec2
+    .createTags({
+      Resources: [Instance.InstanceId],
+      Tags
+    })
+    .promise();
 
-  if (subscription) {
-    // update the subscription with metadata about the instance
-    promises.push(
-      stripe.subscriptions.update(subscription.id, {
-        metadata: {
-          instance_id: Instance.InstanceId
-        }
-      })
-    );
+  if (subscriptionItem) {
+    // update the subscription item with metadata about the instance
+    await stripe.subscriptionItems.update(subscriptionItem.id, {
+      metadata: {
+        instance_id: Instance.InstanceId
+      }
+    });
   }
-
-  // wait for final actions to complete and return the new instance
-  await Promise.all(promises);
 
   return {
     ...Instance,

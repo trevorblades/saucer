@@ -28,9 +28,11 @@ module.exports = async function deleteInstance(
       limit: 100
     });
 
-    for (const subscription of data) {
-      if (subscription.metadata.instance_id === instance.InstanceId) {
-        await stripe.subscriptions.del(subscription.id);
+    const items = data.flatMap(subscription => subscription.items);
+    for (const item of items) {
+      // try to find a subscription item for this instance and remove it
+      if (item.metadata.instance_id === instance.InstanceId) {
+        await stripe.subscriptionItems.del(item.id);
         break;
       }
     }
