@@ -22,7 +22,7 @@ export default function InstancesTable(props) {
         <TableRow>
           <TableCell padding="none">Name</TableCell>
           <TableCell padding="none">Status</TableCell>
-          <TableCell colSpan={2}>Created </TableCell>
+          <TableCell colSpan={2}>Created</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>

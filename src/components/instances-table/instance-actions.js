@@ -27,11 +27,8 @@ export default function InstanceActions(props) {
           <MenuItem key="edit" disabled>
             Edit instance
           </MenuItem>,
-          <MenuItem
-            key="restart"
-            disabled={props.instance.status !== 'stopped'}
-          >
-            Restart instance
+          <MenuItem key="start" disabled={props.instance.status !== 'stopped'}>
+            Start instance
           </MenuItem>,
           <MenuItem
             key="delete"

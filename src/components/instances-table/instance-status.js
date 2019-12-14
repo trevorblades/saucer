@@ -14,6 +14,11 @@ const GET_INSTANCE = gql`
   }
 `;
 
+function PollInstance({children, ...props}) {
+  useQuery(GET_INSTANCE, ...props);
+  return children;
+}
+
 function StatusMessage(props) {
   return (
     <Box display="flex" alignItems="center">
@@ -34,38 +39,36 @@ StatusMessage.propTypes = {
   children: PropTypes.node.isRequired
 };
 
-function PollInstance(props) {
-  // poll for status updates when the instance is starting
-  useQuery(GET_INSTANCE, {
-    variables: props.variables,
-    pollInterval: 5000
-  });
-
-  return props.children;
-}
-
 export default function InstanceStatus(props) {
-  const {status, isReady} = props.instance;
+  const {id, status, isReady} = props.instance;
   switch (status) {
     case 'running':
     case 'pending': {
       const isRunning = status === 'running';
-      if (isRunning && isReady) {
-        return <StatusMessage color="limegreen">Active</StatusMessage>;
-      }
+      const isActive = isRunning && isReady;
       return (
-        <PollInstance variables={{id: props.instance.id}}>
-          <StatusMessage color="gold">
-            {isRunning ? 'Installing' : 'Starting'}
-          </StatusMessage>
-        </PollInstance>
+        <StatusMessage color={isActive ? 'limegreen' : 'gold'}>
+          {isActive ? (
+            'Active'
+          ) : (
+            <PollInstance variables={{id}} pollInterval={5000}>
+              {isRunning ? 'Installing' : 'Starting'}
+            </PollInstance>
+          )}
+        </StatusMessage>
       );
     }
     case 'stopping':
     case 'stopped':
       return (
         <StatusMessage color="error.main">
-          {status.charAt(0).toUpperCase() + status.slice(1)}
+          {status === 'stopping' ? (
+            <PollInstance variables={{id}} pollInterval={5000}>
+              Stopping
+            </PollInstance>
+          ) : (
+            'Stopped'
+          )}
         </StatusMessage>
       );
     default:
