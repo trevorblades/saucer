@@ -16,7 +16,7 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
   // cancel the subscription and stop associated instances
   await Promise.all([
     stripe.subscriptions.del(subscription.id),
-    ...subscription.items.map(item =>
+    ...subscription.items.data.map(item =>
       ec2
         .stopInstances({
           InstanceIds: [item.metadata.instance_id]

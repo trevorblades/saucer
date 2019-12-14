@@ -33,25 +33,27 @@ module.exports = async function createInstance(
     }
   } else {
     // try to find an existing subscription for this source
-    let subscription = await findSubscriptionForSource(
+    const subscription = await findSubscriptionForSource(
       stripe,
       user,
       args.source
     );
 
-    if (!subscription) {
-      // create a subscription if one doesn't exist
-      subscription = await stripe.subscriptions.create({
-        customer: user.data.customerId,
-        default_source: args.source
+    if (subscription) {
+      // add a new item to the subscription
+      subscriptionItem = await stripe.subscriptionItem.create({
+        subscription: subscription.id,
+        plan: process.env.STRIPE_PLAN_ID_DEV
       });
+    } else {
+      // create a subscription if one doesn't exist
+      const subscription = await stripe.subscriptions.create({
+        customer: user.data.customerId,
+        default_source: args.source,
+        items: [{plan: process.env.STRIPE_PLAN_ID_DEV}]
+      });
+      [subscriptionItem] = subscription.items.data;
     }
-
-    // add a new item to the subscription
-    subscriptionItem = await stripe.subscriptionItem.create({
-      subscription: subscription.id,
-      plan: process.env.STRIPE_PLAN_ID_DEV
-    });
   }
 
   const instanceName =

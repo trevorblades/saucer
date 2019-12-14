@@ -28,13 +28,25 @@ module.exports = async function deleteInstance(
       limit: 100
     });
 
-    const items = data.flatMap(subscription => subscription.items);
-    for (const item of items) {
-      // try to find a subscription item for this instance and remove it
-      if (item.metadata.instance_id === instance.InstanceId) {
-        await stripe.subscriptionItems.del(item.id);
-        break;
+    let isCancelled;
+    for (const subscription of data) {
+      for (const item of subscription.items.data) {
+        // try to find a subscription item for this instance
+        if (item.metadata.instance_id === instance.InstanceId) {
+          if (subscription.items.length > 1) {
+            // remove the item if there are more than one item
+            await stripe.subscriptionItems.del(item.id);
+          } else {
+            // cancel the entire subscription if it's the only item
+            await stripe.subscriptions.del(subscription.id);
+          }
+
+          isCancelled = true;
+          break;
+        }
       }
+
+      if (isCancelled) break;
     }
   }
 
