@@ -1,5 +1,4 @@
 const {AuthenticationError} = require('apollo-server-lambda');
-const {findSubscriptionForSource} = require('../utils');
 
 module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
   if (!user) {
@@ -11,19 +10,23 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
     args.id
   );
 
-  const subscription = await findSubscriptionForSource(stripe, user, source.id);
+  const {data} = await stripe.subscriptions.list({
+    customer: user.data.customerId
+  });
 
-  // cancel the subscription and stop associated instances
-  await Promise.all([
-    stripe.subscriptions.del(subscription.id),
-    ...subscription.items.data.map(item =>
-      ec2
-        .stopInstances({
-          InstanceIds: [item.metadata.instance_id]
-        })
-        .promise()
-    )
-  ]);
+  // cancel all subscriptions for this source and stop associated instances
+  await Promise.all(
+    data
+      .filter(subscription => subscription.default_source === source.id)
+      .flatMap(subscription => [
+        stripe.subscriptions.del(subscription.id),
+        ec2
+          .stopInstances({
+            InstanceIds: [subscription.metadata.instance_id]
+          })
+          .promise()
+      ])
+  );
 
   return source.id;
 };

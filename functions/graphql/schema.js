@@ -11,7 +11,11 @@ const {
   gql
 } = require('apollo-server-lambda');
 const {GraphQLDateTime} = require('graphql-iso-date');
-const {findInstancesForUser, findInstanceForUser} = require('./utils');
+const {
+  findInstancesForUser,
+  findInstanceForUser,
+  reduceTags
+} = require('./utils');
 
 exports.typeDefs = gql`
   scalar DateTime
@@ -56,16 +60,6 @@ exports.typeDefs = gql`
     createdAt: DateTime
   }
 `;
-
-function reduceTags(tags) {
-  return tags.reduce(
-    (acc, tag) => ({
-      ...acc,
-      [tag.Key]: tag.Value
-    }),
-    {}
-  );
-}
 
 exports.resolvers = {
   DateTime: GraphQLDateTime,

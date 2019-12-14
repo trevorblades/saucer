@@ -8,8 +8,7 @@ const {
 const {
   createChangeBatch,
   createInstanceDomain,
-  findInstancesForUser,
-  findSubscriptionForSource
+  findInstancesForUser
 } = require('../utils');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
@@ -23,7 +22,7 @@ module.exports = async function createInstance(
     throw new AuthenticationError('Unauthorized');
   }
 
-  let subscriptionItem;
+  let subscription;
   if (!args.source) {
     const instances = await findInstancesForUser(ec2, user);
     if (instances.length) {
@@ -32,28 +31,11 @@ module.exports = async function createInstance(
       );
     }
   } else {
-    // try to find an existing subscription for this source
-    const subscription = await findSubscriptionForSource(
-      stripe,
-      user,
-      args.source
-    );
-
-    if (subscription) {
-      // add a new item to the subscription
-      subscriptionItem = await stripe.subscriptionItem.create({
-        subscription: subscription.id,
-        plan: process.env.STRIPE_PLAN_ID_DEV
-      });
-    } else {
-      // create a subscription if one doesn't exist
-      const subscription = await stripe.subscriptions.create({
-        customer: user.data.customerId,
-        default_source: args.source,
-        items: [{plan: process.env.STRIPE_PLAN_ID_DEV}]
-      });
-      [subscriptionItem] = subscription.items.data;
-    }
+    subscription = await stripe.subscriptions.create({
+      customer: user.data.customerId,
+      default_source: args.source,
+      items: [{plan: process.env.STRIPE_PLAN_ID_DEV}]
+    });
   }
 
   const instanceName =
@@ -226,9 +208,9 @@ module.exports = async function createInstance(
     })
     .promise();
 
-  if (subscriptionItem) {
-    // update the subscription item with metadata about the instance
-    await stripe.subscriptionItems.update(subscriptionItem.id, {
+  if (subscription) {
+    // update the subscription with metadata about the instance
+    await stripe.subscriptions.update(subscription.id, {
       metadata: {
         instance_id: Instance.InstanceId
       }

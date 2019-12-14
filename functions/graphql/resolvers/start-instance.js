@@ -16,30 +16,28 @@ module.exports = async function startInstance(
   }
 
   const {customerId} = user.data;
-  if (customerId) {
-    const {data} = await stripe.subscriptions.list({
-      customer: user.data.customerId
+  const subscriptions = await stripe.subscriptions.list({
+    customer: customerId
+  });
+
+  const subscription = subscriptions.data.find(
+    ({metadata}) => metadata.instance_id === args.id
+  );
+
+  // create or update a subscription before proceeding
+  if (!subscription) {
+    await stripe.subscriptions.create({
+      customer: customerId,
+      default_source: args.source,
+      items: [{plan: process.env.STRIPE_PLAN_ID_DEV}],
+      metadata: {
+        instance_id: args.id
+      }
     });
-
-    const subscription = data.find(
-      ({metadata}) => metadata.instance_id === args.id
-    );
-
-    // create or update a subscription before proceeding
-    if (!subscription) {
-      await stripe.subscriptions.create({
-        customer: customerId,
-        default_source: args.source,
-        items: [{plan: process.env.STRIPE_PLAN_ID_DEV}],
-        metadata: {
-          instance_id: args.id
-        }
-      });
-    } else if (subscription.default_source !== args.source) {
-      await stripe.subscriptions.update(subscription.id, {
-        default_source: args.source
-      });
-    }
+  } else if (subscription.default_source !== args.source) {
+    await stripe.subscriptions.update(subscription.id, {
+      default_source: args.source
+    });
   }
 
   const data = await ec2.startInstances({InstanceIds: [args.id]});

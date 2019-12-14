@@ -1,4 +1,4 @@
-async function findInstancesForUser(ec2, user, options) {
+exports.findInstancesForUser = async (ec2, user, options) => {
   const {Reservations} = await ec2
     .describeInstances({
       ...options,
@@ -15,26 +15,13 @@ async function findInstancesForUser(ec2, user, options) {
     })
     .promise();
   return Reservations.flatMap(reservation => reservation.Instances);
-}
+};
 
-exports.findInstancesForUser = findInstancesForUser;
 exports.findInstanceForUser = async (ec2, user, id) => {
-  const [instance] = await findInstancesForUser(ec2, user, {
+  const [instance] = await this.findInstancesForUser(ec2, user, {
     InstanceIds: [id]
   });
   return instance;
-};
-
-exports.findSubscriptionsForUser = async (stripe, user) => {
-  const {data} = await stripe.subscriptions.list({
-    customer: user.data.customerId
-  });
-  return data;
-};
-
-exports.findSubscriptionForSource = async (stripe, user, source) => {
-  const subscriptions = await this.findSubscriptionsForUser(stripe, user);
-  return subscriptions.find(({default_source}) => default_source === source);
 };
 
 exports.createChangeBatch = ({Action, Name, Value}) => ({
@@ -52,3 +39,12 @@ exports.createChangeBatch = ({Action, Name, Value}) => ({
 });
 
 exports.createInstanceDomain = subdomain => subdomain + '.saucer.dev';
+
+exports.reduceTags = tags =>
+  tags.reduce(
+    (acc, tag) => ({
+      ...acc,
+      [tag.Key]: tag.Value
+    }),
+    {}
+  );

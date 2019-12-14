@@ -2,7 +2,8 @@ const {AuthenticationError, ForbiddenError} = require('apollo-server-lambda');
 const {
   createChangeBatch,
   createInstanceDomain,
-  findInstanceForUser
+  findInstanceForUser,
+  reduceTags
 } = require('../utils');
 
 const {ROUTE_53_HOSTED_ZONE_ID} = process.env;
@@ -24,40 +25,20 @@ module.exports = async function deleteInstance(
   const {customerId} = user.data;
   if (customerId) {
     const {data} = await stripe.subscriptions.list({
-      customer: customerId,
-      limit: 100
+      customer: customerId
     });
 
-    let isCancelled;
     for (const subscription of data) {
-      for (const item of subscription.items.data) {
-        // try to find a subscription item for this instance
-        if (item.metadata.instance_id === instance.InstanceId) {
-          if (subscription.items.length > 1) {
-            // remove the item if there are more than one item
-            await stripe.subscriptionItems.del(item.id);
-          } else {
-            // cancel the entire subscription if it's the only item
-            await stripe.subscriptions.del(subscription.id);
-          }
-
-          isCancelled = true;
-          break;
-        }
+      // try to find a subscription for this instance
+      if (subscription.metadata.instance_id === instance.InstanceId) {
+        // cancel the entire subscription if it's the only item
+        await stripe.subscriptions.del(subscription.id);
+        break;
       }
-
-      if (isCancelled) break;
     }
   }
 
-  const {Name} = instance.Tags.reduce(
-    (acc, tag) => ({
-      ...acc,
-      [tag.Key]: tag.Value
-    }),
-    {}
-  );
-
+  const {Name} = reduceTags(instance.Tags);
   const instanceDomain = createInstanceDomain(Name);
   const StartRecordName = instanceDomain + '.';
 
