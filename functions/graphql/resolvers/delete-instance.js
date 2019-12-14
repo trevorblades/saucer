@@ -52,21 +52,22 @@ module.exports = async function deleteInstance(
     })
     .promise();
 
-  if (
-    ResourceRecordSets.length &&
-    ResourceRecordSets[0].Name === StartRecordName
-  ) {
-    // clean them up if they exist
-    await route53
-      .changeResourceRecordSets({
-        HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,
-        ChangeBatch: createChangeBatch({
-          Action: 'DELETE',
-          Name: instanceDomain,
-          Value: instance.PublicIpAddress
+  if (ResourceRecordSets.length) {
+    const {Name, ResourceRecords} = ResourceRecordSets[0];
+    if (Name === StartRecordName) {
+      // clean them up if they exist
+      const [{Value}] = ResourceRecords;
+      await route53
+        .changeResourceRecordSets({
+          HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,
+          ChangeBatch: createChangeBatch({
+            Action: 'DELETE',
+            Name: instanceDomain,
+            Value
+          })
         })
-      })
-      .promise();
+        .promise();
+    }
   }
 
   const {TerminatingInstances} = await ec2
