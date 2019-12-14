@@ -56,7 +56,7 @@ module.exports = async function deleteInstance(
     const {Name, ResourceRecords} = ResourceRecordSets[0];
     if (Name === StartRecordName) {
       // clean them up if they exist
-      const [{Value}] = ResourceRecords;
+      const {Value} = ResourceRecords[0];
       await route53
         .changeResourceRecordSets({
           HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,

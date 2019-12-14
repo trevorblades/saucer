@@ -5,11 +5,6 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
     throw new AuthenticationError('Unauthorized');
   }
 
-  const source = await stripe.customers.deleteSource(
-    user.data.customerId,
-    args.id
-  );
-
   const {data} = await stripe.subscriptions.list({
     customer: user.data.customerId
   });
@@ -17,7 +12,7 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
   // cancel all subscriptions for this source and stop associated instances
   await Promise.all(
     data
-      .filter(subscription => subscription.default_source === source.id)
+      .filter(subscription => subscription.default_source === args.id)
       .flatMap(subscription => [
         stripe.subscriptions.del(subscription.id),
         ec2
@@ -26,6 +21,12 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
           })
           .promise()
       ])
+  );
+
+  // then delete the card
+  const source = await stripe.customers.deleteSource(
+    user.data.customerId,
+    args.id
   );
 
   return source.id;

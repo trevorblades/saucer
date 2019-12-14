@@ -54,7 +54,7 @@ module.exports = async function logIn(parent, args, {client}) {
   );
 
   if (data.length) {
-    const [ref] = data;
+    const ref = data[0];
     const response = await client.query(query.Get(ref));
     return tokenizeResponse(response);
   }

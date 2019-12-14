@@ -14,9 +14,9 @@ const GET_INSTANCE = gql`
   }
 `;
 
-function PollInstance({children, ...props}) {
-  useQuery(GET_INSTANCE, ...props);
-  return children;
+function PollInstance(props) {
+  useQuery(GET_INSTANCE, props.queryOptions);
+  return props.children;
 }
 
 function StatusMessage(props) {
@@ -41,6 +41,11 @@ StatusMessage.propTypes = {
 
 export default function InstanceStatus(props) {
   const {id, status, isReady} = props.instance;
+  const queryOptions = {
+    variables: {id},
+    pollInterval: 5000
+  };
+
   switch (status) {
     case 'running':
     case 'pending': {
@@ -51,7 +56,7 @@ export default function InstanceStatus(props) {
           {isActive ? (
             'Active'
           ) : (
-            <PollInstance variables={{id}} pollInterval={5000}>
+            <PollInstance queryOptions={queryOptions}>
               {isRunning ? 'Installing' : 'Starting'}
             </PollInstance>
           )}
@@ -63,9 +68,7 @@ export default function InstanceStatus(props) {
       return (
         <StatusMessage color="error.main">
           {status === 'stopping' ? (
-            <PollInstance variables={{id}} pollInterval={5000}>
-              Stopping
-            </PollInstance>
+            <PollInstance queryOptions={queryOptions}>Stopping</PollInstance>
           ) : (
             'Stopped'
           )}

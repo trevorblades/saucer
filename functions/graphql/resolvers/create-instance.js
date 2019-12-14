@@ -188,7 +188,7 @@ module.exports = async function createInstance(
     })
     .promise();
 
-  const [Instance] = data.Instances;
+  const instance = data.Instances[0];
   const Tags = [
     {
       Key: 'Name',
@@ -203,7 +203,7 @@ module.exports = async function createInstance(
   // add tags to the newly created instance
   await ec2
     .createTags({
-      Resources: [Instance.InstanceId],
+      Resources: [instance.InstanceId],
       Tags
     })
     .promise();
@@ -212,13 +212,13 @@ module.exports = async function createInstance(
     // update the subscription with metadata about the instance
     await stripe.subscriptions.update(subscription.id, {
       metadata: {
-        instance_id: Instance.InstanceId
+        instance_id: instance.InstanceId
       }
     });
   }
 
   return {
-    ...Instance,
+    ...instance,
     Tags
   };
 };
