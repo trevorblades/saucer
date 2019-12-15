@@ -14,34 +14,45 @@ const DELETE_INSTANCE = gql`
 `;
 
 export default function InstanceActions(props) {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(null);
 
   function closeDialog() {
-    setDialogOpen(false);
+    setDialogOpen(null);
   }
 
   return (
     <Fragment>
       <ActionMenu>
-        {closeMenu => [
-          <MenuItem key="edit" disabled>
-            Edit instance
-          </MenuItem>,
-          <MenuItem key="start" disabled={props.instance.status !== 'stopped'}>
-            Start instance
-          </MenuItem>,
-          <MenuItem
-            key="delete"
-            onClick={() => {
-              closeMenu();
-              setDialogOpen(true);
-            }}
-          >
-            Delete instance
-          </MenuItem>
-        ]}
+        {closeMenu => {
+          function openDialog(event) {
+            closeMenu();
+            setDialogOpen(event.target.dataset.dialog);
+          }
+
+          return [
+            <MenuItem key="edit" disabled>
+              Edit instance
+            </MenuItem>,
+            <MenuItem
+              key="start"
+              data-dialog="start"
+              disabled={props.instance.status !== 'stopped'}
+              onClick={openDialog}
+            >
+              Start instance
+            </MenuItem>,
+            <MenuItem key="delete" data-dialog="delete" onClick={openDialog}>
+              Delete instance
+            </MenuItem>
+          ];
+        }}
       </ActionMenu>
-      <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
+      <Dialog
+        fullWidth
+        maxWidth="xs"
+        open={dialogOpen === 'delete'}
+        onClose={closeDialog}
+      >
         <DeleteConfirm
           image={plant}
           onCancel={closeDialog}
@@ -72,6 +83,14 @@ export default function InstanceActions(props) {
             it.
           </Typography>
         </DeleteConfirm>
+      </Dialog>
+      <Dialog
+        fullWidth
+        maxWidth="xs"
+        open={dialogOpen === 'start'}
+        onClose={closeDialog}
+      >
+        Hello
       </Dialog>
     </Fragment>
   );
