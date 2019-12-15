@@ -43,7 +43,7 @@ export default function Billing() {
           buttonText: 'Add card',
           onButtonClick: openModal
         }}
-        renderTable={cards => (
+        renderTable={data => (
           <Table>
             <TableHead>
               <TableRow>
@@ -52,7 +52,7 @@ export default function Billing() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {cards.map(card => (
+              {data.cards.map(card => (
                 <TableRow key={card.id}>
                   <TableCell padding="none">
                     <PaymentMethod

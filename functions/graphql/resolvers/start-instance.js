@@ -15,31 +15,29 @@ module.exports = async function startInstance(
     throw new ForbiddenError('You do not have access to this instance');
   }
 
-  const {customerId} = user.data;
-  const subscriptions = await stripe.subscriptions.list({
-    customer: customerId
+  const subscription = await stripe.subscriptions.create({
+    customer: user.data.customerId,
+    default_source: args.source,
+    items: [{plan: process.env.STRIPE_PLAN_ID_DEV}],
+    metadata: {
+      instance_id: instance.InstanceId
+    }
   });
 
-  const subscription = subscriptions.data.find(
-    ({metadata}) => metadata.instance_id === args.id
-  );
+  const [data] = await Promise.all([
+    ec2.startInstances({InstanceIds: [instance.InstanceId]}).promise(),
+    ec2
+      .createTags({
+        Resources: [instance.InstanceId],
+        Tags: [
+          {
+            Key: 'Subscription',
+            Value: subscription.id
+          }
+        ]
+      })
+      .promise()
+  ]);
 
-  // create or update a subscription before proceeding
-  if (!subscription) {
-    await stripe.subscriptions.create({
-      customer: customerId,
-      default_source: args.source,
-      items: [{plan: process.env.STRIPE_PLAN_ID_DEV}],
-      metadata: {
-        instance_id: args.id
-      }
-    });
-  } else if (subscription.default_source !== args.source) {
-    await stripe.subscriptions.update(subscription.id, {
-      default_source: args.source
-    });
-  }
-
-  const data = await ec2.startInstances({InstanceIds: [args.id]});
   return data.Instances[0];
 };

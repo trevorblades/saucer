@@ -2,6 +2,7 @@ import ActionMenu from '../action-menu';
 import DeleteConfirm from '../delete-confirm';
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
+import RestartForm from './restart-form';
 import plant from '../../assets/plant.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
 import {LIST_INSTANCES} from '../../utils';
@@ -90,12 +91,21 @@ export default function InstanceActions(props) {
         open={dialogOpen === 'start'}
         onClose={closeDialog}
       >
-        Hello
+        <RestartForm
+          onCancel={closeDialog}
+          cards={props.cards}
+          mutationOptions={{
+            variables: {
+              id: props.instance.id
+            }
+          }}
+        />
       </Dialog>
     </Fragment>
   );
 }
 
 InstanceActions.propTypes = {
-  instance: PropTypes.object.isRequired
+  instance: PropTypes.object.isRequired,
+  cards: PropTypes.array.isRequired
 };

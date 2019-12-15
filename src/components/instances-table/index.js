@@ -59,7 +59,7 @@ export default function InstancesTable(props) {
                 </Tooltip>
               </TableCell>
               <TableCell align="right" padding="checkbox">
-                <InstanceActions instance={instance} />
+                <InstanceActions instance={instance} cards={props.cards} />
               </TableCell>
             </TableRow>
           );
@@ -70,5 +70,6 @@ export default function InstancesTable(props) {
 }
 
 InstancesTable.propTypes = {
-  instances: PropTypes.array.isRequired
+  instances: PropTypes.array.isRequired,
+  cards: PropTypes.array.isRequired
 };

@@ -1,6 +1,7 @@
+import CardsSelect from '../cards-select';
 import FormField from '../form-field';
+import LabeledSelect from '../labeled-select';
 import PasswordField from './password-field';
-import PaymentMethod from '../payment-method';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useRef, useState} from 'react';
 import localeEmoji from 'locale-emoji';
@@ -9,14 +10,10 @@ import {
   Box,
   CardActionArea,
   Checkbox,
-  FormControl,
   FormControlLabel,
-  FormHelperText,
   Grid,
-  InputLabel,
   MenuItem,
   Link as MuiLink,
-  Select,
   Typography
 } from '@material-ui/core';
 import {FaDrupal, FaWordpressSimple} from 'react-icons/fa';
@@ -27,7 +24,6 @@ import {
   UserContext,
   locales
 } from '../../utils';
-import {Link} from 'gatsby';
 import {PlanButton, PlanButtonContext, PlatformButton} from './form-button';
 import {gql, useMutation} from '@apollo/client';
 
@@ -54,29 +50,11 @@ const CREATE_INSTANCE = gql`
   ${INSTANCE_FRAGMENT}
 `;
 
-function LabeledSelect({label, helperText, ...props}) {
-  return (
-    <FormControl margin="normal" fullWidth>
-      <InputLabel>{label}</InputLabel>
-      <Select {...props} />
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
-    </FormControl>
-  );
-}
-
-LabeledSelect.propTypes = {
-  label: PropTypes.string.isRequired,
-  helperText: PropTypes.node
-};
-
 export default function InstanceForm(props) {
   const user = useContext(UserContext);
   const formRef = useRef(null);
   const [locale, setLocale] = useState('en_US');
   const [plan, setPlan] = useState(props.isTrialDisabled ? 'month' : 'trial');
-  const [source, setSource] = useState(
-    props.cards.length ? props.cards.find(card => card.isDefault).id : ''
-  );
 
   const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {
     variables: {locale},
@@ -116,14 +94,6 @@ export default function InstanceForm(props) {
 
   function handleLocaleChange(event) {
     setLocale(event.target.value);
-  }
-
-  function handleSourceChange(event) {
-    // avoid a warning when the "add card" link is clicked (no value)
-    const {value} = event.target;
-    if (value) {
-      setSource(value);
-    }
   }
 
   return (
@@ -274,22 +244,7 @@ export default function InstanceForm(props) {
           instances.
         </Typography>
         {plan !== 'trial' && (
-          <LabeledSelect
-            label="Payment method"
-            value={source}
-            name="source"
-            onChange={handleSourceChange}
-            disabled={loading}
-          >
-            <MenuItem component={Link} to="/dashboard/billing">
-              Add a new card
-            </MenuItem>
-            {props.cards.map(card => (
-              <MenuItem key={card.id} value={card.id}>
-                <PaymentMethod card={card} />
-              </MenuItem>
-            ))}
-          </LabeledSelect>
+          <CardsSelect cards={props.cards} name="source" disabled={loading} />
         )}
       </Box>
       <Box position="sticky" bottom={0} bgcolor="background.paper">

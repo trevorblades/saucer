@@ -33,7 +33,9 @@ export default function Dashboard() {
           buttonText: 'Create instance',
           onButtonClick: openModal
         }}
-        renderTable={instances => <InstancesTable instances={instances} />}
+        renderTable={data => (
+          <InstancesTable instances={data.instances} cards={data.cards} />
+        )}
       >
         {data => (
           <Drawer anchor="right" open={modalOpen} onClose={closeModal}>

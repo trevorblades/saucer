@@ -68,8 +68,7 @@ export default function QueryTable(props) {
     );
   }
 
-  const results = data[props.dataKey];
-  if (!results.length) {
+  if (!data[props.dataKey].length) {
     return (
       <Fragment>
         <QueryTableHeader title={props.title} />
@@ -87,7 +86,7 @@ export default function QueryTable(props) {
           {buttonText}
         </Button>
       </QueryTableHeader>
-      {props.renderTable(results)}
+      {props.renderTable(data)}
       {props.children(data)}
     </Fragment>
   );
