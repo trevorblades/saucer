@@ -61,12 +61,15 @@ export default function CardActions(props) {
             associated with this card will be <strong>stopped</strong> until a
             new payment method is set up for them:
           </Typography>
-          <ul>
-            {/* TODO: list actual instance names */}
-            <Typography component="li" gutterBottom>
-              instance-name-2
-            </Typography>
-          </ul>
+          {props.card.instances.length > 0 && (
+            <ul>
+              {props.card.instances.map(instance => (
+                <Typography key={instance.id} component="li" gutterBottom>
+                  {instance.name}
+                </Typography>
+              ))}
+            </ul>
+          )}
         </DeleteConfirm>
       </Dialog>
     </Fragment>

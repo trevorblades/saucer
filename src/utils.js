@@ -49,6 +49,10 @@ export const CARD_FRAGMENT = gql`
     expMonth
     expYear
     isDefault
+    instances {
+      id
+      name
+    }
   }
 `;
 

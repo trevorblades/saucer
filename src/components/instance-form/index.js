@@ -20,6 +20,7 @@ import {FaDrupal, FaWordpressSimple} from 'react-icons/fa';
 import {FiUploadCloud} from 'react-icons/fi';
 import {
   INSTANCE_FRAGMENT,
+  LIST_CARDS,
   LIST_INSTANCES,
   UserContext,
   locales
@@ -62,6 +63,7 @@ export default function InstanceForm(props) {
       // scroll to the top of the form to show the error message
       formRef.current.parentNode.scrollTo(0, 0);
     },
+    refetchQueries: [{query: LIST_CARDS}],
     onCompleted: props.onCompleted,
     update(cache, {data}) {
       const {instances} = cache.readQuery({

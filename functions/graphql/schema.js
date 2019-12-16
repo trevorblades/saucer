@@ -50,6 +50,7 @@ exports.typeDefs = gql`
     expMonth: Int
     expYear: Int
     isDefault: Boolean
+    instances: [Instance]
   }
 
   type Instance {
@@ -82,6 +83,22 @@ exports.resolvers = {
     async isDefault(card, args, {stripe}) {
       const customer = await stripe.customers.retrieve(card.customer);
       return card.id === customer.default_source;
+    },
+    async instances(card, args, {ec2, stripe, user}) {
+      const {data} = await stripe.subscriptions.list({
+        customer: user.data.customerId
+      });
+
+      const instanceIds = data
+        .filter(subscription => subscription.default_source === card.id)
+        .map(subscription => subscription.metadata.instance_id);
+      if (!instanceIds.length) {
+        return [];
+      }
+
+      return findInstancesForUser(ec2, user, {
+        InstanceIds: instanceIds
+      });
     }
   },
   Query: {
