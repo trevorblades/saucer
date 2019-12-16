@@ -3,6 +3,7 @@ import DeleteConfirm from '../delete-confirm';
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
 import RestartForm from './restart-form';
+import SuccessToast from '../success-toast';
 import plant from '../../assets/plant.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
 import {LIST_INSTANCES} from '../../utils';
@@ -16,9 +17,19 @@ const DELETE_INSTANCE = gql`
 
 export default function InstanceActions(props) {
   const [dialogOpen, setDialogOpen] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   function closeDialog() {
     setDialogOpen(null);
+  }
+
+  function closeSnackbar() {
+    setSnackbarOpen(false);
+  }
+
+  function handleCompleted() {
+    closeDialog();
+    setSnackbarOpen(true);
   }
 
   return (
@@ -105,13 +116,18 @@ export default function InstanceActions(props) {
           onCancel={closeDialog}
           cards={props.cards}
           mutationOptions={{
-            onCompleted: closeDialog,
+            onCompleted: handleCompleted,
             variables: {
               id: props.instance.id
             }
           }}
         />
       </Dialog>
+      <SuccessToast
+        open={snackbarOpen}
+        onClose={closeSnackbar}
+        message="Instace restarted 🌤"
+      />
     </Fragment>
   );
 }
