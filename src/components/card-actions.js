@@ -57,18 +57,23 @@ export default function CardActions(props) {
           }}
         >
           <Typography paragraph>
-            Are you sure you want to delete this payment method? Instances
-            associated with this card will be <strong>stopped</strong> until a
-            new payment method is set up for them:
+            Are you sure you want to delete this payment method?
           </Typography>
           {props.card.instances.length > 0 && (
-            <ul>
-              {props.card.instances.map(instance => (
-                <Typography key={instance.id} component="li" gutterBottom>
-                  {instance.name}
-                </Typography>
-              ))}
-            </ul>
+            <Fragment>
+              <Typography paragraph>
+                Instances associated with this card will be{' '}
+                <strong>stopped</strong> until a new payment method is set up
+                for them:
+              </Typography>
+              <ul>
+                {props.card.instances.map(instance => (
+                  <Typography key={instance.id} component="li" gutterBottom>
+                    {instance.name}
+                  </Typography>
+                ))}
+              </ul>
+            </Fragment>
           )}
         </DeleteConfirm>
       </Dialog>
