@@ -1,11 +1,11 @@
+import DialogHeader from './dialog-header';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import {
-  Box,
   Button,
   DialogActions,
   DialogContent,
-  Typography
+  DialogContentText
 } from '@material-ui/core';
 import {useMutation} from '@apollo/client';
 
@@ -18,20 +18,9 @@ export default function DeleteConfirm(props) {
   return (
     <Fragment>
       <DialogContent>
-        <Box
-          component="img"
-          display="block"
-          mx="auto"
-          src={props.image}
-          height={200}
-        />
-        <Typography paragraph align="center" variant="h5">
-          Are you sure?
-        </Typography>
+        <DialogHeader image={props.image}>Are you sure?</DialogHeader>
         {error && (
-          <Typography paragraph color="error">
-            {error.message}
-          </Typography>
+          <DialogContentText color="error">{error.message}</DialogContentText>
         )}
         {props.children}
       </DialogContent>

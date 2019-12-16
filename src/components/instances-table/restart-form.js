@@ -1,12 +1,13 @@
 import CardsSelect from '../cards-select';
+import DialogHeader from '../dialog-header';
 import PropTypes from 'prop-types';
 import React from 'react';
+import dive from '../../assets/dive.png';
 import {
   Button,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle
+  DialogContentText
 } from '@material-ui/core';
 import {INSTANCE_FRAGMENT} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
@@ -37,8 +38,8 @@ export default function RestartForm(props) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <DialogTitle>Restart your instance</DialogTitle>
       <DialogContent>
+        <DialogHeader image={dive}>Restart your instance</DialogHeader>
         {error && (
           <DialogContentText color="error">{error.message}</DialogContentText>
         )}

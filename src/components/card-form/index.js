@@ -1,9 +1,9 @@
+import DialogHeader from '../dialog-header';
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 import StripeInput from './stripe-input';
 import payment from '../../assets/payment.png';
 import {
-  Box,
   Button,
   Checkbox,
   DialogActions,
@@ -11,7 +11,6 @@ import {
   DialogContentText,
   FormControlLabel,
   TextField,
-  Typography,
   useTheme
 } from '@material-ui/core';
 import {CARD_FRAGMENT, LIST_CARDS} from '../../utils';
@@ -85,16 +84,7 @@ function CardForm(props) {
   return (
     <form onSubmit={handleSubmit}>
       <DialogContent>
-        <Box
-          component="img"
-          height={200}
-          display="block"
-          mx="auto"
-          src={payment}
-        />
-        <Typography paragraph variant="h5" align="center">
-          Add a credit card
-        </Typography>
+        <DialogHeader image={payment}>Add a credit card</DialogHeader>
         {allError && (
           <DialogContentText color="error">
             {allError.message}
