@@ -30,22 +30,32 @@ export default function InstanceActions(props) {
             setDialogOpen(event.target.dataset.dialog);
           }
 
-          return [
-            <MenuItem key="edit" disabled>
-              Edit instance
-            </MenuItem>,
-            <MenuItem
-              key="start"
-              data-dialog="start"
-              disabled={props.instance.status !== 'stopped'}
-              onClick={openDialog}
-            >
-              Start instance
-            </MenuItem>,
+          const actions = [
             <MenuItem key="delete" data-dialog="delete" onClick={openDialog}>
               Delete instance
             </MenuItem>
           ];
+
+          if (props.instance.status === 'stopped') {
+            actions.unshift(
+              <MenuItem
+                key="start"
+                data-dialog="start"
+                disabled={props.instance.status !== 'stopped'}
+                onClick={openDialog}
+              >
+                Start instance
+              </MenuItem>
+            );
+          } else if (props.instance.status !== 'stopping') {
+            actions.unshift(
+              <MenuItem key="edit" disabled>
+                Change payment method
+              </MenuItem>
+            );
+          }
+
+          return actions;
         }}
       </ActionMenu>
       <Dialog
@@ -95,6 +105,7 @@ export default function InstanceActions(props) {
           onCancel={closeDialog}
           cards={props.cards}
           mutationOptions={{
+            onCompleted: closeDialog,
             variables: {
               id: props.instance.id
             }

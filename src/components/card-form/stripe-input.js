@@ -5,6 +5,7 @@ import {CardElement} from 'react-stripe-elements';
 export default function StripeInput({inputRef, ...props}) {
   useImperativeHandle(inputRef, () => ({
     focus() {
+      console.log(inputRef);
       // logic to focus the rendered component from 3rd party belongs here
       // see https://material-ui.com/components/text-fields#integration-with-3rd-party-input-libraries
     }

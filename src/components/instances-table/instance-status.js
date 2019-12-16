@@ -53,7 +53,7 @@ export default function InstanceStatus(props) {
       const isActive = isRunning && isReady;
       return (
         <StatusMessage color={isActive ? 'limegreen' : 'gold'}>
-          {isActive ? (
+          {isRunning && isActive ? (
             'Active'
           ) : (
             <PollInstance queryOptions={queryOptions}>
