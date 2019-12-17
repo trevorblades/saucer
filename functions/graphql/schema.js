@@ -34,6 +34,7 @@ exports.typeDefs = gql`
       adminUser: String!
       adminPassword: String!
       adminEmail: String!
+      plugins: PluginsInput!
       source: String
     ): Instance
     deleteInstance(id: ID!): ID
@@ -41,6 +42,12 @@ exports.typeDefs = gql`
     stopInstance(id: ID!): Instance
     createCard(source: String!, isDefault: Boolean): Card
     deleteCard(id: ID!): ID
+  }
+
+  input PluginsInput {
+    acf: Boolean
+    woocommerce: Boolean
+    polylang: Boolean
   }
 
   type Card {

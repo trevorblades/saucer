@@ -62,6 +62,54 @@ module.exports = async function createInstance(
     )
   );
 
+  const plugins = [
+    'wp-fail2ban',
+    {
+      name: 'wp-graphql',
+      url: 'https://github.com/wp-graphql/wp-graphql'
+    },
+    {
+      name: 'wp-graphiql',
+      url: 'https://github.com/wp-graphql/wp-graphiql'
+    },
+    {
+      name: 'gatsby-toolkit',
+      url: 'https://github.com/staticfuse/gatsby-toolkit'
+    }
+  ];
+
+  if (args.plugins.acf) {
+    plugins.push('advanced-custom-fields', {
+      name: 'wp-graphql-acf',
+      url: 'https://github.com/wp-graphql/wp-graphql-acf'
+    });
+  }
+
+  if (args.plugins.woocommerce) {
+    plugins.push('woocommerce', {
+      name: 'wp-graphql-woocommerce',
+      url: 'https://github.com/wp-graphql/wp-graphql-woocommerce'
+    });
+  }
+
+  if (args.plugins.polylang) {
+    plugins.push('polylang', {
+      name: 'wp-graphql-polylang',
+      url: 'https://github.com/valu-digital/wp-graphql-polylang'
+    });
+  }
+
+  const {wp, gh} = plugins.reduce(
+    (acc, plugin) => {
+      const key = typeof plugin === 'string' ? 'wp' : 'gh';
+      return {
+        ...acc,
+        [key]: [...acc[key], plugin]
+      };
+    },
+    {wp: [], gh: []}
+  );
+
   const UserData = base64.encode(
     outdent`
       #!/bin/bash
@@ -132,12 +180,12 @@ module.exports = async function createInstance(
       wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'
 
       # install wordpress plugins
-      wp plugin install wp-fail2ban
+      wp plugin install ${wp.join(' ')}
       cd wp-content/plugins
-      git clone https://github.com/wp-graphql/wp-graphql
-      git clone https://github.com/wp-graphql/wp-graphiql
-      git clone https://github.com/staticfuse/gatsby-toolkit
-      wp plugin activate wp-fail2ban wp-graphql wp-graphiql gatsby-toolkit
+      ${gh.map(plugin => `git clone ${plugin.url}`).join('\n')}
+      wp plugin activate ${plugins
+        .map(plugin => (typeof plugin === 'string' ? plugin : plugin.name))
+        .join(' ')}
 
       # give wordpress access to filesystem
       echo "define( 'FS_METHOD', 'direct' );" >> wp-config.php

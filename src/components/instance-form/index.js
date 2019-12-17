@@ -35,6 +35,7 @@ const CREATE_INSTANCE = gql`
     $adminEmail: String!
     $adminUser: String!
     $adminPassword: String!
+    $plugins: PluginsInput!
     $source: String
   ) {
     createInstance(
@@ -43,6 +44,7 @@ const CREATE_INSTANCE = gql`
       adminEmail: $adminEmail
       adminUser: $adminUser
       adminPassword: $adminPassword
+      plugins: $plugins
       source: $source
     ) {
       ...InstanceFragment
@@ -82,13 +84,27 @@ export default function InstanceForm(props) {
   function handleSubmit(event) {
     event.preventDefault();
 
-    const {title, adminEmail, adminUser, adminPassword, source} = event.target;
+    const {
+      title,
+      adminEmail,
+      adminUser,
+      adminPassword,
+      woocommerce,
+      acf,
+      polylang,
+      source
+    } = event.target;
     createInstance({
       variables: {
         title: title.value,
         adminEmail: adminEmail.value,
         adminUser: adminUser.value,
         adminPassword: adminPassword.value,
+        plugins: {
+          woocommerce: woocommerce.checked,
+          acf: acf.checked,
+          polylang: polylang.checked
+        },
         source: source && source.value
       }
     });
@@ -198,9 +214,18 @@ export default function InstanceForm(props) {
           <Typography variant="subtitle2">
             Install more plugins? (optional)
           </Typography>
-          <Grid container spacing={2}>
+          <Grid container>
             <Grid item xs={6}>
               <FormControlLabel
+                name="woocommerce"
+                disabled={loading}
+                control={<Checkbox />}
+                label="WooCommerce"
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControlLabel
+                name="acf"
                 disabled={loading}
                 control={<Checkbox />}
                 label="Advanced Custom Fields"
@@ -208,9 +233,10 @@ export default function InstanceForm(props) {
             </Grid>
             <Grid item xs={6}>
               <FormControlLabel
+                name="polylang"
                 disabled={loading}
                 control={<Checkbox />}
-                label="WooCommerce"
+                label="Polylang"
               />
             </Grid>
           </Grid>

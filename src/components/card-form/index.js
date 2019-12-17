@@ -108,10 +108,9 @@ function CardForm(props) {
           }}
         />
         <FormControlLabel
+          name="isDefault"
           disabled={isLoading || props.isDefault}
-          control={
-            <Checkbox name="isDefault" defaultChecked={props.isDefault} />
-          }
+          control={<Checkbox defaultChecked={props.isDefault} />}
           label="Set as default payment method"
         />
       </DialogContent>
