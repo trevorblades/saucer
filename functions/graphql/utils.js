@@ -1,20 +1,16 @@
-exports.findInstancesForUser = async (ec2, user, options) => {
-  const {Reservations} = await ec2
-    .describeInstances({
-      ...options,
-      Filters: [
-        {
-          Name: 'tag:Owner',
-          Values: [user.data.id]
-        },
-        {
-          Name: 'instance-state-name',
-          Values: ['pending', 'running', 'stopping', 'stopped']
-        }
-      ]
-    })
-    .promise();
-  return Reservations.flatMap(reservation => reservation.Instances);
+const {query} = require('faunadb');
+
+exports.findInstancesForUser = async (client, user) => {
+  const {data} = await client.query(
+    query.Map(
+      query.Paginate(
+        query.Match(query.Index('wp_instances_by_user_id'), user.data.id)
+      ),
+      query.Lambda('X', query.Get(query.Var('X')))
+    )
+  );
+
+  return data;
 };
 
 exports.findInstanceForUser = async (ec2, user, id) => {

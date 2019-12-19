@@ -5,14 +5,13 @@ const {
   uniqueNamesGenerator
 } = require('unique-names-generator');
 const {query} = require('faunadb');
-const {findInstancesForUser} = require('../utils');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
 
 module.exports = async function createInstance(
   parent,
   args,
-  {user, ec2, stripe, client}
+  {user, stripe, client}
 ) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
@@ -20,15 +19,20 @@ module.exports = async function createInstance(
 
   let subscription;
   if (!args.source) {
-    // TODO: fetch instances from fauna
-    // https://docs.fauna.com/fauna/current/whitepapers/relational.html#examples
-    const instances = await findInstancesForUser(ec2, user);
-    if (instances.length) {
+    // if no payment is provided, check to see if the user can start a trial
+    const {data} = await client.query(
+      query.Paginate(
+        query.Match(query.Index('wp_instances_by_user_id'), user.data.id)
+      )
+    );
+
+    if (data.length) {
       throw new UserInputError(
         'Free trial limit reached. Please provide a payment method.'
       );
     }
   } else {
+    // process payment before proceeding
     subscription = await stripe.subscriptions.create({
       customer: user.data.customer_id,
       default_source: args.source,
@@ -36,6 +40,7 @@ module.exports = async function createInstance(
     });
   }
 
+  // generate a subdomain: part english words, part hex color code
   const subdomain =
     uniqueNamesGenerator({
       dictionaries: [adjectives, animals],
@@ -49,6 +54,7 @@ module.exports = async function createInstance(
       capitalization: 'lowercase'
     });
 
+  // default plugins
   const plugins = [
     'wp-fail2ban',
     {
@@ -65,6 +71,7 @@ module.exports = async function createInstance(
     }
   ];
 
+  // conditionally add optional plugins and their graphql counterparts
   if (args.plugins.acf) {
     plugins.push('advanced-custom-fields', {
       name: 'wp-graphql-acf',
@@ -86,6 +93,8 @@ module.exports = async function createInstance(
     });
   }
 
+  // separate the plugins that can be installed with the wp CLI
+  // and the ones that need to be installed using git
   const {wp, gh} = plugins.reduce(
     (acc, plugin) => {
       const key = typeof plugin === 'string' ? 'wp' : 'gh';
@@ -155,7 +164,7 @@ module.exports = async function createInstance(
   // TODO: run command via SSM
   // TODO: save command id in
 
-  const response = await client.query(
+  const instance = await client.query(
     query.Create(query.Collection('wp_instances'), {
       data: {
         name: subdomain,
@@ -170,10 +179,10 @@ module.exports = async function createInstance(
     // update the subscription with metadata about the instance
     await stripe.subscriptions.update(subscription.id, {
       metadata: {
-        instance_id: response.ref
+        instance_id: instance.ref
       }
     });
   }
 
-  return response;
+  return instance;
 };
