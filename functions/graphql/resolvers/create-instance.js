@@ -4,14 +4,15 @@ const {
   animals,
   uniqueNamesGenerator
 } = require('unique-names-generator');
-const {createInstanceDomain, findInstancesForUser} = require('../utils');
+const {query} = require('faunadb');
+const {findInstancesForUser} = require('../utils');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
 
 module.exports = async function createInstance(
   parent,
   args,
-  {user, ec2, stripe}
+  {user, ec2, stripe, client}
 ) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
@@ -29,7 +30,7 @@ module.exports = async function createInstance(
     }
   } else {
     subscription = await stripe.subscriptions.create({
-      customer: user.data.customerId,
+      customer: user.data.customer_id,
       default_source: args.source,
       items: [{plan: process.env.STRIPE_PLAN_ID_DEV}]
     });
@@ -152,17 +153,27 @@ module.exports = async function createInstance(
 
   console.log(document);
   // TODO: run command via SSM
+  // TODO: save command id in
+
+  const response = await client.query(
+    query.Create(query.Collection('wp_instances'), {
+      data: {
+        name: subdomain,
+        status: 'new',
+        user_id: user.data.id,
+        command_id: 'foo'
+      }
+    })
+  );
 
   if (subscription) {
     // update the subscription with metadata about the instance
     await stripe.subscriptions.update(subscription.id, {
       metadata: {
-        instance_id: 'foo' // TODO: generate instance id
+        instance_id: response.ref
       }
     });
   }
 
-  return {
-    // TODO: send instance info
-  };
+  return response;
 };

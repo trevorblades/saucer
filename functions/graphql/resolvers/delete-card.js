@@ -6,7 +6,7 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
   }
 
   const {data} = await stripe.subscriptions.list({
-    customer: user.data.customerId
+    customer: user.data.customer_id
   });
 
   // cancel all subscriptions for this source and stop associated instances
@@ -25,7 +25,7 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
 
   // then delete the card
   const source = await stripe.customers.deleteSource(
-    user.data.customerId,
+    user.data.customer_id,
     args.id
   );
 

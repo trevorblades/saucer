@@ -10,12 +10,9 @@ const {
   ForbiddenError,
   gql
 } = require('apollo-server-lambda');
+const {query} = require('faunadb');
 const {GraphQLDateTime} = require('graphql-iso-date');
-const {
-  findInstancesForUser,
-  findInstanceForUser,
-  reduceTags
-} = require('./utils');
+const {findInstancesForUser, findInstanceForUser} = require('./utils');
 
 exports.typeDefs = gql`
   scalar DateTime
@@ -64,7 +61,6 @@ exports.typeDefs = gql`
     id: ID
     name: String
     status: String
-    isReady: Boolean
     createdAt: DateTime
   }
 `;
@@ -72,17 +68,10 @@ exports.typeDefs = gql`
 exports.resolvers = {
   DateTime: GraphQLDateTime,
   Instance: {
-    id: instance => instance.InstanceId,
-    name(instance) {
-      const {Name} = reduceTags(instance.Tags);
-      return Name;
-    },
-    status: instance => instance.State.Name,
-    isReady(instance) {
-      const {Status} = reduceTags(instance.Tags);
-      return Status === 'ready';
-    },
-    createdAt: instance => instance.LaunchTime
+    id: instance => instance.ref.id,
+    name: instance => instance.data.name,
+    status: instance => instance.data.status,
+    createdAt: instance => new Date(instance.ts / 1000)
   },
   Card: {
     expMonth: card => card.exp_month,
@@ -93,7 +82,7 @@ exports.resolvers = {
     },
     async instances(card, args, {ec2, stripe, user}) {
       const {data} = await stripe.subscriptions.list({
-        customer: user.data.customerId
+        customer: user.data.customer_id
       });
 
       const instanceIds = data
@@ -121,12 +110,21 @@ exports.resolvers = {
 
       return instance;
     },
-    instances(parent, args, {ec2, user}) {
+    async instances(parent, args, {client, user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
 
-      return findInstancesForUser(ec2, user);
+      const {data} = await client.query(
+        query.Map(
+          query.Paginate(
+            query.Match(query.Index('wp_instances_by_user_id'), user.data.id)
+          ),
+          query.Lambda('X', query.Get(query.Var('X')))
+        )
+      );
+
+      return data;
     },
     async cards(parent, args, {user, stripe}) {
       if (!user) {

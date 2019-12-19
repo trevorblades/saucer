@@ -75,7 +75,7 @@ export default function InstanceStatus(props) {
         </StatusMessage>
       );
     default:
-      return <StatusMessage color="grey">Unknown</StatusMessage>;
+      return <StatusMessage color="lightgrey">Unknown</StatusMessage>;
   }
 }
 
