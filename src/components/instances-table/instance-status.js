@@ -40,11 +40,6 @@ StatusMessage.propTypes = {
 
 export default function InstanceStatus(props) {
   const {id, status} = props.instance;
-  const queryOptions = {
-    variables: {id},
-    pollInterval: 5000
-  };
-
   switch (status) {
     case 'Success':
       return <StatusMessage color="limegreen">Active</StatusMessage>;
@@ -52,7 +47,12 @@ export default function InstanceStatus(props) {
     case 'Delayed':
     case 'InProgress':
       return (
-        <PollInstance queryOptions={queryOptions}>
+        <PollInstance
+          queryOptions={{
+            variables: {id},
+            pollInterval: 5000
+          }}
+        >
           <StatusMessage color="gold">Starting</StatusMessage>
         </PollInstance>
       );
