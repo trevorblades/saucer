@@ -7,11 +7,12 @@ const {
 const {query} = require('faunadb');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
+const {paginateInstancesForUser} = require('../utils');
 
 module.exports = async function createInstance(
   parent,
   args,
-  {user, stripe, client}
+  {user, ssm, stripe, client}
 ) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
@@ -20,12 +21,7 @@ module.exports = async function createInstance(
   let subscription;
   if (!args.source) {
     // if no payment is provided, check to see if the user can start a trial
-    const {data} = await client.query(
-      query.Paginate(
-        query.Match(query.Index('wp_instances_by_user_id'), user.data.id)
-      )
-    );
-
+    const {data} = await client.query(paginateInstancesForUser(user));
     if (data.length) {
       throw new UserInputError(
         'Free trial limit reached. Please provide a payment method.'
@@ -41,18 +37,19 @@ module.exports = async function createInstance(
   }
 
   // generate a subdomain: part english words, part hex color code
-  const subdomain =
-    uniqueNamesGenerator({
-      dictionaries: [adjectives, animals],
-      length: 2,
-      separator: '-'
-    }) +
-    '-' +
-    generate({
-      length: 6,
-      charset: 'hex',
-      capitalization: 'lowercase'
-    });
+  const name = uniqueNamesGenerator({
+    dictionaries: [adjectives, animals],
+    length: 2,
+    separator: '-'
+  });
+
+  const hex = generate({
+    length: 6,
+    charset: 'hex',
+    capitalization: 'lowercase'
+  });
+
+  const subdomain = `${name}-${hex}`;
 
   // default plugins
   const plugins = [
@@ -106,71 +103,73 @@ module.exports = async function createInstance(
     {wp: [], gh: []}
   );
 
-  const document = outdent`
-    #!/bin/bash
-
-    # set up some variables
-    subdomain=${subdomain}
-    dbpass=${generate()}
-
-    # TODO: create mysql user
-    # TODO: create mysql db
-    # TODO: grant + flush privilages
-
-    # move to public directory
-    cd /var/www/html
-    mkdir $subdomain
-    cd $subdomain
-
-    # https://developer.wordpress.org/cli/commands/core/
-    wp core download --locale=${args.locale}
-
-    # https://github.com/wp-cli/config-command
-    wp config create \
-      --dbname=$subdomain \
-      --dbuser=$subdomain \
-      --dbpass=$dbpass
-
-    # give wordpress access to filesystem
-    echo "define( 'FS_METHOD', 'direct' );" >> wp-config.php
-    chown -R apache:apache /var/www/html/*
-
-    wp core install \
-      --url=$subdomain.saucer.dev \
-      --title=${args.title} \
-      --admin_user=${args.adminUser} \
-      --admin_password=${args.adminPassword} \
-      --admin_email=${args.adminEmail}
-
-    # enable pretty URLs and regenerate .htaccess
-    # https://developer.wordpress.org/cli/commands/rewrite/structure/
-    cat >> wp-cli.yml <<EOF
-    apache_modules:
-      - mod_rewrite
-    EOF
-    touch .htaccess
-    wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'
-
-    # install wordpress plugins
-    wp plugin install ${wp.join(' ')}
-    cd wp-content/plugins
-    ${gh.map(plugin => `git clone ${plugin.url}`).join('\n')}
-    wp plugin activate ${plugins
-      .map(plugin => (typeof plugin === 'string' ? plugin : plugin.name))
-      .join(' ')}
-  `;
-
-  console.log(document);
-  // TODO: run command via SSM
-  // TODO: save command id in
+  const {Command} = await ssm
+    .sendCommand({
+      InstanceIds: [process.env.AWS_EC2_INSTANCE_ID],
+      DocumentName: 'AWS-RunShellScript',
+      Parameters: {
+        commands: [
+          `subdomain=${subdomain}`,
+          `dbname=${subdomain.replace(/-/g, '_')}`,
+          `dbpass=${generate()}`,
+          // create db and user and grant privileges
+          outdent`
+            mysql -u root << EOF
+            CREATE DATABASE $dbname;
+            GRANT ALL PRIVILEGES ON $dbname.* TO $dbname@'localhost' IDENTIFIED BY '$dbpass';
+            FLUSH PRIVILEGES;
+            EOF
+          `,
+          // create and move into subdomain directory
+          'cd /var/www/html',
+          'mkdir $subdomain',
+          'cd $subdomain',
+          // download and install wordpress
+          `wp core download --locale=${args.locale}`,
+          outdent`
+            wp config create \
+              --dbname=$dbname \
+              --dbuser=$dbname \
+              --dbpass=$dbpass
+          `,
+          outdent`
+            wp core install \
+              --url=$subdomain.saucer.dev \
+              --title=${args.title} \
+              --admin_user=${args.adminUser} \
+              --admin_password=${args.adminPassword} \
+              --admin_email=${args.adminEmail}
+          `,
+          // allow wp to install plugins and updates
+          "echo \"define( 'FS_METHOD', 'direct' );\" >> wp-config.php",
+          'chown -R apache:apache /var/www/html/*',
+          // allow wp to write to .htaccess and set up pretty permalinks
+          outdent`
+            cat >> wp-cli.yml << EOF
+            apache_modules:
+              - mod_rewrite
+            EOF
+          `,
+          'touch .htaccess',
+          "wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'",
+          // install plugins
+          'cd wp-content/plugins',
+          `wp plugin install ${wp.join(' ')}`,
+          ...gh.map(plugin => `git clone ${plugin.url}`),
+          `wp plugin activate ${plugins
+            .map(plugin => (typeof plugin === 'string' ? plugin : plugin.name))
+            .join(' ')}`
+        ]
+      }
+    })
+    .promise();
 
   const instance = await client.query(
     query.Create(query.Collection('wp_instances'), {
       data: {
         name: subdomain,
-        status: 'new',
         user_id: user.data.id,
-        command_id: 'foo'
+        command_id: Command.CommandId
       }
     })
   );
@@ -179,7 +178,7 @@ module.exports = async function createInstance(
     // update the subscription with metadata about the instance
     await stripe.subscriptions.update(subscription.id, {
       metadata: {
-        instance_id: instance.ref
+        instance_id: instance.ref.id
       }
     });
   }

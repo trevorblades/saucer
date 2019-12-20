@@ -9,7 +9,6 @@ const GET_INSTANCE = gql`
     instance(id: $id) {
       id
       status
-      isReady
     }
   }
 `;
@@ -40,40 +39,26 @@ StatusMessage.propTypes = {
 };
 
 export default function InstanceStatus(props) {
-  const {id, status, isReady} = props.instance;
+  const {id, status} = props.instance;
   const queryOptions = {
     variables: {id},
     pollInterval: 5000
   };
 
   switch (status) {
-    case 'running':
-    case 'pending': {
-      const isRunning = status === 'running';
-      const isActive = isRunning && isReady;
+    case 'Success':
+      return <StatusMessage color="limegreen">Active</StatusMessage>;
+    case 'Pending':
+    case 'Delayed':
+    case 'InProgress':
       return (
-        <StatusMessage color={isActive ? 'limegreen' : 'gold'}>
-          {isRunning && isActive ? (
-            'Active'
-          ) : (
-            <PollInstance queryOptions={queryOptions}>
-              {isRunning ? 'Installing' : 'Starting'}
-            </PollInstance>
-          )}
-        </StatusMessage>
+        <PollInstance queryOptions={queryOptions}>
+          <StatusMessage color="gold">Starting</StatusMessage>
+        </PollInstance>
       );
-    }
-    case 'stopping':
-    case 'stopped':
-      return (
-        <StatusMessage color="error.main">
-          {status === 'stopping' ? (
-            <PollInstance queryOptions={queryOptions}>Stopping</PollInstance>
-          ) : (
-            'Stopped'
-          )}
-        </StatusMessage>
-      );
+    case 'TimedOut':
+    case 'Failed':
+      return <StatusMessage color="error.main">Failed</StatusMessage>;
     default:
       return <StatusMessage color="lightgrey">Unknown</StatusMessage>;
   }

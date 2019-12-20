@@ -12,7 +12,7 @@ const {
 } = require('apollo-server-lambda');
 const {query} = require('faunadb');
 const {GraphQLDateTime} = require('graphql-iso-date');
-const {findInstancesForUser, findInstanceForUser} = require('./utils');
+const {paginateInstancesForUser} = require('./utils');
 
 exports.typeDefs = gql`
   scalar DateTime
@@ -70,7 +70,15 @@ exports.resolvers = {
   Instance: {
     id: instance => instance.ref.id,
     name: instance => instance.data.name,
-    status: instance => instance.data.status,
+    async status(instance, args, {ssm}) {
+      const data = await ssm
+        .getCommandInvocation({
+          CommandId: instance.data.command_id,
+          InstanceId: process.env.AWS_EC2_INSTANCE_ID
+        })
+        .promise();
+      return data.Status;
+    },
     createdAt: instance => new Date(instance.ts / 1000)
   },
   Card: {
@@ -80,7 +88,7 @@ exports.resolvers = {
       const customer = await stripe.customers.retrieve(card.customer);
       return card.id === customer.default_source;
     },
-    async instances(card, args, {ec2, stripe, user}) {
+    async instances(card, args, {stripe, user}) {
       const {data} = await stripe.subscriptions.list({
         customer: user.data.customer_id
       });
@@ -92,18 +100,20 @@ exports.resolvers = {
         return [];
       }
 
-      return findInstancesForUser(ec2, user, {
-        InstanceIds: instanceIds
-      });
+      // TODO: implement this again
+      return [];
     }
   },
   Query: {
-    async instance(parent, args, {user, ec2}) {
+    async instance(parent, args, {user, client}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
 
-      const instance = await findInstanceForUser(ec2, user, args.id);
+      const instance = await client.query(
+        query.Get(query.Ref(query.Collection('wp_instances'), args.id))
+      );
+
       if (!instance) {
         throw new ForbiddenError('You do not have access to this instance');
       }
@@ -117,9 +127,7 @@ exports.resolvers = {
 
       const {data} = await client.query(
         query.Map(
-          query.Paginate(
-            query.Match(query.Index('wp_instances_by_user_id'), user.data.id)
-          ),
+          paginateInstancesForUser(user),
           query.Lambda('X', query.Get(query.Var('X')))
         )
       );
@@ -131,7 +139,7 @@ exports.resolvers = {
         throw new AuthenticationError('Unauthorized');
       }
 
-      const {customerId} = user.data;
+      const customerId = user.data.customer_id;
       if (!customerId) {
         return [];
       }

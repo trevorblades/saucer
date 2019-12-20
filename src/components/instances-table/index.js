@@ -33,17 +33,18 @@ export default function InstancesTable(props) {
               <TableCell padding="none">
                 <Box display="flex" alignItems="center">
                   <InstanceIcon name={instance.name} />
-                  <Link
-                    color="inherit"
-                    href={`https://${instance.name}.saucer.dev/wp-admin`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    disabled={
-                      instance.status !== 'running' || !instance.isReady
-                    }
-                  >
-                    {instance.name}
-                  </Link>
+                  {instance.status === 'Success' ? (
+                    <Link
+                      color="inherit"
+                      href={`https://${instance.name}.saucer.dev/wp-admin`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {instance.name}
+                    </Link>
+                  ) : (
+                    instance.name
+                  )}
                 </Box>
               </TableCell>
               <TableCell padding="none">
