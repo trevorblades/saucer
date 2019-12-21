@@ -6,12 +6,15 @@ import RestartForm from './restart-form';
 import SuccessToast from '../success-toast';
 import plant from '../../assets/plant.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
-import {LIST_INSTANCES} from '../../utils';
 import {gql} from '@apollo/client';
 
 const DELETE_INSTANCE = gql`
   mutation DeleteInstance($id: ID!) {
-    deleteInstance(id: $id)
+    deleteInstance(id: $id) {
+      id
+      status
+      updatedAt
+    }
   }
 `;
 
@@ -80,22 +83,9 @@ export default function InstanceActions(props) {
           onCancel={closeDialog}
           mutation={DELETE_INSTANCE}
           mutationOptions={{
+            onCompleted: closeDialog,
             variables: {
               id: props.instance.id
-            },
-            update(cache, {data}) {
-              const {instances} = cache.readQuery({
-                query: LIST_INSTANCES
-              });
-
-              cache.writeQuery({
-                query: LIST_INSTANCES,
-                data: {
-                  instances: instances.filter(
-                    instance => instance.id !== data.deleteInstance
-                  )
-                }
-              });
             }
           }}
         >

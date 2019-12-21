@@ -45,7 +45,9 @@ export default function InstanceStatus(props) {
       return <StatusMessage color="limegreen">Active</StatusMessage>;
     case 'Pending':
     case 'Delayed':
-    case 'InProgress':
+    case 'Deleting':
+    case 'InProgress': {
+      const withSpaces = status.replace(/([a-z])([A-Z])/, '$1 $2');
       return (
         <PollInstance
           queryOptions={{
@@ -53,14 +55,17 @@ export default function InstanceStatus(props) {
             pollInterval: 5000
           }}
         >
-          <StatusMessage color="gold">Starting</StatusMessage>
+          <StatusMessage color="gold">
+            {withSpaces.charAt(0) + withSpaces.slice(1).toLowerCase()}
+          </StatusMessage>
         </PollInstance>
       );
+    }
     case 'TimedOut':
     case 'Failed':
       return <StatusMessage color="error.main">Failed</StatusMessage>;
     default:
-      return <StatusMessage color="lightgrey">Unknown</StatusMessage>;
+      return <StatusMessage color="lightgrey">{status}</StatusMessage>;
   }
 }
 

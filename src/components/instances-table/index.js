@@ -22,12 +22,12 @@ export default function InstancesTable(props) {
         <TableRow>
           <TableCell padding="none">Name</TableCell>
           <TableCell padding="none">Status</TableCell>
-          <TableCell colSpan={2}>Created</TableCell>
+          <TableCell colSpan={2}>Last updated</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
         {props.instances.map(instance => {
-          const createdAt = new Date(instance.createdAt);
+          const updatedAt = new Date(instance.updatedAt);
           return (
             <TableRow key={instance.id}>
               <TableCell padding="none">
@@ -51,9 +51,9 @@ export default function InstancesTable(props) {
                 <InstanceStatus instance={instance} />
               </TableCell>
               <TableCell>
-                <Tooltip title={createdAt.toLocaleString()}>
+                <Tooltip title={updatedAt.toLocaleString()}>
                   <span>
-                    {formatDistanceToNow(createdAt, {
+                    {formatDistanceToNow(updatedAt, {
                       addSuffix: true
                     })}
                   </span>

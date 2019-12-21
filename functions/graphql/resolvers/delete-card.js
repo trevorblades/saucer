@@ -29,5 +29,5 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
     args.id
   );
 
-  return source.id;
+  return source;
 };

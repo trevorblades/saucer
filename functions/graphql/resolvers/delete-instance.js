@@ -1,33 +1,65 @@
 const {AuthenticationError, ForbiddenError} = require('apollo-server-lambda');
-const {findInstanceForUser} = require('../utils');
+const {query} = require('faunadb');
+const outdent = require('outdent');
 
 module.exports = async function deleteInstance(
   parent,
   args,
-  {user, ec2, stripe}
+  {user, client, stripe, ssm}
 ) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
 
-  const instance = await findInstanceForUser(ec2, user, args.id);
-  if (!instance) {
+  const instance = await client.query(
+    query.Get(query.Ref(query.Collection('wp_instances'), args.id))
+  );
+
+  if (instance.data.user_id !== user.data.id) {
     throw new ForbiddenError('You do not have access to this instance');
   }
 
-  const customerId = user.data.customer_id;
-  if (customerId) {
+  if ('customer_id' in user.data) {
     const {data} = await stripe.subscriptions.list({
-      customer: customerId
+      customer: user.data.customer_id
     });
 
     for (const subscription of data) {
       // try to find a subscription for this instance
-      if (subscription.metadata.instance_id === instance.InstanceId) {
-        // cancel the entire subscription if it's the only item
+      if (subscription.metadata.instance_id === instance.ref.id) {
+        // cancel the subscription and stop looking
         await stripe.subscriptions.del(subscription.id);
         break;
       }
     }
   }
+
+  const {Command} = await ssm
+    .sendCommand({
+      InstanceIds: [process.env.AWS_EC2_INSTANCE_ID],
+      DocumentName: 'AWS-RunShellScript',
+      Parameters: {
+        commands: [
+          `dbname=${instance.data.name.replace(/-/g, '_')}`,
+          outdent`
+            mysql -u root << EOF
+            REVOKE ALL PRIVILEGES, GRANT OPTION FROM $dbname@'localhost';
+            DROP USER $dbname@'localhost';
+            DROP DATABASE $dbname;
+            FLUSH PRIVILEGES;
+            EOF
+          `,
+          `rm -rf /var/www/html/${instance.data.name}`
+        ]
+      }
+    })
+    .promise();
+
+  return client.query(
+    query.Update(instance.ref, {
+      data: {
+        delete_id: Command.CommandId
+      }
+    })
+  );
 };
