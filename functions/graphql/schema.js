@@ -67,26 +67,12 @@ exports.resolvers = {
     id: instance => instance.ref.id,
     name: instance => instance.data.name,
     async status(instance, args, {ssm}) {
-      const isDeleting = 'delete_id' in instance.data;
       const data = await ssm
         .getCommandInvocation({
-          CommandId: instance.data[isDeleting ? 'delete_id' : 'command_id'],
+          CommandId: instance.data.command_id,
           InstanceId: process.env.AWS_EC2_INSTANCE_ID
         })
         .promise();
-
-      if (isDeleting) {
-        switch (data.Status) {
-          case 'Pending':
-          case 'InProgress':
-            return 'Deleting';
-          case 'Success':
-            return 'Deleted';
-          default:
-            break;
-        }
-      }
-
       return data.Status;
     },
     updatedAt: instance => new Date(instance.ts / 1000)

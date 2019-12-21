@@ -55,11 +55,20 @@ module.exports = async function deleteInstance(
     })
     .promise();
 
-  return client.query(
-    query.Update(instance.ref, {
-      data: {
-        delete_id: Command.CommandId
-      }
-    })
-  );
+  let status = Command.Status;
+  let invocations = 0;
+  while (['Pending', 'InProgress'].includes(status)) {
+    const data = await ssm
+      .getCommandInvocation({
+        InstanceId: process.env.AWS_EC2_INSTANCE_ID,
+        CommandId: Command.CommandId
+      })
+      .promise();
+    status = data.Status;
+    invocations++;
+  }
+
+  console.log(invocations);
+
+  return client.query(query.Delete(instance.ref));
 };

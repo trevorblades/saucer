@@ -1,6 +1,6 @@
 const {AuthenticationError} = require('apollo-server-lambda');
 
-module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
+module.exports = async function deleteCard(parent, args, {user, stripe}) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
@@ -14,12 +14,8 @@ module.exports = async function deleteCard(parent, args, {user, ec2, stripe}) {
     data
       .filter(subscription => subscription.default_source === args.id)
       .flatMap(subscription => [
-        stripe.subscriptions.del(subscription.id),
-        ec2
-          .stopInstances({
-            InstanceIds: [subscription.metadata.instance_id]
-          })
-          .promise()
+        stripe.subscriptions.del(subscription.id)
+        // TODO: stop/restrict the instance??
       ])
   );
 
