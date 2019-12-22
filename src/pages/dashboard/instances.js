@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {Fragment} from 'react';
 import {INSTANCE_FRAGMENT} from '../../utils';
+import {Typography} from '@material-ui/core';
 import {gql, useQuery} from '@apollo/client';
 
 const GET_INSTANCE = gql`
@@ -27,7 +28,11 @@ export default function Instances(props) {
     return <div>{error.message}</div>;
   }
 
-  return <div>{data.instance.name}</div>;
+  return (
+    <Fragment>
+      <Typography variant="h4">{data.instance.name}</Typography>
+    </Fragment>
+  );
 }
 
 Instances.propTypes = {
