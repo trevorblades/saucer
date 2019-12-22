@@ -10,6 +10,12 @@ module.exports = {
       resolve: 'gatsby-theme-material-ui',
       options: {webFontsConfig}
     },
+    {
+      resolve: 'gatsby-plugin-create-client-paths',
+      options: {
+        prefixes: ['/dashboard/instances/*']
+      }
+    },
     'gatsby-plugin-react-helmet',
     'gatsby-plugin-svgr',
     'gatsby-theme-apollo',
