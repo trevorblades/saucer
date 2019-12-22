@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {
   Box,
-  Link,
   Table,
   TableBody,
   TableCell,
@@ -13,6 +12,7 @@ import {
   TableRow,
   Tooltip
 } from '@material-ui/core';
+import {Link} from 'gatsby-theme-material-ui';
 import {formatDistanceToNow} from 'date-fns';
 
 export default function InstancesTable(props) {
@@ -36,9 +36,7 @@ export default function InstancesTable(props) {
                   {instance.status === 'Success' ? (
                     <Link
                       color="inherit"
-                      href={`https://${instance.name}.saucer.dev/wp-admin`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      to={`/dashboard/instances/${instance.id}`}
                     >
                       {instance.name}
                     </Link>
