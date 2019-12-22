@@ -1,22 +1,18 @@
-const base64 = require('base-64');
 const {AuthenticationError, UserInputError} = require('apollo-server-lambda');
 const {
   adjectives,
   animals,
   uniqueNamesGenerator
 } = require('unique-names-generator');
-const {
-  createChangeBatch,
-  createInstanceDomain,
-  findInstancesForUser
-} = require('../utils');
+const {query} = require('faunadb');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
+const {paginateInstancesForUser} = require('../utils');
 
 module.exports = async function createInstance(
   parent,
   args,
-  {user, ec2, stripe}
+  {user, ssm, stripe, client}
 ) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
@@ -24,44 +20,38 @@ module.exports = async function createInstance(
 
   let subscription;
   if (!args.source) {
-    const instances = await findInstancesForUser(ec2, user);
-    if (instances.length) {
+    // if no payment is provided, check to see if the user can start a trial
+    const {data} = await client.query(paginateInstancesForUser(user));
+    if (data.length) {
       throw new UserInputError(
         'Free trial limit reached. Please provide a payment method.'
       );
     }
   } else {
+    // process payment before proceeding
     subscription = await stripe.subscriptions.create({
-      customer: user.data.customerId,
+      customer: user.data.customer_id,
       default_source: args.source,
       items: [{plan: process.env.STRIPE_PLAN_ID_DEV}]
     });
   }
 
-  const instanceName =
-    uniqueNamesGenerator({
-      dictionaries: [adjectives, animals],
-      length: 2,
-      separator: '-'
-    }) +
-    '-' +
-    generate({
-      length: 6,
-      charset: 'hex',
-      capitalization: 'lowercase'
-    });
+  // generate a subdomain: part english words, part hex color code
+  const name = uniqueNamesGenerator({
+    dictionaries: [adjectives, animals],
+    length: 2,
+    separator: '-'
+  });
 
-  const instanceDomain = createInstanceDomain(instanceName);
-  const changeBatch = JSON.stringify(
-    JSON.stringify(
-      createChangeBatch({
-        Action: 'CREATE',
-        Name: instanceDomain,
-        Value: '$ip_address'
-      })
-    )
-  );
+  const hex = generate({
+    length: 6,
+    charset: 'hex',
+    capitalization: 'lowercase'
+  });
 
+  const subdomain = `${name}-${hex}`;
+
+  // default plugins
   const plugins = [
     'wp-fail2ban',
     {
@@ -78,6 +68,7 @@ module.exports = async function createInstance(
     }
   ];
 
+  // conditionally add optional plugins and their graphql counterparts
   if (args.plugins.acf) {
     plugins.push('advanced-custom-fields', {
       name: 'wp-graphql-acf',
@@ -99,6 +90,8 @@ module.exports = async function createInstance(
     });
   }
 
+  // separate the plugins that can be installed with the wp CLI
+  // and the ones that need to be installed using git
   const {wp, gh} = plugins.reduce(
     (acc, plugin) => {
       const key = typeof plugin === 'string' ? 'wp' : 'gh';
@@ -110,175 +103,85 @@ module.exports = async function createInstance(
     {wp: [], gh: []}
   );
 
-  const UserData = base64.encode(
-    outdent`
-      #!/bin/bash
-
-      # set up some variables
-      dbname=wordpress
-      dbpass=${generate()}
-      ip_address=$(curl 169.254.169.254/latest/meta-data/public-ipv4)
-      instance_id=$(curl 169.254.169.254/latest/meta-data/instance-id)
-
-      # find public IP address and set an A record
-      aws route53 change-resource-record-sets \
-        --hosted-zone-id ${process.env.ROUTE_53_HOSTED_ZONE_ID} \
-        --change-batch ${changeBatch}
-
-      # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-lamp-amazon-linux-2.html
-      # https://certbot.eff.org/lets-encrypt/centosrhel7-apache
-      yum update -y
-      amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2 epel
-      yum install -y httpd mariadb-server git certbot python2-certbot-apache
-      systemctl start httpd
-      systemctl enable httpd
-      systemctl start mariadb
-      systemctl enable mariadb
-
-      # https://bertvv.github.io/notes-to-self/2015/11/16/automating-mysql_secure_installation/
-      mysql --user=root <<EOF
-      UPDATE mysql.user SET Password=PASSWORD('$dbpass') WHERE User='root';
-      DELETE FROM mysql.user WHERE User='';
-      DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-      DROP DATABASE IF EXISTS test;
-      DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
-      CREATE DATABASE $dbname;
-      FLUSH PRIVILEGES;
-      EOF
-
-      # https://make.wordpress.org/cli/handbook/installing/
-      curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-      chmod +x wp-cli.phar
-      mv wp-cli.phar /usr/bin/wp
-
-      # move to public directory
-      cd /var/www/html
-
-      # https://developer.wordpress.org/cli/commands/core/
-      wp core download --locale=${args.locale}
-
-      # https://github.com/wp-cli/config-command
-      wp config create \
-        --dbname=$dbname \
-        --dbuser=root \
-        --dbpass=$dbpass
-
-      wp core install \
-        --url=${instanceDomain} \
-        --title=${args.title} \
-        --admin_user=${args.adminUser} \
-        --admin_password=${args.adminPassword} \
-        --admin_email=${args.adminEmail}
-
-      # enable pretty URLs and regenerate .htaccess
-      # https://developer.wordpress.org/cli/commands/rewrite/structure/
-      cat >> wp-cli.yml <<EOF
-      apache_modules:
-        - mod_rewrite
-      EOF
-      touch .htaccess
-      wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'
-
-      # install wordpress plugins
-      wp plugin install ${wp.join(' ')}
-      cd wp-content/plugins
-      ${gh.map(plugin => `git clone ${plugin.url}`).join('\n')}
-      wp plugin activate ${plugins
-        .map(plugin => (typeof plugin === 'string' ? plugin : plugin.name))
-        .join(' ')}
-
-      # give wordpress access to filesystem
-      echo "define( 'FS_METHOD', 'direct' );" >> wp-config.php
-      chown -R apache:apache /var/www/html/*
-
-      # add host for port 80 (needed for certbot)
-      cat >> /etc/httpd/conf/httpd.conf <<EOF
-      <Directory /var/www/html>
-        AllowOverride All
-      </Directory>
-      <VirtualHost *:80>
-        DocumentRoot /var/www/html
-        ServerName ${instanceDomain}
-      </VirtualHost>
-      EOF
-
-      # generate SSL certs and install them
-      certbot \
-        --non-interactive \
-        --apache \
-        --agree-tos \
-        --email ssl@saucer.dev \
-        --domain ${instanceDomain} \
-        --redirect
-
-      # set up a cronjob for automatic cert renewal
-      echo "39 1,13 * * * root certbot renew --no-self-upgrade" >> /etc/crontab
-      systemctl restart crond
-
-      # give an indication that setup has finished
-      aws ec2 create-tags \
-        --resource "$instance_id" \
-        --tags Key=Status,Value=ready \
-        --region us-west-2
-    `
-  );
-
-  const data = await ec2
-    .runInstances({
-      ImageId: 'ami-0c5204531f799e0c6',
-      InstanceType: 't2.micro',
-      MinCount: 1,
-      MaxCount: 1,
-      UserData,
-      IamInstanceProfile: {
-        Arn: 'arn:aws:iam::724863139036:instance-profile/SaucerRole'
+  const {Command} = await ssm
+    .sendCommand({
+      InstanceIds: [process.env.AWS_EC2_INSTANCE_ID],
+      DocumentName: 'AWS-RunShellScript',
+      Parameters: {
+        commands: [
+          `subdomain=${subdomain}`,
+          `dbname=${subdomain.replace(/-/g, '_')}`,
+          `dbpass=${generate()}`,
+          // create db and user and grant privileges
+          outdent`
+            mysql -u root << EOF
+            CREATE DATABASE $dbname;
+            GRANT ALL PRIVILEGES ON $dbname.* TO $dbname@'localhost' IDENTIFIED BY '$dbpass';
+            FLUSH PRIVILEGES;
+            EOF
+          `,
+          // create and move into subdomain directory
+          'cd /var/www/html',
+          'mkdir $subdomain',
+          'cd $subdomain',
+          // download and install wordpress
+          `wp core download --locale=${args.locale}`,
+          outdent`
+            wp config create \
+              --dbname=$dbname \
+              --dbuser=$dbname \
+              --dbpass=$dbpass
+          `,
+          outdent`
+            wp core install \
+              --url=https://$subdomain.saucer.dev \
+              --title=${args.title} \
+              --admin_user=${args.adminUser} \
+              --admin_password=${args.adminPassword} \
+              --admin_email=${args.adminEmail}
+          `,
+          // allow wp to write to .htaccess and set up pretty permalinks
+          outdent`
+            cat >> wp-cli.yml << EOF
+            apache_modules:
+              - mod_rewrite
+            EOF
+          `,
+          'touch .htaccess',
+          "wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'",
+          // allow wp to install plugins and updates
+          "echo \"define( 'FS_METHOD', 'direct' );\" >> wp-config.php",
+          'chown -R apache:apache /var/www/html/$subdomain/*',
+          // install plugins
+          'cd wp-content/plugins',
+          `wp plugin install ${wp.join(' ')}`,
+          ...gh.map(plugin => `git clone ${plugin.url}`),
+          `wp plugin activate ${plugins
+            .map(plugin => (typeof plugin === 'string' ? plugin : plugin.name))
+            .join(' ')}`
+        ]
       }
     })
     .promise();
 
-  const instance = data.Instances[0];
-  const promises = [];
-  const Tags = [
-    {
-      Key: 'Name',
-      Value: instanceName
-    },
-    {
-      Key: 'Owner',
-      Value: user.data.id
-    }
-  ];
+  const instance = await client.query(
+    query.Create(query.Collection('wp_instances'), {
+      data: {
+        name: subdomain,
+        user_id: user.data.id,
+        command_id: Command.CommandId
+      }
+    })
+  );
 
   if (subscription) {
     // update the subscription with metadata about the instance
-    promises.push(
-      stripe.subscriptions.update(subscription.id, {
-        metadata: {
-          instance_id: instance.InstanceId
-        }
-      })
-    );
-
-    // tag the instance with metadata about the subscription 🙃
-    Tags.push({
-      Key: 'Subscription',
-      Value: subscription.id
+    await stripe.subscriptions.update(subscription.id, {
+      metadata: {
+        instance_id: instance.ref.id
+      }
     });
   }
 
-  // wait for tagging to happen and return the instance
-  await Promise.all([
-    ...promises,
-    ec2
-      .createTags({
-        Resources: [instance.InstanceId],
-        Tags
-      })
-      .promise()
-  ]);
-
-  return {
-    ...instance,
-    Tags
-  };
+  return instance;
 };

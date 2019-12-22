@@ -12,12 +12,6 @@ const {
   GITHUB_CLIENT_SECRET_PROD
 } = process.env;
 
-function tokenizeResponse(response) {
-  return jwt.sign(response.data, TOKEN_SECRET, {
-    subject: response.ref.id
-  });
-}
-
 module.exports = async function logIn(parent, args, {client}) {
   const accessToken = await axios
     .post('https://github.com/login/oauth/access_token', {
@@ -48,30 +42,31 @@ module.exports = async function logIn(parent, args, {client}) {
     .get('/user')
     .then(response => response.data);
 
-  const idString = id.toString();
   const {data} = await client.query(
-    query.Paginate(query.Match(query.Index('users_by_id'), idString))
+    query.Map(
+      query.Paginate(query.Match(query.Index('users_by_id'), id)),
+      query.Lambda('X', query.Get(query.Var('X')))
+    )
   );
 
-  if (data.length) {
-    const ref = data[0];
-    const response = await client.query(query.Get(ref));
-    return tokenizeResponse(response);
+  let user = data[0];
+  if (!user) {
+    const [{email}] = await githubApi
+      .get('/user/emails')
+      .then(({data}) => data.filter(({primary}) => primary));
+
+    user = await client.query(
+      query.Create(query.Collection('users'), {
+        data: {
+          id,
+          name,
+          email
+        }
+      })
+    );
   }
 
-  const [{email}] = await githubApi
-    .get('/user/emails')
-    .then(({data}) => data.filter(({primary}) => primary));
-
-  const response = await client.query(
-    query.Create(query.Collection('users'), {
-      data: {
-        id: idString,
-        name,
-        email
-      }
-    })
-  );
-
-  return tokenizeResponse(response);
+  return jwt.sign(user.data, TOKEN_SECRET, {
+    subject: user.ref.id
+  });
 };

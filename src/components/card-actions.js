@@ -9,7 +9,9 @@ import {gql} from '@apollo/client';
 
 const DELETE_CARD = gql`
   mutation DeleteCard($id: ID!) {
-    deleteCard(id: $id)
+    deleteCard(id: $id) {
+      id
+    }
   }
 `;
 
@@ -50,7 +52,7 @@ export default function CardActions(props) {
               cache.writeQuery({
                 query: LIST_CARDS,
                 data: {
-                  cards: cards.filter(card => card.id !== data.deleteCard)
+                  cards: cards.filter(card => card.id !== data.deleteCard.id)
                 }
               });
             }

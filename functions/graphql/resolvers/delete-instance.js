@@ -1,80 +1,74 @@
 const {AuthenticationError, ForbiddenError} = require('apollo-server-lambda');
-const {
-  createChangeBatch,
-  createInstanceDomain,
-  findInstanceForUser,
-  reduceTags
-} = require('../utils');
-
-const {ROUTE_53_HOSTED_ZONE_ID} = process.env;
+const {query} = require('faunadb');
+const outdent = require('outdent');
 
 module.exports = async function deleteInstance(
   parent,
   args,
-  {user, ec2, route53, stripe}
+  {user, client, stripe, ssm}
 ) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
 
-  const instance = await findInstanceForUser(ec2, user, args.id);
-  if (!instance) {
+  const instance = await client.query(
+    query.Get(query.Ref(query.Collection('wp_instances'), args.id))
+  );
+
+  if (instance.data.user_id !== user.data.id) {
     throw new ForbiddenError('You do not have access to this instance');
   }
 
-  const {customerId} = user.data;
-  if (customerId) {
+  if ('customer_id' in user.data) {
     const {data} = await stripe.subscriptions.list({
-      customer: customerId
+      customer: user.data.customer_id
     });
 
     for (const subscription of data) {
       // try to find a subscription for this instance
-      if (subscription.metadata.instance_id === instance.InstanceId) {
-        // cancel the entire subscription if it's the only item
+      if (subscription.metadata.instance_id === instance.ref.id) {
+        // cancel the subscription and stop looking
         await stripe.subscriptions.del(subscription.id);
         break;
       }
     }
   }
 
-  const {Name} = reduceTags(instance.Tags);
-  const instanceDomain = createInstanceDomain(Name);
-  const StartRecordName = instanceDomain + '.';
-
-  // check for DNS records for this instance
-  const {ResourceRecordSets} = await route53
-    .listResourceRecordSets({
-      HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,
-      StartRecordName,
-      StartRecordType: 'A',
-      MaxItems: '1'
+  const {Command} = await ssm
+    .sendCommand({
+      InstanceIds: [process.env.AWS_EC2_INSTANCE_ID],
+      DocumentName: 'AWS-RunShellScript',
+      Parameters: {
+        commands: [
+          `dbname=${instance.data.name.replace(/-/g, '_')}`,
+          outdent`
+            mysql -u root << EOF
+            REVOKE ALL PRIVILEGES, GRANT OPTION FROM $dbname@'localhost';
+            DROP USER $dbname@'localhost';
+            DROP DATABASE $dbname;
+            FLUSH PRIVILEGES;
+            EOF
+          `,
+          `rm -rf /var/www/html/${instance.data.name}`
+        ]
+      }
     })
     .promise();
 
-  if (ResourceRecordSets.length) {
-    const {Name, ResourceRecords} = ResourceRecordSets[0];
-    if (Name === StartRecordName) {
-      // clean them up if they exist
-      const {Value} = ResourceRecords[0];
-      await route53
-        .changeResourceRecordSets({
-          HostedZoneId: ROUTE_53_HOSTED_ZONE_ID,
-          ChangeBatch: createChangeBatch({
-            Action: 'DELETE',
-            Name: instanceDomain,
-            Value
-          })
-        })
-        .promise();
-    }
+  let status = Command.Status;
+  let invocations = 0;
+  while (['Pending', 'InProgress'].includes(status)) {
+    const data = await ssm
+      .getCommandInvocation({
+        InstanceId: process.env.AWS_EC2_INSTANCE_ID,
+        CommandId: Command.CommandId
+      })
+      .promise();
+    status = data.Status;
+    invocations++;
   }
 
-  const {TerminatingInstances} = await ec2
-    .terminateInstances({
-      InstanceIds: [instance.InstanceId]
-    })
-    .promise();
+  console.log(invocations);
 
-  return TerminatingInstances[0].InstanceId;
+  return client.query(query.Delete(instance.ref));
 };

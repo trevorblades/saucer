@@ -11,7 +11,9 @@ import {gql} from '@apollo/client';
 
 const DELETE_INSTANCE = gql`
   mutation DeleteInstance($id: ID!) {
-    deleteInstance(id: $id)
+    deleteInstance(id: $id) {
+      id
+    }
   }
 `;
 
@@ -92,7 +94,7 @@ export default function InstanceActions(props) {
                 query: LIST_INSTANCES,
                 data: {
                   instances: instances.filter(
-                    instance => instance.id !== data.deleteInstance
+                    instance => instance.id !== data.deleteInstance.id
                   )
                 }
               });

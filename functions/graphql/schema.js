@@ -1,8 +1,6 @@
+const logIn = require('./resolvers/log-in');
 const createInstance = require('./resolvers/create-instance');
 const deleteInstance = require('./resolvers/delete-instance');
-const startInstance = require('./resolvers/start-instance');
-const stopInstance = require('./resolvers/stop-instance');
-const logIn = require('./resolvers/log-in');
 const createCard = require('./resolvers/create-card');
 const deleteCard = require('./resolvers/delete-card');
 const {
@@ -10,12 +8,9 @@ const {
   ForbiddenError,
   gql
 } = require('apollo-server-lambda');
+const {query} = require('faunadb');
 const {GraphQLDateTime} = require('graphql-iso-date');
-const {
-  findInstancesForUser,
-  findInstanceForUser,
-  reduceTags
-} = require('./utils');
+const {paginateInstancesForUser} = require('./utils');
 
 exports.typeDefs = gql`
   scalar DateTime
@@ -37,11 +32,9 @@ exports.typeDefs = gql`
       plugins: PluginsInput!
       source: String
     ): Instance
-    deleteInstance(id: ID!): ID
-    startInstance(id: ID!, source: String!): Instance
-    stopInstance(id: ID!): Instance
+    deleteInstance(id: ID!): Instance
     createCard(source: String!, isDefault: Boolean): Card
-    deleteCard(id: ID!): ID
+    deleteCard(id: ID!): Card
   }
 
   input PluginsInput {
@@ -64,25 +57,25 @@ exports.typeDefs = gql`
     id: ID
     name: String
     status: String
-    isReady: Boolean
-    createdAt: DateTime
+    updatedAt: DateTime
   }
 `;
 
 exports.resolvers = {
   DateTime: GraphQLDateTime,
   Instance: {
-    id: instance => instance.InstanceId,
-    name(instance) {
-      const {Name} = reduceTags(instance.Tags);
-      return Name;
+    id: instance => instance.ref.id,
+    name: instance => instance.data.name,
+    async status(instance, args, {ssm}) {
+      const data = await ssm
+        .getCommandInvocation({
+          CommandId: instance.data.command_id,
+          InstanceId: process.env.AWS_EC2_INSTANCE_ID
+        })
+        .promise();
+      return data.Status;
     },
-    status: instance => instance.State.Name,
-    isReady(instance) {
-      const {Status} = reduceTags(instance.Tags);
-      return Status === 'ready';
-    },
-    createdAt: instance => instance.LaunchTime
+    updatedAt: instance => new Date(instance.ts / 1000)
   },
   Card: {
     expMonth: card => card.exp_month,
@@ -91,9 +84,9 @@ exports.resolvers = {
       const customer = await stripe.customers.retrieve(card.customer);
       return card.id === customer.default_source;
     },
-    async instances(card, args, {ec2, stripe, user}) {
+    async instances(card, args, {stripe, user}) {
       const {data} = await stripe.subscriptions.list({
-        customer: user.data.customerId
+        customer: user.data.customer_id
       });
 
       const instanceIds = data
@@ -103,37 +96,46 @@ exports.resolvers = {
         return [];
       }
 
-      return findInstancesForUser(ec2, user, {
-        InstanceIds: instanceIds
-      });
+      // TODO: implement this again
+      return [];
     }
   },
   Query: {
-    async instance(parent, args, {user, ec2}) {
+    async instance(parent, args, {user, client}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
 
-      const instance = await findInstanceForUser(ec2, user, args.id);
+      const instance = await client.query(
+        query.Get(query.Ref(query.Collection('wp_instances'), args.id))
+      );
+
       if (!instance) {
         throw new ForbiddenError('You do not have access to this instance');
       }
 
       return instance;
     },
-    instances(parent, args, {ec2, user}) {
+    async instances(parent, args, {client, user}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
 
-      return findInstancesForUser(ec2, user);
+      const {data} = await client.query(
+        query.Map(
+          paginateInstancesForUser(user),
+          query.Lambda('X', query.Get(query.Var('X')))
+        )
+      );
+
+      return data;
     },
     async cards(parent, args, {user, stripe}) {
       if (!user) {
         throw new AuthenticationError('Unauthorized');
       }
 
-      const {customerId} = user.data;
+      const customerId = user.data.customer_id;
       if (!customerId) {
         return [];
       }
@@ -146,8 +148,6 @@ exports.resolvers = {
     logIn,
     createInstance,
     deleteInstance,
-    startInstance,
-    stopInstance,
     createCard,
     deleteCard
   }

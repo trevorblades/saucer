@@ -22,37 +22,38 @@ export default function InstancesTable(props) {
         <TableRow>
           <TableCell padding="none">Name</TableCell>
           <TableCell padding="none">Status</TableCell>
-          <TableCell colSpan={2}>Created</TableCell>
+          <TableCell colSpan={2}>Last updated</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
         {props.instances.map(instance => {
-          const createdAt = new Date(instance.createdAt);
+          const updatedAt = new Date(instance.updatedAt);
           return (
             <TableRow key={instance.id}>
               <TableCell padding="none">
                 <Box display="flex" alignItems="center">
                   <InstanceIcon name={instance.name} />
-                  <Link
-                    color="inherit"
-                    href={`https://${instance.name}.saucer.dev/wp-admin`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    disabled={
-                      instance.status !== 'running' || !instance.isReady
-                    }
-                  >
-                    {instance.name}
-                  </Link>
+                  {instance.status === 'Success' ? (
+                    <Link
+                      color="inherit"
+                      href={`https://${instance.name}.saucer.dev/wp-admin`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {instance.name}
+                    </Link>
+                  ) : (
+                    instance.name
+                  )}
                 </Box>
               </TableCell>
               <TableCell padding="none">
                 <InstanceStatus instance={instance} />
               </TableCell>
               <TableCell>
-                <Tooltip title={createdAt.toLocaleString()}>
+                <Tooltip title={updatedAt.toLocaleString()}>
                   <span>
-                    {formatDistanceToNow(createdAt, {
+                    {formatDistanceToNow(updatedAt, {
                       addSuffix: true
                     })}
                   </span>

@@ -1,26 +1,6 @@
 const {AuthenticationError} = require('apollo-server-lambda');
 const {query} = require('faunadb');
 
-async function getCustomerId({user, stripe, client}) {
-  if ('customerId' in user.data) {
-    return user.data.customerId;
-  }
-
-  const customer = await stripe.customers.create({
-    email: user.data.email
-  });
-
-  const {data} = await client.query(
-    query.Update(user.ref, {
-      data: {
-        customerId: customer.id
-      }
-    })
-  );
-
-  return data.customerId;
-}
-
 module.exports = async function createCard(
   parent,
   args,
@@ -30,7 +10,23 @@ module.exports = async function createCard(
     throw new AuthenticationError('Unauthorized');
   }
 
-  const customerId = await getCustomerId({user, stripe, client});
+  let customerId = user.data.customer_id;
+  if (!customerId) {
+    const customer = await stripe.customers.create({
+      email: user.data.email
+    });
+
+    const {data} = await client.query(
+      query.Update(user.ref, {
+        data: {
+          customer_id: customer.id
+        }
+      })
+    );
+
+    customerId = data.customer_id;
+  }
+
   const source = await stripe.customers.createSource(customerId, {
     source: args.source
   });
