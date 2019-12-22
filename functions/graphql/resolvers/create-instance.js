@@ -142,7 +142,6 @@ module.exports = async function createInstance(
           `,
           // allow wp to install plugins and updates
           "echo \"define( 'FS_METHOD', 'direct' );\" >> wp-config.php",
-          'chown -R apache:apache /var/www/html/*',
           // allow wp to write to .htaccess and set up pretty permalinks
           outdent`
             cat >> wp-cli.yml << EOF
@@ -151,6 +150,7 @@ module.exports = async function createInstance(
             EOF
           `,
           'touch .htaccess',
+          'chown -R apache:apache /var/www/html/$subdomain/*',
           "wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'",
           // install plugins
           'cd wp-content/plugins',
