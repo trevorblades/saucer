@@ -19,7 +19,7 @@ export default function InstanceActions(props) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   function closeDialog() {
-    setDialogOpen(true);
+    setDialogOpen(false);
   }
 
   return (
@@ -55,12 +55,7 @@ export default function InstanceActions(props) {
           return menuItems;
         }}
       </ActionMenu>
-      <Dialog
-        fullWidth
-        maxWidth="xs"
-        open={dialogOpen === 'delete'}
-        onClose={closeDialog}
-      >
+      <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
         <DeleteConfirm
           image={plant}
           onCancel={closeDialog}

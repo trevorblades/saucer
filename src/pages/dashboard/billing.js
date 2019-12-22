@@ -57,7 +57,7 @@ export default function Billing() {
         title="Payment methods"
         query={LIST_CARDS}
         dataKey="cards"
-        EmptyStateProps={{
+        emptyState={{
           image: dog,
           title: 'You have no payment methods',
           subtitle: 'Configure a credit card here',

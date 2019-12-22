@@ -32,7 +32,7 @@ export default function Dashboard() {
         title="My instances"
         query={LIST_INSTANCES}
         dataKey="instances"
-        EmptyStateProps={{
+        emptyState={{
           image: egg,
           title: 'You have no instances',
           subtitle: "Luckily, it's really easy to create one!",

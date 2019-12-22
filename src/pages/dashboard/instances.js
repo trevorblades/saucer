@@ -1,8 +1,8 @@
+import InstanceContent from '../../components/instance-content';
 import InstanceIcon from '../../components/instance-icon';
 import PropTypes from 'prop-types';
-import React, {Fragment} from 'react';
-import {Box, Link, Typography} from '@material-ui/core';
-import {FiArrowUpRight} from 'react-icons/fi';
+import React, {Fragment, useEffect} from 'react';
+import {Box, Typography} from '@material-ui/core';
 import {Helmet} from 'react-helmet';
 import {INSTANCE_FRAGMENT} from '../../utils';
 import {gql, useQuery} from '@apollo/client';
@@ -17,11 +17,25 @@ const GET_INSTANCE = gql`
 `;
 
 export default function Instances(props) {
-  const {data, loading, error} = useQuery(GET_INSTANCE, {
+  const {data, loading, error, stopPolling} = useQuery(GET_INSTANCE, {
+    pollInterval: 5000,
     variables: {
       id: props['*']
     }
   });
+
+  useEffect(() => {
+    if (data && data.instance) {
+      const {status} = data.instance;
+      if (
+        status !== 'Pending' &&
+        status !== 'Delayed' &&
+        status !== 'InProgress'
+      ) {
+        stopPolling();
+      }
+    }
+  }, [data, stopPolling]);
 
   if (loading) {
     return <Typography variant="h4">Loading...</Typography>;
@@ -48,20 +62,7 @@ export default function Instances(props) {
           <InstanceIcon name={data.instance.name} fontSize={24} mr={2} />
           <Typography variant="h4">{data.instance.name}</Typography>
         </Box>
-        <Link
-          variant="h6"
-          href={`https://${data.instance.name}.saucer.dev/wp-admin`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Wordpress admin
-          <Box
-            component={FiArrowUpRight}
-            ml={0.5}
-            size="1em"
-            style={{verticalAlign: -1}}
-          />
-        </Link>
+        <InstanceContent instance={data.instance} />
       </Box>
     </Fragment>
   );

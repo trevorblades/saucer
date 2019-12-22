@@ -57,7 +57,7 @@ module.exports = async function deleteInstance(
 
   let status = Command.Status;
   let invocations = 0;
-  while (['Pending', 'InProgress'].includes(status)) {
+  while (['Pending', 'Delayed', 'InProgress'].includes(status)) {
     const data = await ssm
       .getCommandInvocation({
         InstanceId: process.env.AWS_EC2_INSTANCE_ID,

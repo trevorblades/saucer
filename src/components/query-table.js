@@ -68,17 +68,32 @@ export default function QueryTable(props) {
     );
   }
 
+  const {image, onButtonClick, buttonText, title, subtitle} = props.emptyState;
   if (!data[props.dataKey].length) {
     return (
       <Fragment>
         <QueryTableHeader title={props.title} />
-        <EmptyState {...props.EmptyStateProps} />
+        <EmptyState image={image}>
+          <Box mb={3}>
+            <Typography variant="h5" gutterBottom>
+              {title}
+            </Typography>
+            <Typography>{subtitle}</Typography>
+          </Box>
+          <Button
+            onClick={onButtonClick}
+            size="large"
+            color="primary"
+            variant="contained"
+          >
+            {buttonText}
+          </Button>
+        </EmptyState>
         {props.children(data)}
       </Fragment>
     );
   }
 
-  const {onButtonClick, buttonText} = props.EmptyStateProps;
   return (
     <Fragment>
       <QueryTableHeader title={props.title}>
@@ -98,7 +113,13 @@ QueryTable.propTypes = {
   dataKey: PropTypes.string.isRequired,
   children: PropTypes.func,
   renderTable: PropTypes.func.isRequired,
-  EmptyStateProps: PropTypes.shape(EmptyState.propTypes).isRequired
+  emptyState: PropTypes.shape({
+    image: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    subtitle: PropTypes.string.isRequired,
+    buttonText: PropTypes.string.isRequired,
+    onButtonClick: PropTypes.func.isRequired
+  }).isRequired
 };
 
 QueryTable.defaultProps = {
