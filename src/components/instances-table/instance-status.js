@@ -42,7 +42,7 @@ export default function InstanceStatus(props) {
   const {id, status} = props.instance;
   switch (status) {
     case 'Success':
-      return <StatusMessage color="limegreen">Active</StatusMessage>;
+      return <StatusMessage color="limegreen">Ready</StatusMessage>;
     case 'Pending':
     case 'Delayed':
     case 'InProgress':
