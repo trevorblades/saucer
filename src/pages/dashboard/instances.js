@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import {Box, Link, Typography} from '@material-ui/core';
 import {FiArrowUpRight} from 'react-icons/fi';
+import {Helmet} from 'react-helmet';
 import {INSTANCE_FRAGMENT} from '../../utils';
 import {gql, useQuery} from '@apollo/client';
 
@@ -39,6 +40,9 @@ export default function Instances(props) {
 
   return (
     <Fragment>
+      <Helmet>
+        <title>{data.instance.name}</title>
+      </Helmet>
       <Box mb={2}>
         <Box display="flex" alignItems="center" mb={2}>
           <InstanceIcon name={data.instance.name} fontSize={24} mr={2} />

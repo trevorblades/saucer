@@ -43,20 +43,27 @@ export default function InstanceActions(props) {
             setDialogOpen(event.target.dataset.dialog);
           }
 
-          return [
-            <MenuItem
-              key="wordpress"
-              component="a"
-              href={`https://${props.instance.name}.saucer.dev/wp-admin`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Wordpress admin
-            </MenuItem>,
+          const menuItems = [
             <MenuItem key="delete" data-dialog="delete" onClick={openDialog}>
               Delete instance
             </MenuItem>
           ];
+
+          if (props.instance.status === 'Success') {
+            menuItems.unshift(
+              <MenuItem
+                key="wordpress"
+                component="a"
+                href={`https://${props.instance.name}.saucer.dev/wp-admin`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Wordpress admin
+              </MenuItem>
+            );
+          }
+
+          return menuItems;
         }}
       </ActionMenu>
       <Dialog
