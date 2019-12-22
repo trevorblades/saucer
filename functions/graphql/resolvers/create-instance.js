@@ -134,14 +134,12 @@ module.exports = async function createInstance(
           `,
           outdent`
             wp core install \
-              --url=$subdomain.saucer.dev \
+              --url=https://$subdomain.saucer.dev \
               --title=${args.title} \
               --admin_user=${args.adminUser} \
               --admin_password=${args.adminPassword} \
               --admin_email=${args.adminEmail}
           `,
-          // allow wp to install plugins and updates
-          "echo \"define( 'FS_METHOD', 'direct' );\" >> wp-config.php",
           // allow wp to write to .htaccess and set up pretty permalinks
           outdent`
             cat >> wp-cli.yml << EOF
@@ -150,8 +148,10 @@ module.exports = async function createInstance(
             EOF
           `,
           'touch .htaccess',
-          'chown -R apache:apache /var/www/html/$subdomain/*',
           "wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'",
+          // allow wp to install plugins and updates
+          "echo \"define( 'FS_METHOD', 'direct' );\" >> wp-config.php",
+          'chown -R apache:apache /var/www/html/$subdomain/*',
           // install plugins
           'cd wp-content/plugins',
           `wp plugin install ${wp.join(' ')}`,
