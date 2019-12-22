@@ -1,1 +1,2 @@
 /dashboard/instances /dashboard
+/dashboard/instances/* /dashboard/instances/index.html 200
