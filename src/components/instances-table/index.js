@@ -1,5 +1,5 @@
 import InstanceActions from './instance-actions';
-import InstanceIcon from './instance-icon';
+import InstanceIcon from '../instance-icon';
 import InstanceStatus from './instance-status';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -32,7 +32,7 @@ export default function InstancesTable(props) {
             <TableRow key={instance.id}>
               <TableCell padding="none">
                 <Box display="flex" alignItems="center">
-                  <InstanceIcon name={instance.name} />
+                  <InstanceIcon name={instance.name} fontSize={20} mr={2} />
                   {instance.status === 'Success' ? (
                     <Link
                       color="inherit"

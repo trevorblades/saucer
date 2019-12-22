@@ -1,7 +1,9 @@
+import InstanceIcon from '../../components/instance-icon';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
+import {Box, Link, Typography} from '@material-ui/core';
+import {FiArrowUpRight} from 'react-icons/fi';
 import {INSTANCE_FRAGMENT} from '../../utils';
-import {Typography} from '@material-ui/core';
 import {gql, useQuery} from '@apollo/client';
 
 const GET_INSTANCE = gql`
@@ -21,16 +23,42 @@ export default function Instances(props) {
   });
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Typography variant="h4">Loading...</Typography>;
   }
 
   if (error) {
-    return <div>{error.message}</div>;
+    return (
+      <Box color="error.main">
+        <Typography paragraph variant="h4">
+          Error
+        </Typography>
+        <Typography variant="h6">{error.message}</Typography>
+      </Box>
+    );
   }
 
   return (
     <Fragment>
-      <Typography variant="h4">{data.instance.name}</Typography>
+      <Box mb={2}>
+        <Box display="flex" alignItems="center" mb={2}>
+          <InstanceIcon name={data.instance.name} fontSize={24} mr={2} />
+          <Typography variant="h4">{data.instance.name}</Typography>
+        </Box>
+        <Link
+          variant="h6"
+          href={`https://${data.instance.name}.saucer.dev/wp-admin`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Wordpress admin
+          <Box
+            component={FiArrowUpRight}
+            ml={0.5}
+            size={24}
+            style={{verticalAlign: -1}}
+          />
+        </Link>
+      </Box>
     </Fragment>
   );
 }

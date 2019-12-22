@@ -43,32 +43,20 @@ export default function InstanceActions(props) {
             setDialogOpen(event.target.dataset.dialog);
           }
 
-          const actions = [
+          return [
+            <MenuItem
+              key="wordpress"
+              component="a"
+              href={`https://${props.instance.name}.saucer.dev/wp-admin`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Wordpress admin
+            </MenuItem>,
             <MenuItem key="delete" data-dialog="delete" onClick={openDialog}>
               Delete instance
             </MenuItem>
           ];
-
-          if (props.instance.status === 'stopped') {
-            actions.unshift(
-              <MenuItem
-                key="start"
-                data-dialog="start"
-                disabled={props.instance.status !== 'stopped'}
-                onClick={openDialog}
-              >
-                Start instance
-              </MenuItem>
-            );
-          } else if (props.instance.status !== 'stopping') {
-            actions.unshift(
-              <MenuItem key="edit" disabled>
-                Change payment method
-              </MenuItem>
-            );
-          }
-
-          return actions;
         }}
       </ActionMenu>
       <Dialog
