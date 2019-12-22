@@ -2,8 +2,6 @@ import ActionMenu from '../action-menu';
 import DeleteConfirm from '../delete-confirm';
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
-import RestartForm from './restart-form';
-import SuccessToast from '../success-toast';
 import plant from '../../assets/plant.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
 import {LIST_INSTANCES} from '../../utils';
@@ -18,33 +16,24 @@ const DELETE_INSTANCE = gql`
 `;
 
 export default function InstanceActions(props) {
-  const [dialogOpen, setDialogOpen] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   function closeDialog() {
-    setDialogOpen(null);
-  }
-
-  function closeSnackbar() {
-    setSnackbarOpen(false);
-  }
-
-  function handleCompleted() {
-    closeDialog();
-    setSnackbarOpen(true);
+    setDialogOpen(true);
   }
 
   return (
     <Fragment>
       <ActionMenu>
         {closeMenu => {
-          function openDialog(event) {
-            closeMenu();
-            setDialogOpen(event.target.dataset.dialog);
-          }
-
           const menuItems = [
-            <MenuItem key="delete" data-dialog="delete" onClick={openDialog}>
+            <MenuItem
+              key="delete"
+              onClick={() => {
+                closeMenu();
+                setDialogOpen(true);
+              }}
+            >
               Delete instance
             </MenuItem>
           ];
@@ -103,33 +92,10 @@ export default function InstanceActions(props) {
           </Typography>
         </DeleteConfirm>
       </Dialog>
-      <Dialog
-        fullWidth
-        maxWidth="xs"
-        open={dialogOpen === 'start'}
-        onClose={closeDialog}
-      >
-        <RestartForm
-          onCancel={closeDialog}
-          cards={props.cards}
-          mutationOptions={{
-            onCompleted: handleCompleted,
-            variables: {
-              id: props.instance.id
-            }
-          }}
-        />
-      </Dialog>
-      <SuccessToast
-        open={snackbarOpen}
-        onClose={closeSnackbar}
-        message="Instace restarted 🌤"
-      />
     </Fragment>
   );
 }
 
 InstanceActions.propTypes = {
-  instance: PropTypes.object.isRequired,
-  cards: PropTypes.array.isRequired
+  instance: PropTypes.object.isRequired
 };

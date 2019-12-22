@@ -58,7 +58,7 @@ export default function Instances(props) {
           <Box
             component={FiArrowUpRight}
             ml={0.5}
-            size={24}
+            size="1em"
             style={{verticalAlign: -1}}
           />
         </Link>
