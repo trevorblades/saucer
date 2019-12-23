@@ -5,6 +5,7 @@ import waiting from '../assets/waiting.png';
 import {
   Box,
   CardActionArea,
+  Grid,
   LinearProgress,
   Link,
   Typography
@@ -49,18 +50,22 @@ export default function InstanceContent(props) {
               </Link>
             </Typography>
           </Box>
-          <Box display="flex">
-            <Box bgcolor="blueviolet" color="white">
-              <CardActionArea>
-                <Box p={4}>
-                  <Typography variant="subtitle1">Guide</Typography>
-                  <Typography variant="h5">
-                    Create a static site with Gatsby
-                  </Typography>
-                </Box>
-              </CardActionArea>
-            </Box>
-          </Box>
+          <Grid container spacing={3}>
+            <Grid item xs={4}>
+              <Box bgcolor="#663399" color="white" height={300}>
+                <CardActionArea style={{height: '100%'}}>
+                  <Box p={4} height={1} display="flex" alignItems="flex-end">
+                    <div>
+                      <Typography variant="subtitle1">Guide</Typography>
+                      <Typography gutterBottom variant="h5">
+                        Create a static site with Gatsby
+                      </Typography>
+                    </div>
+                  </Box>
+                </CardActionArea>
+              </Box>
+            </Grid>
+          </Grid>
         </Fragment>
       );
     default:
