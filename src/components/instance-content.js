@@ -1,11 +1,11 @@
-import EmptyState from './empty-state';
+import EmptyState, {EmptyStateWrapper} from './empty-state';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import waiting from '../assets/waiting.png';
 import {
   Box,
+  Button,
   CardActionArea,
-  Grid,
   LinearProgress,
   Link,
   Typography
@@ -32,7 +32,7 @@ export default function InstanceContent(props) {
     case 'Success':
       return (
         <Fragment>
-          <Box my={3} border={1} borderColor="divider" p={2} textAlign="center">
+          <EmptyStateWrapper p={2}>
             <Typography variant="subtitle1">
               Wordpress is running at{' '}
               <Link
@@ -49,23 +49,45 @@ export default function InstanceContent(props) {
                 />
               </Link>
             </Typography>
-          </Box>
-          <Grid container spacing={3}>
-            <Grid item xs={4}>
-              <Box bgcolor="#663399" color="white" height={300}>
-                <CardActionArea style={{height: '100%'}}>
-                  <Box p={4} height={1} display="flex" alignItems="flex-end">
-                    <div>
-                      <Typography variant="subtitle1">Guide</Typography>
-                      <Typography gutterBottom variant="h5">
-                        Create a static site with Gatsby
-                      </Typography>
-                    </div>
-                  </Box>
-                </CardActionArea>
+          </EmptyStateWrapper>
+          <Box mb={3}>
+            <CardActionArea>
+              <Box
+                p={3}
+                border={2}
+                color="#663399"
+                height={200}
+                display="flex"
+                alignItems="flex-end"
+              >
+                <Typography variant="h5">
+                  Create a static Wordpress site with Gatsby
+                </Typography>
               </Box>
-            </Grid>
-          </Grid>
+            </CardActionArea>
+          </Box>
+          <Box mb={3}>
+            <Typography gutterBottom variant="h5">
+              Next steps
+            </Typography>
+            <Typography variant="subtitle1">
+              Trigger Netlify deploys on every content publish
+            </Typography>
+            <Typography variant="subtitle1">
+              Send data to Wordpress using GraphQL
+            </Typography>
+            <Typography variant="subtitle1">
+              Configure a custom domain
+            </Typography>
+          </Box>
+          <Typography gutterBottom variant="h5">
+            Danger zone
+          </Typography>
+          <Box color="error.main">
+            <Button variant="outlined" color="inherit">
+              Delete instance
+            </Button>
+          </Box>
         </Fragment>
       );
     default:
