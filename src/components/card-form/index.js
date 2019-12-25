@@ -2,7 +2,7 @@ import DialogHeader from '../dialog-header';
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 import StripeInput from './stripe-input';
-import payment from '../../assets/payment.png';
+import upgrade from '../../assets/upgrade.png';
 import {
   Button,
   Checkbox,
@@ -84,7 +84,7 @@ function CardForm(props) {
   return (
     <form onSubmit={handleSubmit}>
       <DialogContent>
-        <DialogHeader image={payment}>Add a credit card</DialogHeader>
+        <DialogHeader image={upgrade}>Add a credit card</DialogHeader>
         {allError && (
           <DialogContentText color="error">
             {allError.message}

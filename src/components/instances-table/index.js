@@ -33,16 +33,12 @@ export default function InstancesTable(props) {
               <TableCell padding="none">
                 <Box display="flex" alignItems="center">
                   <InstanceIcon name={instance.name} fontSize={20} mr={2} />
-                  {instance.status === 'Success' ? (
-                    <Link
-                      color="inherit"
-                      to={`/dashboard/instances/${instance.id}`}
-                    >
-                      {instance.name}
-                    </Link>
-                  ) : (
-                    instance.name
-                  )}
+                  <Link
+                    color="inherit"
+                    to={`/dashboard/instances/${instance.id}`}
+                  >
+                    {instance.name}
+                  </Link>
                 </Box>
               </TableCell>
               <TableCell padding="none">

@@ -24,7 +24,7 @@ export default function FeaturesList() {
       <ListItem>Ready-to-use GraphQL API</ListItem>
       <ListItem>Netlify build hook support</ListItem>
       <ListItem>Free SSL certificate</ListItem>
-      <ListItem>Unlimited wordpress users</ListItem>
+      <ListItem>Unlimited Wordpress users</ListItem>
       <ListItem>Pay-per-instance</ListItem>
       <ListItem>{Object.keys(locales).length} languages supported</ListItem>
     </ul>

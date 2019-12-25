@@ -1,6 +1,7 @@
 import EmptyState, {EmptyStateWrapper} from './empty-state';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
+import error from '../assets/error.png';
 import waiting from '../assets/waiting.png';
 import {
   Box,
@@ -27,6 +28,18 @@ export default function InstanceContent(props) {
               Warming up your Wordpress 🔥
             </Typography>
           </Box>
+        </EmptyState>
+      );
+    case 'TimedOut':
+    case 'Failed':
+      return (
+        <EmptyState image={error}>
+          <Typography variant="h5" gutterBottom>
+            Something went wrong
+          </Typography>
+          <Typography paragraph>
+            Delete your instance and create a new one
+          </Typography>
         </EmptyState>
       );
     case 'Success':
@@ -78,6 +91,11 @@ export default function InstanceContent(props) {
             </Typography>
             <Typography variant="subtitle1">
               Configure a custom domain
+            </Typography>
+          </Box>
+          <Box mb={3}>
+            <Typography gutterBottom variant="h5">
+              Billing settings
             </Typography>
           </Box>
           <Typography gutterBottom variant="h5">

@@ -2,7 +2,7 @@ import ActionMenu from './action-menu';
 import DeleteConfirm from './delete-confirm';
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
-import grimReaper from '../assets/grim-reaper.png';
+import executioner from '../assets/executioner.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
 import {LIST_CARDS, LIST_INSTANCES} from '../utils';
 import {gql} from '@apollo/client';
@@ -39,7 +39,7 @@ export default function CardActions(props) {
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
         <DeleteConfirm
           onCancel={closeDialog}
-          image={grimReaper}
+          image={executioner}
           mutation={DELETE_CARD}
           mutationOptions={{
             variables: {

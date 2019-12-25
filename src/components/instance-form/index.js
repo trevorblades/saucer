@@ -4,8 +4,8 @@ import LabeledSelect from '../labeled-select';
 import PasswordField from './password-field';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useRef, useState} from 'react';
+import build from '../../assets/build.png';
 import localeEmoji from 'locale-emoji';
-import puzzle from '../../assets/puzzle.png';
 import {
   Box,
   CardActionArea,
@@ -123,7 +123,7 @@ export default function InstanceForm(props) {
             mx="auto"
             component="img"
             mb={2}
-            src={puzzle}
+            src={build}
             height={250}
           />
           <Typography align="center" variant="h5">

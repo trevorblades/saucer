@@ -9,7 +9,8 @@ export default function DialogHeader(props) {
         component="img"
         display="block"
         mx="auto"
-        mb={1}
+        mt={1}
+        mb={2}
         src={props.image}
         height={200}
       />

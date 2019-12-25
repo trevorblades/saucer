@@ -2,7 +2,7 @@ import ActionMenu from '../action-menu';
 import DeleteConfirm from '../delete-confirm';
 import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
-import plant from '../../assets/plant.png';
+import burn from '../../assets/burn.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
 import {LIST_INSTANCES} from '../../utils';
 import {gql} from '@apollo/client';
@@ -57,7 +57,7 @@ export default function InstanceActions(props) {
       </ActionMenu>
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
         <DeleteConfirm
-          image={plant}
+          image={burn}
           onCancel={closeDialog}
           mutation={DELETE_INSTANCE}
           mutationOptions={{

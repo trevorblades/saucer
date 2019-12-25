@@ -3,8 +3,8 @@ import FeaturesList from '../components/features-list';
 import HeroButton from '../components/hero-button';
 import PageLayout from '../components/page-layout';
 import React from 'react';
-import robots from '../assets/robots.png';
-import ufo from '../assets/ufo.png';
+import dishes from '../assets/dishes.png';
+import ufo from '../assets/ufo.jpg';
 import {Box, Typography} from '@material-ui/core';
 import {Button} from 'gatsby-theme-material-ui';
 import {FiChevronRight} from 'react-icons/fi';
@@ -15,15 +15,14 @@ export default function Home() {
       <div
         style={{
           backgroundImage: `url(${ufo})`,
-          backgroundSize: 800,
-          backgroundPosition: '50vw center',
-          backgroundRepeat: 'no-repeat'
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
         }}
       >
         <CenteredBox py={12} px={8}>
           <Box width={1 / 2}>
             <Typography gutterBottom variant="h2">
-              Hassle-free Wordpress with GraphQL
+              Hassle-free headless Wordpress with GraphQL
             </Typography>
             <Typography paragraph variant="h6">
               Saucer lets you deploy a headless Wordpress CMS in minutes, and
@@ -34,7 +33,7 @@ export default function Home() {
           </Box>
         </CenteredBox>
       </div>
-      <CenteredBox px={8}>
+      <CenteredBox p={8}>
         <Box
           p={4}
           textAlign="center"
@@ -58,8 +57,8 @@ export default function Home() {
         </Box>
       </CenteredBox>
       <CenteredBox py={6} px={8} display="flex" alignItems="flex-start">
-        <img src={robots} height={400} />
-        <Box py={4} ml={4}>
+        <img src={dishes} height={500} />
+        <Box py={4} ml={5}>
           <Typography gutterBottom variant="h3">
             What&apos;s included?
           </Typography>
