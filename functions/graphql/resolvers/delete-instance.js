@@ -27,7 +27,7 @@ module.exports = async function deleteInstance(
     for (const subscription of data) {
       // try to find a subscription for this instance
       if (subscription.metadata.instance_id === instance.ref.id) {
-        // cancel the subscription and stop looking
+        // cancel the subscription and stop looking for others
         await stripe.subscriptions.del(subscription.id);
         break;
       }
@@ -56,8 +56,8 @@ module.exports = async function deleteInstance(
     .promise();
 
   let status = Command.Status;
-  let invocations = 0;
   while (['Pending', 'Delayed', 'InProgress'].includes(status)) {
+    // keep checking command status until it's completed
     const data = await ssm
       .getCommandInvocation({
         InstanceId: process.env.AWS_EC2_INSTANCE_ID,
@@ -65,10 +65,7 @@ module.exports = async function deleteInstance(
       })
       .promise();
     status = data.Status;
-    invocations++;
   }
-
-  console.log(invocations);
 
   return client.query(query.Delete(instance.ref));
 };

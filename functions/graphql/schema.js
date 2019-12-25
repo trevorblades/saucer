@@ -84,7 +84,7 @@ exports.resolvers = {
       const customer = await stripe.customers.retrieve(card.customer);
       return card.id === customer.default_source;
     },
-    async instances(card, args, {stripe, user}) {
+    async instances(card, args, {stripe, client, user}) {
       const {data} = await stripe.subscriptions.list({
         customer: user.data.customer_id
       });
@@ -96,8 +96,14 @@ exports.resolvers = {
         return [];
       }
 
-      // TODO: implement this again
-      return [];
+      // TODO: do this better? group multiple Get queries into one client.query call
+      return Promise.all(
+        instanceIds.map(instanceId =>
+          client.query(
+            query.Get(query.Ref(query.Collection('wp_instances'), instanceId))
+          )
+        )
+      );
     }
   },
   Query: {
