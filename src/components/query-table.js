@@ -101,7 +101,7 @@ export default function QueryTable(props) {
           {buttonText}
         </Button>
       </QueryTableHeader>
-      {props.renderTable(data)}
+      {props.renderTable(data[props.dataKey])}
       {props.children(data)}
     </Fragment>
   );

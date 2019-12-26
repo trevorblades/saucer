@@ -20,28 +20,24 @@ function getIconForBrand(brand) {
 }
 
 export default function PaymentMethod(props) {
-  const {brand, last4, isDefault} = props.card;
+  const {brand, last4} = props.card;
   return (
-    <Box display="flex" alignItems="center">
+    <Box display="flex" alignItems="center" component="span">
       <Box
         component="img"
         src={getIconForBrand(brand)}
         width="2em"
         title={brand}
       />
-      <Box mx={2} style={{letterSpacing: 1}}>
+      <Box component="span" mx={2} style={{letterSpacing: 1}}>
         xxxx {last4}
       </Box>
-      {isDefault && props.defaultIndicator}
+      {props.children}
     </Box>
   );
 }
 
 PaymentMethod.propTypes = {
   card: PropTypes.object.isRequired,
-  defaultIndicator: PropTypes.node
-};
-
-PaymentMethod.defaultProps = {
-  defaultIndicator: '(default)'
+  children: PropTypes.node.isRequired
 };

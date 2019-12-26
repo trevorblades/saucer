@@ -9,6 +9,9 @@ const {generate} = require('randomstring');
 const {outdent} = require('outdent');
 const {paginateInstancesForUser} = require('../utils');
 
+const PAYMENT_METHOD_ERROR =
+  'You selected a paid plan. Add a valid payment method in your billing settings to create this instance.';
+
 module.exports = async function createInstance(
   parent,
   args,
@@ -18,22 +21,50 @@ module.exports = async function createInstance(
     throw new AuthenticationError('Unauthorized');
   }
 
-  let subscription;
-  if (!args.source) {
-    // if no payment is provided, check to see if the user can start a trial
-    const {data} = await client.query(paginateInstancesForUser(user));
-    if (data.length) {
+  let subscriptionItem;
+  if (!args.plan) {
+    // if no payment was provided, check to see if the user can start a trial
+    const instances = await client.query(paginateInstancesForUser(user));
+    if (instances.data.length) {
       throw new UserInputError(
-        'Free trial limit reached. Please provide a payment method.'
+        'Free instance limit reached. Please select a payment option.'
       );
     }
   } else {
-    // process payment before proceeding
-    subscription = await stripe.subscriptions.create({
-      customer: user.data.customer_id,
-      default_source: args.source,
-      items: [{plan: process.env.STRIPE_PLAN_ID_DEV}]
+    if (!user.data.customer_id) {
+      throw new UserInputError(PAYMENT_METHOD_ERROR);
+    }
+
+    const sources = await stripe.customers.listSources(user.data.customer_id);
+    if (!sources.data.length) {
+      throw new UserInputError(PAYMENT_METHOD_ERROR);
+    }
+
+    const subscriptions = await stripe.subscriptions.list({
+      customer: user.data.customer_id
     });
+
+    subscriptionItem = subscriptions.data
+      .flatMap(subscription => subscription.items.data)
+      .find(item => item.plan.id === args.plan);
+
+    if (subscriptionItem) {
+      await stripe.subscriptionItems.update(subscriptionItem.id, {
+        quantity: subscriptionItem.quantity + 1
+      });
+    } else {
+      const subscription = await stripe.subscriptions.create({
+        customer: user.data.customer_id,
+        items: [
+          {
+            plan: args.plan,
+            quantity: 1
+          }
+        ]
+      });
+
+      subscriptionItem = subscription.items.data[0];
+    }
   }
 
   // generate a subdomain: part english words, part hex color code
@@ -169,19 +200,11 @@ module.exports = async function createInstance(
       data: {
         name: subdomain,
         user_id: user.data.id,
-        command_id: Command.CommandId
+        command_id: Command.CommandId,
+        subscription_item_id: subscriptionItem && subscriptionItem.id
       }
     })
   );
-
-  if (subscription) {
-    // update the subscription with metadata about the instance
-    await stripe.subscriptions.update(subscription.id, {
-      metadata: {
-        instance_id: instance.ref.id
-      }
-    });
-  }
 
   return instance;
 };

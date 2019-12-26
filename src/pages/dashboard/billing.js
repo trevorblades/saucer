@@ -64,7 +64,7 @@ export default function Billing() {
           buttonText: 'Add card',
           onButtonClick: openDialog
         }}
-        renderTable={data => (
+        renderTable={cards => (
           <Table>
             <TableHead>
               <TableRow>
@@ -73,13 +73,12 @@ export default function Billing() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.cards.map(card => (
+              {cards.map(card => (
                 <TableRow key={card.id}>
                   <TableCell padding="none">
-                    <PaymentMethod
-                      card={card}
-                      defaultIndicator={<Chip size="small" label="Default" />}
-                    />
+                    <PaymentMethod card={card}>
+                      {card.isDefault && <Chip size="small" label="Default" />}
+                    </PaymentMethod>
                   </TableCell>
                   <TableCell>
                     {card.expMonth.toString().padStart(2, '0')}/

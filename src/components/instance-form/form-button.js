@@ -54,6 +54,7 @@ PlatformButton.propTypes = {
 };
 
 export const PlanButtonContext = createContext();
+
 export function PlanButton({cost, label, value, ...props}) {
   const {plan, setPlan} = useContext(PlanButtonContext);
 
@@ -72,5 +73,5 @@ export function PlanButton({cost, label, value, ...props}) {
 PlanButton.propTypes = {
   cost: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired
+  value: PropTypes.string
 };

@@ -1,22 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import {Box} from '@material-ui/core';
-import {gql, useQuery} from '@apollo/client';
-
-const GET_INSTANCE = gql`
-  query GetInstance($id: ID!) {
-    # only need id and status for the cache to update automatically
-    instance(id: $id) {
-      id
-      status
-    }
-  }
-`;
-
-function PollInstance(props) {
-  useQuery(GET_INSTANCE, props.queryOptions);
-  return props.children;
-}
 
 function StatusMessage(props) {
   return (
@@ -39,23 +23,14 @@ StatusMessage.propTypes = {
 };
 
 export default function InstanceStatus(props) {
-  const {id, status} = props.instance;
+  const {status} = props.instance;
   switch (status) {
     case 'Success':
       return <StatusMessage color="limegreen">Ready</StatusMessage>;
     case 'Pending':
     case 'Delayed':
     case 'InProgress':
-      return (
-        <PollInstance
-          queryOptions={{
-            variables: {id},
-            pollInterval: 5000
-          }}
-        >
-          <StatusMessage color="gold">Starting</StatusMessage>
-        </PollInstance>
-      );
+      return <StatusMessage color="gold">Starting</StatusMessage>;
     case 'TimedOut':
     case 'Failed':
       return <StatusMessage color="error.main">Failed</StatusMessage>;

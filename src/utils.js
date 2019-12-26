@@ -30,11 +30,10 @@ export const LIST_INSTANCES = gql`
     instances {
       ...InstanceFragment
     }
-    cards {
+    defaultCard {
       id
       last4
       brand
-      isDefault
     }
   }
   ${INSTANCE_FRAGMENT}
@@ -48,10 +47,6 @@ export const CARD_FRAGMENT = gql`
     expMonth
     expYear
     isDefault
-    instances {
-      id
-      name
-    }
   }
 `;
 

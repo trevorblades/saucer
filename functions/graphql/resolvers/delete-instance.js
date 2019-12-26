@@ -19,18 +19,16 @@ module.exports = async function deleteInstance(
     throw new ForbiddenError('You do not have access to this instance');
   }
 
-  if ('customer_id' in user.data) {
-    const {data} = await stripe.subscriptions.list({
-      customer: user.data.customer_id
-    });
-
-    for (const subscription of data) {
-      // try to find a subscription for this instance
-      if (subscription.metadata.instance_id === instance.ref.id) {
-        // cancel the subscription and stop looking for others
-        await stripe.subscriptions.del(subscription.id);
-        break;
-      }
+  if ('subscription_item_id' in instance.data) {
+    const subscriptionItem = await stripe.subscriptionItems.retrieve(
+      instance.data.subscription_item_id
+    );
+    if (subscriptionItem.quantity > 1) {
+      await stripe.subscriptionItems.update(subscriptionItem.id, {
+        quantity: subscriptionItem.quantity - 1
+      });
+    } else {
+      await stripe.subscriptions.del(subscriptionItem.subscription);
     }
   }
 

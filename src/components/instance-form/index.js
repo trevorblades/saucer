@@ -1,7 +1,7 @@
-import CardsSelect from '../cards-select';
 import FormField from '../form-field';
 import LabeledSelect from '../labeled-select';
 import PasswordField from './password-field';
+import PaymentMethod from '../payment-method';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useRef, useState} from 'react';
 import build from '../../assets/build.png';
@@ -20,13 +20,14 @@ import {FaDrupal, FaWordpressSimple} from 'react-icons/fa';
 import {FiUploadCloud} from 'react-icons/fi';
 import {
   INSTANCE_FRAGMENT,
-  LIST_CARDS,
   LIST_INSTANCES,
   UserContext,
   locales
 } from '../../utils';
+import {Link} from 'gatsby-theme-material-ui';
 import {PlanButton, PlanButtonContext, PlatformButton} from './form-button';
 import {gql, useMutation} from '@apollo/client';
+import {graphql, useStaticQuery} from 'gatsby';
 
 const CREATE_INSTANCE = gql`
   mutation CreateInstance(
@@ -36,7 +37,7 @@ const CREATE_INSTANCE = gql`
     $adminUser: String!
     $adminPassword: String!
     $plugins: PluginsInput!
-    $source: String
+    $plan: String
   ) {
     createInstance(
       title: $title
@@ -45,7 +46,7 @@ const CREATE_INSTANCE = gql`
       adminUser: $adminUser
       adminPassword: $adminPassword
       plugins: $plugins
-      source: $source
+      plan: $plan
     ) {
       ...InstanceFragment
     }
@@ -57,15 +58,35 @@ export default function InstanceForm(props) {
   const user = useContext(UserContext);
   const formRef = useRef(null);
   const [locale, setLocale] = useState('en_US');
-  const [plan, setPlan] = useState(props.isTrialDisabled ? 'month' : 'trial');
+
+  const {allStripePlan} = useStaticQuery(
+    graphql`
+      {
+        allStripePlan(sort: {fields: amount}) {
+          nodes {
+            interval
+            amount
+            id
+          }
+        }
+      }
+    `
+  );
+
+  const [cheapestPlan] = allStripePlan.nodes;
+  const [plan, setPlan] = useState(
+    props.isTrialDisabled ? cheapestPlan.id : null
+  );
 
   const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {
-    variables: {locale},
+    variables: {
+      locale,
+      plan
+    },
     onError() {
       // scroll to the top of the form to show the error message
       formRef.current.parentNode.scrollTo(0, 0);
     },
-    refetchQueries: [{query: LIST_CARDS}],
     onCompleted: props.onCompleted,
     update(cache, {data}) {
       const {instances} = cache.readQuery({
@@ -91,8 +112,7 @@ export default function InstanceForm(props) {
       adminPassword,
       woocommerce,
       acf,
-      polylang,
-      source
+      polylang
     } = event.target;
     createInstance({
       variables: {
@@ -104,8 +124,7 @@ export default function InstanceForm(props) {
           woocommerce: woocommerce.checked,
           acf: acf.checked,
           polylang: polylang.checked
-        },
-        source: source && source.value
+        }
       }
     });
   }
@@ -248,31 +267,42 @@ export default function InstanceForm(props) {
               <Grid item xs={4}>
                 <PlanButton
                   disabled={props.isTrialDisabled}
-                  value="trial"
+                  value={null}
                   cost="Free"
                   label="14-day trial"
                 />
               </Grid>
-              <Grid item xs={4}>
-                <PlanButton value="month" cost="$12" label="per month" />
-              </Grid>
-              <Grid item xs={4}>
-                <PlanButton
-                  disabled
-                  value="year"
-                  cost="$120"
-                  label="per year"
-                />
-              </Grid>
+              {allStripePlan.nodes.map(plan => (
+                <Grid item xs={4} key={plan.id}>
+                  <PlanButton
+                    value={plan.id}
+                    cost={`$${plan.amount / 100}`}
+                    label={`per ${plan.interval}`}
+                  />
+                </Grid>
+              ))}
             </Grid>
           </PlanButtonContext.Provider>
         </Box>
-        <Typography variant="body2" color="textSecondary">
+        <Typography gutterBottom variant="body2" color="textSecondary">
           Free trial instances are available to users with no existing
           instances.
         </Typography>
-        {plan !== 'trial' && (
-          <CardsSelect cards={props.cards} name="source" disabled={loading} />
+        {plan && (
+          <Box mt={2} mb={1}>
+            <Typography gutterBottom variant="subtitle2">
+              Payment method
+            </Typography>
+            <Typography>
+              {props.defaultCard ? (
+                <PaymentMethod card={props.defaultCard}>
+                  (default)
+                </PaymentMethod>
+              ) : (
+                <Link to="/dashboard/billing">Add a payment method</Link>
+              )}
+            </Typography>
+          </Box>
         )}
       </Box>
       <Box position="sticky" bottom={0} bgcolor="background.paper">
@@ -299,7 +329,7 @@ export default function InstanceForm(props) {
 }
 
 InstanceForm.propTypes = {
-  cards: PropTypes.array.isRequired,
+  defaultCard: PropTypes.object,
   onCompleted: PropTypes.func.isRequired,
   isTrialDisabled: PropTypes.bool.isRequired
 };

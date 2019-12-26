@@ -22,6 +22,13 @@ module.exports = {
     'gatsby-plugin-layout',
     'gatsby-plugin-svgr',
     {
+      resolve: 'gatsby-source-stripe',
+      options: {
+        objects: ['Product', 'Plan'],
+        secretKey: process.env.STRIPE_SECRET_KEY_DEV
+      }
+    },
+    {
       resolve: 'gatsby-plugin-stripe',
       options: {
         async: true

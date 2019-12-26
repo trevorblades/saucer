@@ -39,15 +39,13 @@ export default function Dashboard() {
           buttonText: 'Create instance',
           onButtonClick: openDrawer
         }}
-        renderTable={data => (
-          <InstancesTable instances={data.instances} cards={data.cards} />
-        )}
+        renderTable={instances => <InstancesTable instances={instances} />}
       >
         {data => (
           <Drawer anchor="right" open={drawerOpen} onClose={closeDrawer}>
             <InstanceForm
               isTrialDisabled={data.instances.length > 0}
-              cards={data.cards}
+              defaultCard={data.defaultCard}
               onCompleted={handleCompleted}
             />
           </Drawer>

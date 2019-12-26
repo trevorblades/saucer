@@ -19,6 +19,7 @@ exports.typeDefs = gql`
     instance(id: ID!): Instance
     instances: [Instance]
     cards: [Card]
+    defaultCard: Card
   }
 
   type Mutation {
@@ -30,7 +31,7 @@ exports.typeDefs = gql`
       adminPassword: String!
       adminEmail: String!
       plugins: PluginsInput!
-      source: String
+      plan: String
     ): Instance
     deleteInstance(id: ID!): Instance
     createCard(source: String!, isDefault: Boolean): Card
@@ -50,7 +51,6 @@ exports.typeDefs = gql`
     expMonth: Int
     expYear: Int
     isDefault: Boolean
-    instances: [Instance]
   }
 
   type Instance {
@@ -83,27 +83,6 @@ exports.resolvers = {
     async isDefault(card, args, {stripe}) {
       const customer = await stripe.customers.retrieve(card.customer);
       return card.id === customer.default_source;
-    },
-    async instances(card, args, {stripe, client, user}) {
-      const {data} = await stripe.subscriptions.list({
-        customer: user.data.customer_id
-      });
-
-      const instanceIds = data
-        .filter(subscription => subscription.default_source === card.id)
-        .map(subscription => subscription.metadata.instance_id);
-      if (!instanceIds.length) {
-        return [];
-      }
-
-      // TODO: do this better? group multiple Get queries into one client.query call
-      return Promise.all(
-        instanceIds.map(instanceId =>
-          client.query(
-            query.Get(query.Ref(query.Collection('wp_instances'), instanceId))
-          )
-        )
-      );
     }
   },
   Query: {
@@ -135,6 +114,22 @@ exports.resolvers = {
       );
 
       return data;
+    },
+    async defaultCard(parent, args, {user, stripe}) {
+      if (!user) {
+        throw new AuthenticationError('Unauthorized');
+      }
+
+      const customerId = user.data.customer_id;
+      if (!customerId) {
+        return null;
+      }
+
+      const customer = await stripe.customers.retrieve(customerId);
+      return (
+        customer.default_source &&
+        stripe.customers.retrieveSource(customer.id, customer.default_source)
+      );
     },
     async cards(parent, args, {user, stripe}) {
       if (!user) {

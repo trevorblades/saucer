@@ -13,7 +13,7 @@ import {
   TextField,
   useTheme
 } from '@material-ui/core';
-import {CARD_FRAGMENT, LIST_CARDS} from '../../utils';
+import {CARD_FRAGMENT, LIST_CARDS, LIST_INSTANCES} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 import {injectStripe} from 'react-stripe-elements';
 
@@ -32,6 +32,7 @@ function CardForm(props) {
   const [stripeError, setStripeError] = useState(null);
   const [createCard, {loading, error}] = useMutation(CREATE_CARD, {
     onCompleted: props.onCompleted,
+    refetchQueries: [{query: LIST_INSTANCES}],
     update(cache, {data}) {
       const {cards} = cache.readQuery({
         query: LIST_CARDS

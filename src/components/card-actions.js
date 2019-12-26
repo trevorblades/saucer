@@ -45,7 +45,7 @@ export default function CardActions(props) {
             variables: {
               id: props.card.id
             },
-            // also refetches cards (for new default)
+            // also refetches new default card
             refetchQueries: [{query: LIST_INSTANCES}],
             update(cache, {data}) {
               const {cards} = cache.readQuery({query: LIST_CARDS});
@@ -61,22 +61,7 @@ export default function CardActions(props) {
           <Typography paragraph>
             Are you sure you want to delete this payment method?
           </Typography>
-          {props.card.instances.length > 0 && (
-            <Fragment>
-              <Typography paragraph>
-                Instances associated with this card will be{' '}
-                <strong>stopped</strong> until a new payment method is set up
-                for them:
-              </Typography>
-              <ul>
-                {props.card.instances.map(instance => (
-                  <Typography key={instance.id} component="li" gutterBottom>
-                    {instance.name}
-                  </Typography>
-                ))}
-              </ul>
-            </Fragment>
-          )}
+          {/* TODO: "this card is associated with x active instances. you must delete the instances or set up a new default payment method to delete this card." */}
         </DeleteConfirm>
       </Dialog>
     </Fragment>
