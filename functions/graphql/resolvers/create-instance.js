@@ -31,10 +31,12 @@ module.exports = async function createInstance(
       );
     }
   } else {
+    // if the user doesn't have a customer id, they need to add a card
     if (!user.data.customer_id) {
       throw new UserInputError(PAYMENT_METHOD_ERROR);
     }
 
+    // if they have no cards, they need to create one
     const sources = await stripe.customers.listSources(user.data.customer_id);
     if (!sources.data.length) {
       throw new UserInputError(PAYMENT_METHOD_ERROR);
@@ -49,10 +51,12 @@ module.exports = async function createInstance(
       .find(item => item.plan.id === args.plan);
 
     if (subscriptionItem) {
+      // if a sub item exists for this plan, increment the quantity
       await stripe.subscriptionItems.update(subscriptionItem.id, {
         quantity: subscriptionItem.quantity + 1
       });
     } else {
+      // otherwise create a new subscription with a quantity of 1
       const subscription = await stripe.subscriptions.create({
         customer: user.data.customer_id,
         items: [

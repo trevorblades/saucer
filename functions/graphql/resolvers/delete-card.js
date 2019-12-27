@@ -1,29 +1,22 @@
-const {AuthenticationError} = require('apollo-server-lambda');
+const {AuthenticationError, UserInputError} = require('apollo-server-lambda');
 
 module.exports = async function deleteCard(parent, args, {user, stripe}) {
   if (!user) {
     throw new AuthenticationError('Unauthorized');
   }
 
-  const {data} = await stripe.subscriptions.list({
-    customer: user.data.customer_id
-  });
+  const customer = user.data.customer_id;
+  const sources = await stripe.customers.listSources(customer);
+  if (sources.data.length === 1) {
+    // make sure there is a backup card before deleting the default
+    const subscriptions = await stripe.subscriptions.list({customer});
+    if (subscriptions.data.length) {
+      // only if there are existing subscriptions
+      throw new UserInputError(
+        'Delete your paid instances or add a new payment method before deleting this card.'
+      );
+    }
+  }
 
-  // cancel all subscriptions for this source and stop associated instances
-  await Promise.all(
-    data
-      .filter(subscription => subscription.default_source === args.id)
-      .flatMap(subscription => [
-        stripe.subscriptions.del(subscription.id)
-        // TODO: stop/restrict the instance??
-      ])
-  );
-
-  // then delete the card
-  const source = await stripe.customers.deleteSource(
-    user.data.customer_id,
-    args.id
-  );
-
-  return source;
+  return stripe.customers.deleteSource(customer, args.id);
 };

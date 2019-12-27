@@ -20,14 +20,17 @@ module.exports = async function deleteInstance(
   }
 
   if ('subscription_item_id' in instance.data) {
+    // adjust the associated subscription
     const subscriptionItem = await stripe.subscriptionItems.retrieve(
       instance.data.subscription_item_id
     );
     if (subscriptionItem.quantity > 1) {
+      // decrement the quantity if there are multiple
       await stripe.subscriptionItems.update(subscriptionItem.id, {
         quantity: subscriptionItem.quantity - 1
       });
     } else {
+      // otherwise delete the entire subscription
       await stripe.subscriptions.del(subscriptionItem.subscription);
     }
   }
