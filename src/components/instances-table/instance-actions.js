@@ -47,7 +47,7 @@ export default function InstanceActions(props) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Wordpress admin
+                Go to Wordpress
               </MenuItem>
             );
           }

@@ -3,14 +3,7 @@ import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import error from '../assets/error.png';
 import waiting from '../assets/waiting.png';
-import {
-  Box,
-  Button,
-  CardActionArea,
-  LinearProgress,
-  Link,
-  Typography
-} from '@material-ui/core';
+import {Box, Button, LinearProgress, Link, Typography} from '@material-ui/core';
 import {FiArrowUpRight} from 'react-icons/fi';
 
 export default function InstanceContent(props) {
@@ -25,7 +18,7 @@ export default function InstanceContent(props) {
               <LinearProgress />
             </Box>
             <Typography variant="body2" color="textSecondary">
-              Warming up your Wordpress 🔥
+              Preparing your Wordpress instance...
             </Typography>
           </Box>
         </EmptyState>
@@ -64,24 +57,11 @@ export default function InstanceContent(props) {
             </Typography>
           </EmptyStateWrapper>
           <Box mb={3}>
-            <CardActionArea>
-              <Box
-                p={3}
-                border={2}
-                color="#663399"
-                height={200}
-                display="flex"
-                alignItems="flex-end"
-              >
-                <Typography variant="h5">
-                  Create a static Wordpress site with Gatsby
-                </Typography>
-              </Box>
-            </CardActionArea>
-          </Box>
-          <Box mb={3}>
             <Typography gutterBottom variant="h5">
               Next steps
+            </Typography>
+            <Typography variant="subtitle1">
+              Create a static Wordpress site with Gatsby
             </Typography>
             <Typography variant="subtitle1">
               Trigger Netlify deploys on every content publish
