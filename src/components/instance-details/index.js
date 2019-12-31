@@ -1,12 +1,17 @@
-import EmptyState, {EmptyStateWrapper} from './empty-state';
+import EmptyState, {EmptyStateWrapper} from '../empty-state';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
-import error from '../assets/error.png';
-import waiting from '../assets/waiting.png';
+import SubscriptionDetails from './subscription-details';
+import error from '../../assets/error.png';
+import waiting from '../../assets/waiting.png';
 import {Box, Button, LinearProgress, Link, Typography} from '@material-ui/core';
 import {FiArrowUpRight} from 'react-icons/fi';
 
-export default function InstanceContent(props) {
+function ListItem(props) {
+  return <Typography gutterBottom component="li" {...props} />;
+}
+
+export default function InstanceDetails(props) {
   switch (props.instance.status) {
     case 'Pending':
     case 'Delayed':
@@ -60,23 +65,27 @@ export default function InstanceContent(props) {
             <Typography gutterBottom variant="h5">
               Next steps
             </Typography>
-            <Typography variant="subtitle1">
-              Create a static Wordpress site with Gatsby
-            </Typography>
-            <Typography variant="subtitle1">
-              Trigger Netlify deploys on every content publish
-            </Typography>
-            <Typography variant="subtitle1">
-              Send data to Wordpress using GraphQL
-            </Typography>
-            <Typography variant="subtitle1">
-              Configure a custom domain
-            </Typography>
+            <ul>
+              <ListItem>Create a static Wordpress site with Gatsby</ListItem>
+              <ListItem>
+                Trigger Netlify deploys on every content publish
+              </ListItem>
+              <ListItem>Send data to Wordpress using GraphQL</ListItem>
+              <ListItem>Configure a custom domain</ListItem>
+            </ul>
           </Box>
           <Box mb={3}>
             <Typography gutterBottom variant="h5">
               Billing settings
             </Typography>
+            {props.instance.subscription ? (
+              <SubscriptionDetails
+                subscription={props.instance.subscription}
+                defaultCard={props.defaultCard}
+              />
+            ) : (
+              <Typography>Free instance 🥳</Typography>
+            )}
           </Box>
           <Typography gutterBottom variant="h5">
             Danger zone
@@ -93,6 +102,7 @@ export default function InstanceContent(props) {
   }
 }
 
-InstanceContent.propTypes = {
-  instance: PropTypes.object.isRequired
+InstanceDetails.propTypes = {
+  instance: PropTypes.object.isRequired,
+  defaultCard: PropTypes.object
 };

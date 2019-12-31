@@ -58,6 +58,16 @@ exports.typeDefs = gql`
     name: String
     status: String
     updatedAt: DateTime
+    subscription: Subscription
+  }
+
+  type Subscription {
+    plan: Plan
+  }
+
+  type Plan {
+    amount: Int
+    interval: String
   }
 `;
 
@@ -75,7 +85,11 @@ exports.resolvers = {
         .promise();
       return data.Status;
     },
-    updatedAt: instance => new Date(instance.ts / 1000)
+    updatedAt: instance => new Date(instance.ts / 1000),
+    subscription: (instance, args, {stripe}) =>
+      instance.data.subscription_item_id
+        ? stripe.subscriptionItems.retrieve(instance.data.subscription_item_id)
+        : null
   },
   Card: {
     expMonth: card => card.exp_month,

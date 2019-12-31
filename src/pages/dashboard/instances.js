@@ -1,4 +1,4 @@
-import InstanceContent from '../../components/instance-content';
+import InstanceDetails from '../../components/instance-details';
 import InstanceIcon from '../../components/instance-icon';
 import PropTypes from 'prop-types';
 import React, {Fragment, useEffect} from 'react';
@@ -11,6 +11,16 @@ const GET_INSTANCE = gql`
   query GetInstance($id: ID!) {
     instance(id: $id) {
       ...InstanceFragment
+      subscription {
+        plan {
+          amount
+          interval
+        }
+      }
+    }
+    defaultCard {
+      last4
+      brand
     }
   }
   ${INSTANCE_FRAGMENT}
@@ -43,12 +53,14 @@ export default function Instances(props) {
 
   if (error) {
     return (
-      <Box color="error.main">
+      <Fragment>
         <Typography paragraph variant="h4">
-          Error
+          Something went wrong
         </Typography>
-        <Typography variant="h6">{error.message}</Typography>
-      </Box>
+        <Typography color="error" variant="h6">
+          {error.message}
+        </Typography>
+      </Fragment>
     );
   }
 
@@ -62,7 +74,10 @@ export default function Instances(props) {
           <InstanceIcon name={data.instance.name} fontSize={24} mr={2} />
           <Typography variant="h4">{data.instance.name}</Typography>
         </Box>
-        <InstanceContent instance={data.instance} />
+        <InstanceDetails
+          instance={data.instance}
+          defaultCard={data.defaultCard}
+        />
       </Box>
     </Fragment>
   );

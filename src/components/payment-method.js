@@ -39,5 +39,5 @@ export default function PaymentMethod(props) {
 
 PaymentMethod.propTypes = {
   card: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node
 };

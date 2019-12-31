@@ -31,7 +31,6 @@ export const LIST_INSTANCES = gql`
       ...InstanceFragment
     }
     defaultCard {
-      id
       last4
       brand
     }

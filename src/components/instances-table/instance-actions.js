@@ -5,6 +5,7 @@ import React, {Fragment, useState} from 'react';
 import burn from '../../assets/burn.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
 import {LIST_INSTANCES} from '../../utils';
+import {Link} from 'gatsby';
 import {gql} from '@apollo/client';
 
 const DELETE_INSTANCE = gql`
@@ -28,6 +29,13 @@ export default function InstanceActions(props) {
         {closeMenu => {
           const menuItems = [
             <MenuItem
+              key="details"
+              component={Link}
+              to={`/dashboard/instances/${props.instance.id}`}
+            >
+              Instance details
+            </MenuItem>,
+            <MenuItem
               key="delete"
               onClick={() => {
                 closeMenu();
@@ -39,7 +47,7 @@ export default function InstanceActions(props) {
           ];
 
           if (props.instance.status === 'Success') {
-            menuItems.unshift(
+            menuItems.push(
               <MenuItem
                 key="wordpress"
                 component="a"
