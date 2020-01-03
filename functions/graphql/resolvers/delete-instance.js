@@ -58,14 +58,18 @@ module.exports = async function deleteInstance(
 
   let status = Command.Status;
   while (['Pending', 'Delayed', 'InProgress'].includes(status)) {
-    // keep checking command status until it's completed
-    const data = await ssm
-      .getCommandInvocation({
-        InstanceId: process.env.AWS_EC2_INSTANCE_ID,
-        CommandId: Command.CommandId
-      })
-      .promise();
-    status = data.Status;
+    // keep checking command status once per second until it's completed
+    status = await new Promise(resolve => {
+      setTimeout(async () => {
+        const data = await ssm
+          .getCommandInvocation({
+            InstanceId: process.env.AWS_EC2_INSTANCE_ID,
+            CommandId: Command.CommandId
+          })
+          .promise();
+        resolve(data.Status);
+      }, 1000);
+    });
   }
 
   return client.query(query.Delete(instance.ref));

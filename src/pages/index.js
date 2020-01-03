@@ -58,7 +58,7 @@ export default function Home() {
         </Box>
       </CenteredBox>
       <CenteredBox py={6} px={8} display="flex" alignItems="flex-start">
-        <img src={thumbsUp} height={400} />
+        <img src={thumbsUp} height={360} />
         <Box py={4} ml={5}>
           <Typography gutterBottom variant="h3">
             What&apos;s included?

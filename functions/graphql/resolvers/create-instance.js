@@ -184,16 +184,16 @@ module.exports = async function createInstance(
           `,
           'touch .htaccess',
           "wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'",
-          // allow wp to install plugins and updates
-          "echo \"define( 'FS_METHOD', 'direct' );\" >> wp-config.php",
-          'chown -R apache:apache /var/www/html/$subdomain/*',
           // install plugins
           'cd wp-content/plugins',
           `wp plugin install ${wp.join(' ')}`,
           ...gh.map(plugin => `git clone ${plugin.url}`),
           `wp plugin activate ${plugins
             .map(plugin => (typeof plugin === 'string' ? plugin : plugin.name))
-            .join(' ')}`
+            .join(' ')}`,
+          // allow wp to write plugins, themes, and media to disk
+          'wp config set FS_METHOD direct',
+          'chown -R apache:apache /var/www/html/$subdomain/*'
         ]
       }
     })
