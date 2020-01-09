@@ -16,6 +16,8 @@ function NavLink(props) {
   );
 }
 
+export const HEADER_HEIGHT = 64;
+
 export default function PageLayout(props) {
   return (
     <BaseLayout>
@@ -30,7 +32,7 @@ export default function PageLayout(props) {
           <CenteredBox
             display="flex"
             alignItems="center"
-            height={64}
+            height={HEADER_HEIGHT}
             px={3}
             offset={0}
           >

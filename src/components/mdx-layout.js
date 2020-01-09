@@ -1,5 +1,5 @@
 import CenteredBox from './centered-box';
-import PageLayout from './page-layout';
+import PageLayout, {HEADER_HEIGHT} from './page-layout';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {Box, Typography, makeStyles} from '@material-ui/core';
@@ -49,6 +49,7 @@ const components = {
 };
 
 export default function MDXLayout(props) {
+  console.log(props);
   const {frontmatter} = props.pageContext;
   return (
     <PageLayout>
@@ -65,8 +66,33 @@ export default function MDXLayout(props) {
           </Typography>
         </Box>
       </CenteredBox>
-      <CenteredBox px={8} py={10}>
-        <MDXProvider components={components}>{props.children}</MDXProvider>
+      <CenteredBox px={8} py={10} display="flex" alignItems="flex-start">
+        <Box width={0} flexGrow={1}>
+          <MDXProvider components={components}>{props.children}</MDXProvider>
+        </Box>
+        <Box
+          width={300}
+          flexShrink={0}
+          ml={5}
+          position="sticky"
+          top={HEADER_HEIGHT + 24}
+        >
+          <Typography gutterBottom variant="overline" display="block">
+            In this article
+          </Typography>
+          {props.children
+            .filter(child => 'id' in child.props)
+            .map(heading => {
+              const {id, children} = heading.props;
+              return (
+                <Typography gutterBottom variant="subtitle1" key={id}>
+                  <Link color="inherit" href={`#${id}`}>
+                    {children}
+                  </Link>
+                </Typography>
+              );
+            })}
+        </Box>
       </CenteredBox>
     </PageLayout>
   );

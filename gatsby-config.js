@@ -24,7 +24,15 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-mdx',
       options: {
-        gatsbyRemarkPlugins: ['gatsby-remark-prismjs'],
+        gatsbyRemarkPlugins: [
+          {
+            resolve: 'gatsby-remark-autolink-headers',
+            options: {
+              icon: false
+            }
+          },
+          'gatsby-remark-prismjs'
+        ],
         defaultLayouts: {
           default: require.resolve('./src/components/mdx-layout.js')
         }
