@@ -7,7 +7,7 @@ description: Follow this guide to build a basic static website using Wordpress, 
 
 [Log in to Saucer](/dashboard) using your GitHub account and click the **Create instance** button to configure a new Wordpress instance. Set your website title, and admin username and password. This will be the username/password combination that you'll use to log in to your Wordpress dashboard for the first time. You may also install some optional plugins and their GraphQL counterparts from this panel.
 
-## 2. Create a Gatsby site
+## 2. Bootstrap a Gatsby website
 
 Once your Wordpress instance is ready to use, you can start consuming its data in a static Gatsby website with little effort. First, create your project directory and install a few NPM packages as dependencies:
 
@@ -38,7 +38,9 @@ module.exports = {
 };
 ```
 
-Now create a page that reads from the newly configured GraphQL source. We'll create a page in `src/pages/index.js` that renders the website title and description, and lists your blog posts. That page should look something like this:
+## 3. Create a homepage
+
+Let's create a homepage for your website that reads from the newly configured GraphQL source. We'll create a React component at `src/pages/index.js` that renders the website title and description; and lists your blog posts. The file should end up looking something like this:
 
 ```js
 // src/pages/index.js
@@ -47,29 +49,37 @@ import {Helmet} from 'react-helmet';
 import {Link, graphql} from 'gatsby';
 
 export default function Home(props) {
+  // page queries make their results available on the `data` prop
   const {generalSettings, posts} = props.data.wordpress;
   const {title, description} = generalSettings;
+
   return (
     <Fragment>
+      {/* use react-helmet to add a page title and description */}
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
       </Helmet>
+
+      {/* render the title and description in the page */}
       <h1>{title}</h1>
       <p>{description}</p>
-      {posts.nodes.map(node => (
-        <div key={node.id}>
+
+      {/* loop through posts and render their title and excerpt */}
+      {posts.nodes.map(post => (
+        <div key={post.id}>
           <h3 style={{color: 'red'}}>
-            <Link to={`/posts/${node.slug}`}>{node.title}</Link>
+            <Link to={`/posts/${post.slug}`}>{post.title}</Link>
           </h3>
-          <h5>Posted on {new Date(node.date).toLocaleDateString()}</h5>
-          <div dangerouslySetInnerHTML={{__html: node.excerpt}} />
+          <h5>Posted on {new Date(post.date).toLocaleDateString()}</h5>
+          <div dangerouslySetInnerHTML={{__html: post.excerpt}} />
         </div>
       ))}
     </Fragment>
   );
 }
 
+// use a page query to retrieve data from your GraphQL source
 export const pageQuery = graphql`
   {
     wordpress {
