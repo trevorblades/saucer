@@ -9,7 +9,7 @@ description: Follow this guide to build a basic static website using Wordpress, 
 
 ## 2. Bootstrap a Gatsby website
 
-Once your Wordpress instance is ready to use, you can start consuming its data in a static Gatsby website with little effort. First, create your project directory and install a few NPM packages as dependencies:
+Once your Wordpress instance is ready to use, you can start consuming its data in a static Gatsby website with little effort. First, open up a terminal window, create your project directory, and install some Node packages as dependencies:
 
 ```bash
 mkdir my-project
@@ -37,6 +37,8 @@ module.exports = {
   ]
 };
 ```
+
+The `fieldName` option is important because we'll be making GraphQL queries against this exact name in the next step. We also include `gatsby-plugin-react-helmet` so that the HTML title and meta tags set by `react-helmet` (also in the next step) get statically rendered in production builds.
 
 ## 3. Create a homepage
 
@@ -101,9 +103,11 @@ export const pageQuery = graphql`
 `;
 ```
 
+Type `npx gatsby develop` in your terminal to run your local development server and enjoy the fruits of your labor so far. 🤩
+
 ## 4. Create post pages
 
-Now that you have an index page, it's time to create pages for each post. To do this, we'll use the Gatsby `createPages` API in a `gatsby-node.js` file.
+Now that you have an index page, it's time to create pages for each post. To do this, we'll use Gatsby's `createPages` API in a `gatsby-node.js` file.
 
 ```js
 // gatsby-node.js
@@ -134,15 +138,30 @@ exports.createPages = async ({actions, graphql}) => {
 };
 ```
 
+In the code sample above, we're doing three things to generate post pages:
+
+1. Make a GraphQL query for the `id` and `slug` properties of each post
+1. Resolve the path to your post template component (yet to be created)
+1. Loop through posts and run `actions.createPage` for each, using `slug` to create the path, and passing `id` along to the template as context
+
+The post template component will make a GraphQL query for an individual post, using a page query with the `id` property passed in as context. It will then render the title and content of the post on the page.
+
 ```jsx
 // src/components/post-template.js
 import React, {Fragment} from 'react';
-import {graphql} from 'gatsby';
+import {Helmet} from 'react-helmet';
+import {Link, graphql} from 'gatsby';
 
 export default function PostTemplate(props) {
+  const {title, content} = props.data.wordpress.post;
   return (
     <Fragment>
-      <h1>{props.data.wordpress.post.title}</h1>
+      <Helmet>
+        <title>{title}</title>
+      </Helmet>
+      <Link to="/">Back to home</Link>
+      <h1>{title}</h1>
+      <div dangerouslySetInnerHTML={{__html: content}} />
     </Fragment>
   );
 }
@@ -152,8 +171,15 @@ export const pageQuery = graphql`
     wordpress {
       post(id: $id) {
         title
+        content
       }
     }
   }
 `;
 ```
+
+Restart your development server with `npx gatsby develop` to see your new post pages. Now you can fine tune and style your site to your heart's content. Happy developing! 🚀
+
+## 5. Deploy with Netlify
+
+Coming soon...

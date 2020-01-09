@@ -2,32 +2,48 @@ import CenteredBox from './centered-box';
 import PageLayout from './page-layout';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {Box, Typography} from '@material-ui/core';
+import {Box, Typography, makeStyles} from '@material-ui/core';
 import {Helmet} from 'react-helmet';
 import {Link} from 'gatsby-theme-material-ui';
 import {MDXProvider} from '@mdx-js/react';
 
+const useStyles = makeStyles(theme => ({
+  heading: {
+    '&:not(:first-child)': {
+      marginTop: theme.spacing(5)
+    }
+  }
+}));
+
+function Heading(props) {
+  const {heading} = useStyles();
+  return <Typography gutterBottom className={heading} {...props} />;
+}
+
 const components = {
   h1(props) {
-    return <Typography gutterBottom variant="h3" {...props} />;
+    return <Heading variant="h3" {...props} />;
   },
   h2(props) {
-    return <Typography gutterBottom variant="h4" {...props} />;
+    return <Heading variant="h4" {...props} />;
   },
   h3(props) {
-    return <Typography gutterBottom variant="h5" {...props} />;
+    return <Heading variant="h5" {...props} />;
   },
   h4(props) {
-    return <Typography gutterBottom variant="h6" {...props} />;
+    return <Heading variant="h6" {...props} />;
   },
   h5(props) {
-    return <Typography gutterBottom variant="subtitle1" {...props} />;
+    return <Heading variant="subtitle1" {...props} />;
   },
   h6(props) {
-    return <Typography gutterBottom variant="subtitle2" {...props} />;
+    return <Heading variant="subtitle2" {...props} />;
   },
   p(props) {
     return <Typography paragraph {...props} />;
+  },
+  li(props) {
+    return <Typography gutterBottom component="li" {...props} />;
   },
   a: Link
 };
