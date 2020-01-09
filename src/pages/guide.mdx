@@ -11,7 +11,7 @@ description: Follow this guide to build a basic static website using Wordpress, 
 
 Once your Wordpress instance is ready to use, you can start consuming its data in a static Gatsby website with little effort. First, create your project directory and install a few NPM packages as dependencies:
 
-```shell
+```bash
 mkdir my-project
 cd my project
 npm init -y # create a package.json
@@ -31,7 +31,7 @@ module.exports = {
       options: {
         typeName: 'Wordpress',
         fieldName: 'wordpress',
-        url: 'https://YOUR-INSTANCE-NAME.saucer.dev/graphql' // highlight-line
+        url: 'https://YOUR-INSTANCE-NAME.saucer.dev/graphql'
       }
     }
   ]
@@ -42,7 +42,7 @@ module.exports = {
 
 Let's create a homepage for your website that reads from the newly configured GraphQL source. We'll create a React component at `src/pages/index.js` that renders the website title and description; and lists your blog posts. The file should end up looking something like this:
 
-```js
+```jsx
 // src/pages/index.js
 import React, {Fragment} from 'react';
 import {Helmet} from 'react-helmet';
@@ -95,6 +95,63 @@ export const pageQuery = graphql`
           title
           excerpt
         }
+      }
+    }
+  }
+`;
+```
+
+## 4. Create post pages
+
+Now that you have an index page, it's time to create pages for each post. To do this, we'll use the Gatsby `createPages` API in a `gatsby-node.js` file.
+
+```js
+// gatsby-node.js
+exports.createPages = async ({actions, graphql}) => {
+  const data = await graphql(`
+    {
+      wordpress {
+        posts {
+          nodes {
+            id
+            slug
+          }
+        }
+      }
+    }
+  `);
+  
+  const postTemplate = require.resolve('./src/components/post-template.js');
+  data.wordpress.posts.nodes.forEach(post => {
+    actions.createPage({
+      path: `/posts/${post.slug}`,
+      component: postTemplate,
+      context: {
+        id: post.id
+      }
+    })
+  });
+};
+```
+
+```jsx
+// src/components/post-template.js
+import React, {Fragment} from 'react';
+import {graphql} from 'gatsby';
+
+export default function PostTemplate(props) {
+  return (
+    <Fragment>
+      <h1>{props.data.wordpress.post.title}</h1>
+    </Fragment>
+  );
+}
+
+export const pageQuery = graphql`
+  query PostQuery($id: String) {
+    wordpress {
+      post(id: $id) {
+        title
       }
     }
   }
