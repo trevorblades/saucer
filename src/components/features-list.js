@@ -27,6 +27,7 @@ export default function FeaturesList() {
       <ListItem>Unlimited Wordpress users</ListItem>
       <ListItem>Pay-per-instance</ListItem>
       <ListItem>{Object.keys(locales).length} languages supported</ListItem>
+      <ListItem>Install and upgrade plugins from Wordpress</ListItem>
     </ul>
   );
 }

@@ -21,7 +21,7 @@ const navItems = {
   '/dashboard/billing': 'Billing',
   '/dashboard/support': 'Support',
   '/dashboard/account': 'Account',
-  '/quick-start': 'Quick start'
+  '/guide': 'Guide'
 };
 
 export default function DashboardLayout(props) {

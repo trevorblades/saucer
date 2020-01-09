@@ -34,7 +34,7 @@ export default function Home() {
           </Box>
         </CenteredBox>
       </div>
-      <CenteredBox p={8}>
+      <CenteredBox px={8} py={2}>
         <Box
           p={4}
           textAlign="center"
@@ -57,9 +57,8 @@ export default function Home() {
           </Button>
         </Box>
       </CenteredBox>
-      <CenteredBox py={6} px={8} display="flex" alignItems="flex-start">
-        <img src={thumbsUp} height={360} />
-        <Box py={4} ml={5}>
+      <CenteredBox py={10} px={8} display="flex" alignItems="flex-start">
+        <div>
           <Typography gutterBottom variant="h3">
             What&apos;s included?
           </Typography>
@@ -69,7 +68,8 @@ export default function Home() {
             hassle. This includes:
           </Typography>
           <FeaturesList />
-        </Box>
+        </div>
+        <Box component="img" mx={5} src={thumbsUp} height={360} />
       </CenteredBox>
     </PageLayout>
   );

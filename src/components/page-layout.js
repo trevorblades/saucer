@@ -36,7 +36,7 @@ export default function PageLayout(props) {
           >
             <LogoTitle component={Link} to="/" />
             <Box component="nav" ml="auto">
-              <NavLink to="/quick-start">Quick start</NavLink>
+              <NavLink to="/guide">Getting started</NavLink>
               <NavLink to="/pricing">Pricing</NavLink>
               <NavLink to="/dashboard">Dashboard</NavLink>
             </Box>

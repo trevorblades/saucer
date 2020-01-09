@@ -1,0 +1,92 @@
+---
+title: Guide
+description: Follow this guide to build a basic static website using Wordpress, Gatsby, and Netlify.
+---
+
+## 1. Create a Wordpress instance
+
+[Log in to Saucer](/dashboard) using your GitHub account and click the **Create instance** button to configure a new Wordpress instance. Set your website title, and admin username and password. This will be the username/password combination that you'll use to log in to your Wordpress dashboard for the first time. You may also install some optional plugins and their GraphQL counterparts from this panel.
+
+## 2. Create a Gatsby site
+
+Once your Wordpress instance is ready to use, you can start consuming its data in a static Gatsby website with little effort. First, create your project directory and install a few NPM packages as dependencies:
+
+```shell
+mkdir my-project
+cd my project
+npm init -y # create a package.json
+npm install gatsby react react-dom gatsby-source-graphql react-helmet gatsby-plugin-react-helmet # install dependencies
+touch gatsby-config.js # create an empty config file
+```
+
+Next, create a new Gatsby config file and configure a new GraphQL source using your new Wordpress instance. Replace `YOUR-INSTANCE-NAME` with the unique name given to your instance:
+
+```js
+// gatsby-config.js
+module.exports = {
+  plugins: [
+    'gatsby-plugin-react-helmet',
+    {
+      resolve: 'gatsby-source-graphql',
+      options: {
+        typeName: 'Wordpress',
+        fieldName: 'wordpress',
+        url: 'https://YOUR-INSTANCE-NAME.saucer.dev/graphql' // highlight-line
+      }
+    }
+  ]
+};
+```
+
+Now create a page that reads from the newly configured GraphQL source. We'll create a page in `src/pages/index.js` that renders the website title and description, and lists your blog posts. That page should look something like this:
+
+```js
+// src/pages/index.js
+import React, {Fragment} from 'react';
+import {Helmet} from 'react-helmet';
+import {Link, graphql} from 'gatsby';
+
+export default function Home(props) {
+  const {generalSettings, posts} = props.data.wordpress;
+  const {title, description} = generalSettings;
+  return (
+    <Fragment>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+      </Helmet>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      {posts.nodes.map(node => (
+        <div key={node.id}>
+          <h3 style={{color: 'red'}}>
+            <Link to={`/posts/${node.slug}`}>{node.title}</Link>
+          </h3>
+          <h5>Posted on {new Date(node.date).toLocaleDateString()}</h5>
+          <div dangerouslySetInnerHTML={{__html: node.excerpt}} />
+        </div>
+      ))}
+    </Fragment>
+  );
+}
+
+export const pageQuery = graphql`
+  {
+    wordpress {
+      generalSettings {
+        title
+        description
+      }
+      posts {
+        nodes {
+          id
+          slug
+          date
+          title
+          excerpt
+        }
+      }
+    }
+  }
+`;
+```

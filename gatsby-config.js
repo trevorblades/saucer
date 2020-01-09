@@ -22,6 +22,14 @@ module.exports = {
     'gatsby-plugin-layout',
     'gatsby-plugin-svgr',
     {
+      resolve: 'gatsby-plugin-mdx',
+      options: {
+        defaultLayouts: {
+          default: require.resolve('./src/components/mdx-layout.js')
+        }
+      }
+    },
+    {
       resolve: 'gatsby-source-stripe',
       options: {
         objects: ['Product', 'Plan'],
