@@ -182,7 +182,18 @@ module.exports = async function createInstance(
               - mod_rewrite
             EOF
           `,
-          'touch .htaccess',
+          // inspired by https://serverfault.com/a/853191
+          outdent`
+            cat >> .htaccess << EOF
+            # redirect all requests for non-existent files and those not for headless use
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteCond %{REQUEST_URI} !^/wp-admin
+            RewriteCond %{REQUEST_URI} !^/wp-json
+            RewriteCond %{REQUEST_URI} !^/graphql
+            RewriteRule ^ /wp-admin [R=301,L]
+            EOF
+          `,
           "wp rewrite structure --hard '/%year%/%monthnum%/%postname%/'",
           // install plugins
           'cd wp-content/plugins',
