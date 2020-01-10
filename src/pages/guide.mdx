@@ -1,13 +1,13 @@
 ---
 title: Getting started
-description: Follow this guide to build a basic static website using Wordpress, Gatsby, and Netlify.
+description: Follow this guide to build a static website using Wordpress, Gatsby, and Netlify.
 ---
 
-## 1. Create a Wordpress instance
+## Create a Wordpress instance
 
 [Log in to Saucer](/dashboard) using your GitHub account and click the **Create instance** button to configure a new Wordpress instance. Set your website title, and admin username and password. This will be the username/password combination that you'll use to log in to your Wordpress dashboard for the first time. You may also install some optional plugins and their GraphQL counterparts from this panel.
 
-## 2. Bootstrap a Gatsby website
+## Bootstrap a Gatsby website
 
 Once your Wordpress instance is ready to use, you can start consuming its data in a static Gatsby website with little effort. First, open up a terminal window, create your project directory, and install some Node packages as dependencies:
 
@@ -19,7 +19,7 @@ npm install gatsby react react-dom gatsby-source-graphql react-helmet gatsby-plu
 touch gatsby-config.js # create an empty config file
 ```
 
-Next, create a new Gatsby config file and configure a new GraphQL source using your new Wordpress instance. Replace `YOUR-INSTANCE-NAME` with the unique name given to your instance:
+Next, create a Gatsby config file and configure a GraphQL source using your new Wordpress instance. Using the following example, replace `YOUR-INSTANCE-NAME` with the unique name given to your instance.
 
 ```js
 // gatsby-config.js
@@ -38,11 +38,11 @@ module.exports = {
 };
 ```
 
-The `fieldName` option is important because we'll be making GraphQL queries against this exact name in the next step. We also include `gatsby-plugin-react-helmet` so that the HTML title and meta tags set by `react-helmet` (also in the next step) get statically rendered in production builds.
+The `fieldName` option is important because you'll be making GraphQL queries against this exact name in the next step. We also include `gatsby-plugin-react-helmet` so that the HTML title and meta tags set by `react-helmet` (also in the next step) get statically rendered in production builds.
 
-## 3. Create a homepage
+## Create a homepage
 
-Let's create a homepage for your website that reads from the newly configured GraphQL source. We'll create a React component at `src/pages/index.js` that renders the website title and description; and lists your blog posts. The file should end up looking something like this:
+Let's build a homepage for your website that reads from the GraphQL source you just configured. We'll create a React component at `src/pages/index.js` that renders the website title and description; and lists your blog posts. The file should end up looking something like this:
 
 ```jsx
 // src/pages/index.js
@@ -105,7 +105,7 @@ export const pageQuery = graphql`
 
 Type `npx gatsby develop` in your terminal to run your local development server and enjoy the fruits of your labor so far. 🤩
 
-## 4. Create post pages
+## Generate post pages
 
 Now that you have an index page, it's time to create pages for each post. To do this, we'll use Gatsby's `createPages` API in a `gatsby-node.js` file.
 
@@ -128,10 +128,11 @@ exports.createPages = async ({actions, graphql}) => {
   const postTemplate = require.resolve('./src/components/post-template.js');
   data.wordpress.posts.nodes.forEach(post => {
     actions.createPage({
+      // path below matches the path format in the posts list on the homepage
       path: `/posts/${post.slug}`,
       component: postTemplate,
       context: {
-        id: post.id
+        id: post.id // for use in the post template's page query
       }
     })
   });
@@ -166,6 +167,8 @@ export default function PostTemplate(props) {
   );
 }
 
+// properties that you set in a page's context are made available for use in
+// page queries, such as $id in this case
 export const pageQuery = graphql`
   query PostQuery($id: String) {
     wordpress {
@@ -180,6 +183,18 @@ export const pageQuery = graphql`
 
 Restart your development server with `npx gatsby develop` to see your new post pages. Now you can fine tune and style your site to your heart's content. Happy developing! 🚀
 
-## 5. Deploy with Netlify
+## Deploy with Netlify
 
-Coming soon...
+Now that your site is built, you probably want to host it somewhere. [Netlify](https://netlify.com) offers free hosting and automated deploys for websites just like yours. Before going any further, make sure your work is commited to a GitHub repo. This is one of the ways that Netlify will refer to your working files and detect changes to trigger new deploys.
+
+Once your project is on GitHub, [log in to Netlify](https://app.netlify.com) and follow the steps on screen to link your repo with a new Netlify site. If everything works, your site should begin building and will be deployed within a few minutes.
+
+Any time you make a commit to your GitHub repo, Netlify will start a new build and deploy your updated code. This works great for website logic or styling changes, but what about when your Wordpress content changes?
+
+## Trigger deploys when content changes
+
+Every Saucer instance comes with [Gatsby Toolkit](https://github.com/staticfuse/gatsby-toolkit) installed. Gatsby Toolkit is a Wordpress plugin that triggers a Netlify deploy any time you publish new content (posts, pages, categories) or edit existing content. To configure Gatsby Toolkit, you need to create a Netlify build hook.
+
+Go to the **Build & deploy** tab of your Netlify site settings and scroll down to the **Build hooks** section. Click the **Add build hook** button and give your hook a name, like "Wordpress".
+
+Copy the build hook URL and paste it into the **Settings > Gatsby Toolkit** menu in your Wordpress dashboard. Now every time you add or edit content, a Netlify deploy will automatically be triggered.

@@ -16,7 +16,7 @@ export default function Home() {
         style={{
           backgroundImage: `url(${dishes})`,
           backgroundSize: 360,
-          backgroundPosition: 'calc(50vw + 32px) center',
+          backgroundPosition: 'calc(50vw + 40px) center',
           backgroundRepeat: 'no-repeat'
         }}
       >
@@ -69,7 +69,7 @@ export default function Home() {
           </Typography>
           <FeaturesList />
         </div>
-        <Box component="img" mx={5} src={thumbsUp} height={360} />
+        <Box component="img" mx={5} src={thumbsUp} height={400} />
       </CenteredBox>
     </PageLayout>
   );

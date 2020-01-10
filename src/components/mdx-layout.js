@@ -2,6 +2,7 @@ import CenteredBox from './centered-box';
 import PageLayout, {HEADER_HEIGHT} from './page-layout';
 import PropTypes from 'prop-types';
 import React from 'react';
+import build from '../assets/build.png';
 import {Box, Typography, makeStyles} from '@material-ui/core';
 import {Helmet} from 'react-helmet';
 import {Link} from 'gatsby-theme-material-ui';
@@ -11,6 +12,12 @@ const useStyles = makeStyles(theme => ({
   heading: {
     '&:not(:first-child)': {
       marginTop: theme.spacing(5)
+    },
+    '&::before': {
+      content: "''",
+      display: 'block',
+      height: HEADER_HEIGHT,
+      marginTop: -HEADER_HEIGHT
     }
   }
 }));
@@ -49,23 +56,36 @@ const components = {
 };
 
 export default function MDXLayout(props) {
-  console.log(props);
   const {frontmatter} = props.pageContext;
   return (
     <PageLayout>
       <Helmet>
         <title>{frontmatter.title}</title>
       </Helmet>
-      <CenteredBox px={8} py={12}>
-        <Box width={1 / 2}>
-          <Typography gutterBottom variant="h2">
-            {frontmatter.title}
-          </Typography>
-          <Typography paragraph variant="h6">
-            {frontmatter.description}
-          </Typography>
-        </Box>
-      </CenteredBox>
+      <div
+        style={{
+          backgroundImage: `url(${build})`,
+          backgroundSize: 550,
+          backgroundPosition: '50vw center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <CenteredBox px={8} py={12}>
+          <Box
+            width={{
+              xs: 1,
+              md: 1 / 2
+            }}
+          >
+            <Typography gutterBottom variant="h2">
+              {frontmatter.title}
+            </Typography>
+            <Typography paragraph variant="h6">
+              {frontmatter.description}
+            </Typography>
+          </Box>
+        </CenteredBox>
+      </div>
       <CenteredBox px={8} py={10} display="flex" alignItems="flex-start">
         <Box width={0} flexGrow={1}>
           <MDXProvider components={components}>{props.children}</MDXProvider>
@@ -76,6 +96,10 @@ export default function MDXLayout(props) {
           ml={5}
           position="sticky"
           top={HEADER_HEIGHT + 24}
+          display={{
+            xs: 'none',
+            md: 'block'
+          }}
         >
           <Typography gutterBottom variant="overline" display="block">
             In this article
