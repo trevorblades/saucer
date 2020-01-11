@@ -12,6 +12,10 @@ const {paginateInstancesForUser} = require('../utils');
 const PAYMENT_METHOD_ERROR =
   'You selected a paid plan. Add a valid payment method in your billing settings to create this instance.';
 
+function padDateSegment(number) {
+  return number.toString().padStart(2, 0);
+}
+
 module.exports = async function createInstance(
   parent,
   args,
@@ -21,6 +25,7 @@ module.exports = async function createInstance(
     throw new AuthenticationError('Unauthorized');
   }
 
+  let trialExpiry;
   let subscriptionItem;
   if (!args.plan) {
     // if no payment was provided, check to see if the user can start a trial
@@ -30,6 +35,22 @@ module.exports = async function createInstance(
         'Free instance limit reached. Please select a payment option.'
       );
     }
+
+    const date = new Date();
+    date.setDate(date.getDate() + 14);
+
+    const year = date.getFullYear();
+    const month = padDateSegment(date.getMonth() + 1);
+    const day = padDateSegment(date.getDate());
+
+    trialExpiry = outdent`
+      cat >> .htaccess << EOF
+      # return a 402 if the trial is expired
+      RewriteCond %{TIME} <${year}${month}${day}000000
+      RewriteRule ^ - [R=402,L]
+
+      EOF
+    `;
   } else {
     // if the user doesn't have a customer id, they need to add a card
     if (!user.data.customer_id) {
@@ -182,6 +203,7 @@ module.exports = async function createInstance(
               - mod_rewrite
             EOF
           `,
+          trialExpiry,
           // inspired by https://serverfault.com/a/853191
           outdent`
             cat >> .htaccess << EOF
