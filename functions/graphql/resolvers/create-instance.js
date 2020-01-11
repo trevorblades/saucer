@@ -46,7 +46,7 @@ module.exports = async function createInstance(
     trialExpiry = outdent`
       cat >> .htaccess << EOF
       # return a 402 if the trial is expired
-      RewriteCond %{TIME} <${year}${month}${day}000000
+      RewriteCond %{TIME} >${year}${month}${day}000000
       RewriteRule ^ - [R=402,L]
 
       EOF
