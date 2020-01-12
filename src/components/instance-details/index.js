@@ -1,10 +1,11 @@
+import DeleteInstanceButton from './delete-instance-button';
 import EmptyState, {EmptyStateWrapper} from '../empty-state';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import SubscriptionDetails from './subscription-details';
 import error from '../../assets/error.png';
 import waiting from '../../assets/waiting.png';
-import {Box, Button, LinearProgress, Link, Typography} from '@material-ui/core';
+import {Box, LinearProgress, Link, Typography} from '@material-ui/core';
 import {FiArrowUpRight} from 'react-icons/fi';
 
 function ListItem(props) {
@@ -90,11 +91,7 @@ export default function InstanceDetails(props) {
           <Typography gutterBottom variant="h5">
             Danger zone
           </Typography>
-          <Box color="error.main">
-            <Button variant="outlined" color="inherit">
-              Delete instance
-            </Button>
-          </Box>
+          <DeleteInstanceButton instance={props.instance} />
         </Fragment>
       );
     default:
