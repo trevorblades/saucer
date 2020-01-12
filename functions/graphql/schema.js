@@ -57,6 +57,7 @@ exports.typeDefs = gql`
     id: ID
     name: String
     status: String
+    expiresAt: DateTime
     updatedAt: DateTime
     subscription: Subscription
   }
@@ -85,7 +86,8 @@ exports.resolvers = {
         .promise();
       return data.Status;
     },
-    updatedAt: instance => new Date(instance.ts / 1000),
+    expiresAt: instance => instance.data.expires_at / 1000,
+    updatedAt: instance => instance.ts / 1000000,
     subscription: (instance, args, {stripe}) =>
       instance.data.subscription_item_id
         ? stripe.subscriptionItems.retrieve(instance.data.subscription_item_id)

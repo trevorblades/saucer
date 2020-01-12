@@ -3,6 +3,7 @@ import EmptyState, {EmptyStateWrapper} from '../empty-state';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import SubscriptionDetails from './subscription-details';
+import TrialDetails from './trial-details';
 import error from '../../assets/error.png';
 import waiting from '../../assets/waiting.png';
 import {Box, LinearProgress, Link, Typography} from '@material-ui/core';
@@ -85,7 +86,7 @@ export default function InstanceDetails(props) {
                 defaultCard={props.defaultCard}
               />
             ) : (
-              <Typography>Free instance 🥳</Typography>
+              <TrialDetails expiryDate={new Date(props.instance.expiresAt)} />
             )}
           </Box>
           <Typography gutterBottom variant="h5">

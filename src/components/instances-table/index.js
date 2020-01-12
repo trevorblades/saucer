@@ -47,9 +47,7 @@ export default function InstancesTable(props) {
               <TableCell>
                 <Tooltip title={updatedAt.toLocaleString()}>
                   <span>
-                    {formatDistanceToNow(updatedAt, {
-                      addSuffix: true
-                    })}
+                    {formatDistanceToNow(updatedAt, {addSuffix: true})}
                   </span>
                 </Tooltip>
               </TableCell>

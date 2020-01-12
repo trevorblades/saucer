@@ -12,10 +12,6 @@ const {paginateInstancesForUser} = require('../utils');
 const PAYMENT_METHOD_ERROR =
   'You selected a paid plan. Add a valid payment method in your billing settings to create this instance.';
 
-function padDateSegment(number) {
-  return number.toString().padStart(2, 0);
-}
-
 module.exports = async function createInstance(
   parent,
   args,
@@ -25,7 +21,7 @@ module.exports = async function createInstance(
     throw new AuthenticationError('Unauthorized');
   }
 
-  let trialExpiry;
+  let expiresAt;
   let subscriptionItem;
   if (!args.plan) {
     // if no payment was provided, check to see if the user can start a trial
@@ -36,21 +32,9 @@ module.exports = async function createInstance(
       );
     }
 
-    const date = new Date();
-    date.setDate(date.getDate() + 14);
-
-    const year = date.getFullYear();
-    const month = padDateSegment(date.getMonth() + 1);
-    const day = padDateSegment(date.getDate());
-
-    trialExpiry = outdent`
-      cat >> .htaccess << EOF
-      # return a 402 if the trial is expired
-      RewriteCond %{TIME} >${year}${month}${day}000000
-      RewriteRule ^ - [R=402,L]
-
-      EOF
-    `;
+    // set the instance expiry (14 days from now)
+    expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 14);
   } else {
     // if the user doesn't have a customer id, they need to add a card
     if (!user.data.customer_id) {
@@ -203,7 +187,22 @@ module.exports = async function createInstance(
               - mod_rewrite
             EOF
           `,
-          trialExpiry,
+          expiresAt &&
+            outdent`
+            cat >> .htaccess << EOF
+            # return a 402 if the trial is expired
+            RewriteCond %{TIME} >${[
+              expiresAt.getFullYear(),
+              expiresAt.getMonth() + 1,
+              expiresAt.getDate(),
+              expiresAt.getHours(),
+              expiresAt.getMinutes(),
+              expiresAt.getSeconds()
+            ].map(number => number.toString().padStart(2, 0))}
+            RewriteRule ^ - [R=402,L]
+
+            EOF
+          `,
           // inspired by https://serverfault.com/a/853191
           outdent`
             cat >> .htaccess << EOF
@@ -238,6 +237,7 @@ module.exports = async function createInstance(
         name: subdomain,
         user_id: user.data.id,
         command_id: Command.CommandId,
+        expires_at: expiresAt && expiresAt.getTime(),
         subscription_item_id: subscriptionItem && subscriptionItem.id
       }
     })

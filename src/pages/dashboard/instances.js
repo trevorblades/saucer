@@ -11,6 +11,7 @@ const GET_INSTANCE = gql`
   query GetInstance($id: ID!) {
     instance(id: $id) {
       ...InstanceFragment
+      expiresAt
       subscription {
         plan {
           amount
