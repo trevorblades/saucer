@@ -36,6 +36,7 @@
     "isomorphic-fetch": "^2.2.1",
     "jwt-decode": "^2.2.0",
     "locale-emoji": "^0.3.0",
+    "outdent": "^0.7.0",
     "payment-icons": "^1.2.1",
     "prismjs": "^1.18.0",
     "prop-types": "^15.7.2",

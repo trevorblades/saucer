@@ -1,3 +1,6 @@
+import '../prismjs.css';
+import 'prismjs/plugins/command-line/prism-command-line.css';
+import 'prismjs/themes/prism-tomorrow.css';
 import CenteredBox from './centered-box';
 import PageLayout, {HEADER_HEIGHT} from './page-layout';
 import PropTypes from 'prop-types';

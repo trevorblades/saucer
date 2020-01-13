@@ -10,16 +10,23 @@ import error from '../../assets/error.png';
 import waiting from '../../assets/waiting.png';
 import {Box, LinearProgress, Link, Typography} from '@material-ui/core';
 import {FiArrowUpRight} from 'react-icons/fi';
+import {outdent} from 'outdent';
 
-const defaultQuery = `{
-  posts {
-    nodes {
-      id
-      slug
+const defaultQuery = outdent`
+  {
+    generalSettings {
       title
+      description
+    }
+    posts {
+      nodes {
+        id
+        slug
+        title
+      }
     }
   }
-}`;
+`;
 
 export default function InstanceDetails(props) {
   const instanceDomain = props.instance.name + '.saucer.dev';
@@ -88,6 +95,7 @@ export default function InstanceDetails(props) {
             <Typography gutterBottom variant="h5">
               GraphQL API
             </Typography>
+            {/* TODO: add copy to clipboard functionality */}
             <Typography paragraph>{graphqlUrl}</Typography>
             <Box height={600} style={{boxSizing: 'content-box'}}>
               <GraphiQL fetcher={graphQLFetcher} defaultQuery={defaultQuery} />
