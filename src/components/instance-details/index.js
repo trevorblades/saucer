@@ -1,5 +1,7 @@
+import 'graphiql/graphiql.css';
 import DeleteInstanceButton from './delete-instance-button';
 import EmptyState, {EmptyStateWrapper} from '../empty-state';
+import GraphiQL from 'graphiql';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
 import SubscriptionDetails from './subscription-details';
@@ -9,11 +11,30 @@ import waiting from '../../assets/waiting.png';
 import {Box, LinearProgress, Link, Typography} from '@material-ui/core';
 import {FiArrowUpRight} from 'react-icons/fi';
 
-function ListItem(props) {
-  return <Typography gutterBottom component="li" {...props} />;
-}
+const defaultQuery = `{
+  posts {
+    nodes {
+      id
+      slug
+      title
+    }
+  }
+}`;
 
 export default function InstanceDetails(props) {
+  const instanceDomain = props.instance.name + '.saucer.dev';
+  const instanceUrl = 'https://' + instanceDomain;
+  const graphqlUrl = instanceUrl + '/graphql';
+
+  async function graphQLFetcher(graphQLParams) {
+    const response = await fetch(graphqlUrl, {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(graphQLParams)
+    });
+    return response.json();
+  }
+
   switch (props.instance.status) {
     case 'Pending':
     case 'Delayed':
@@ -49,11 +70,11 @@ export default function InstanceDetails(props) {
             <Typography variant="subtitle1">
               Wordpress is running at{' '}
               <Link
-                href={`https://${props.instance.name}.saucer.dev/wp-admin`}
+                href={instanceUrl + '/wp-admin'}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {`${props.instance.name}.saucer.dev`}
+                {instanceDomain}
                 <Box
                   component={FiArrowUpRight}
                   ml={0.5}
@@ -65,16 +86,12 @@ export default function InstanceDetails(props) {
           </EmptyStateWrapper>
           <Box mb={3}>
             <Typography gutterBottom variant="h5">
-              Next steps
+              GraphQL API
             </Typography>
-            <ul>
-              <ListItem>Create a static Wordpress site with Gatsby</ListItem>
-              <ListItem>
-                Trigger Netlify deploys on every content publish
-              </ListItem>
-              <ListItem>Send data to Wordpress using GraphQL</ListItem>
-              <ListItem>Configure a custom domain</ListItem>
-            </ul>
+            <Typography paragraph>{graphqlUrl}</Typography>
+            <Box height={600} style={{boxSizing: 'content-box'}}>
+              <GraphiQL fetcher={graphQLFetcher} defaultQuery={defaultQuery} />
+            </Box>
           </Box>
           <Box mb={3}>
             <Typography gutterBottom variant="h5">
