@@ -1,4 +1,5 @@
 import 'graphiql/graphiql.css';
+import CopyUrl from './copy-url';
 import DeleteInstanceButton from './delete-instance-button';
 import EmptyState, {EmptyStateWrapper} from '../empty-state';
 import GraphiQL from 'graphiql';
@@ -95,8 +96,7 @@ export default function InstanceDetails(props) {
             <Typography gutterBottom variant="h5">
               GraphQL API
             </Typography>
-            {/* TODO: add copy to clipboard functionality */}
-            <Typography paragraph>{graphqlUrl}</Typography>
+            <CopyUrl url={graphqlUrl} />
             <Box height={600} style={{boxSizing: 'content-box'}}>
               <GraphiQL fetcher={graphQLFetcher} defaultQuery={defaultQuery} />
             </Box>

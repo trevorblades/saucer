@@ -70,16 +70,14 @@ export default function Instances(props) {
       <Helmet>
         <title>{data.instance.name}</title>
       </Helmet>
-      <Box mb={2}>
-        <Box display="flex" alignItems="center" mb={2}>
-          <InstanceIcon name={data.instance.name} fontSize={24} mr={2} />
-          <Typography variant="h4">{data.instance.name}</Typography>
-        </Box>
-        <InstanceDetails
-          instance={data.instance}
-          defaultCard={data.defaultCard}
-        />
+      <Box display="flex" alignItems="center" mb={2}>
+        <InstanceIcon name={data.instance.name} fontSize={24} mr={2} />
+        <Typography variant="h4">{data.instance.name}</Typography>
       </Box>
+      <InstanceDetails
+        instance={data.instance}
+        defaultCard={data.defaultCard}
+      />
     </Fragment>
   );
 }

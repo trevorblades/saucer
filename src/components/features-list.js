@@ -21,13 +21,12 @@ export default function FeaturesList() {
       <ListItem>
         Latest version of Wordpress (v{wordpressVersion.version})
       </ListItem>
+      <ListItem>Automatic Wordpress updates</ListItem>
       <ListItem>Ready-to-use GraphQL API</ListItem>
-      <ListItem>Netlify build hook support</ListItem>
-      <ListItem>Free SSL certificate</ListItem>
-      <ListItem>Unlimited Wordpress users</ListItem>
-      <ListItem>Pay-per-instance</ListItem>
+      <ListItem>Data served over HTTPS</ListItem>
+      <ListItem>Trigger Netlify deploys when content changes</ListItem>
+      <ListItem>Affordable per-instance pricing</ListItem>
       <ListItem>{Object.keys(locales).length} languages supported</ListItem>
-      <ListItem>Install and upgrade plugins from Wordpress</ListItem>
     </ul>
   );
 }
