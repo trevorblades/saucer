@@ -19,8 +19,8 @@ import {ReactComponent as Wordmark} from '../assets/wordmark.svg';
 const navItems = {
   '/dashboard': 'Instances',
   '/dashboard/billing': 'Billing',
-  '/dashboard/support': 'Support',
   '/dashboard/account': 'Account',
+  '/dashboard/support': 'Support',
   '/guide': 'Guide'
 };
 

@@ -114,10 +114,12 @@ export default function InstanceDetails(props) {
               <TrialDetails expiryDate={new Date(props.instance.expiresAt)} />
             )}
           </Box>
-          <Typography gutterBottom variant="h5">
-            Danger zone
-          </Typography>
-          <DeleteInstanceButton instance={props.instance} />
+          <Box mb={1}>
+            <Typography gutterBottom variant="h5">
+              Danger zone
+            </Typography>
+            <DeleteInstanceButton instance={props.instance} />
+          </Box>
         </Fragment>
       );
     default:
