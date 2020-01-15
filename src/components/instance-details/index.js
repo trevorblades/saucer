@@ -39,8 +39,7 @@ export default function InstanceDetails(props) {
     case 'Success':
       if (
         !props.instance.subscription &&
-        true
-        // Date.now() > new Date(props.instance.expiresAt)
+        Date.now() > new Date(props.instance.expiresAt)
       ) {
         return (
           <EmptyState image={bird}>
