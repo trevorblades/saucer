@@ -1,48 +1,13 @@
-import 'graphiql/graphiql.css';
-import CopyUrl from './copy-url';
-import DeleteInstanceButton from './delete-instance-button';
-import EmptyState, {EmptyStateWrapper} from '../empty-state';
-import GraphiQL from 'graphiql';
+import ActiveInstance from './active-instance';
+import EmptyState from '../empty-state';
 import PropTypes from 'prop-types';
-import React, {Fragment} from 'react';
-import SubscriptionDetails from './subscription-details';
-import TrialDetails from './trial-details';
+import React from 'react';
+import bird from '../../assets/bird.png';
 import error from '../../assets/error.png';
 import waiting from '../../assets/waiting.png';
-import {Box, LinearProgress, Link, Typography} from '@material-ui/core';
-import {FiArrowUpRight} from 'react-icons/fi';
-import {outdent} from 'outdent';
-
-const defaultQuery = outdent`
-  {
-    generalSettings {
-      title
-      description
-    }
-    posts {
-      nodes {
-        id
-        slug
-        title
-      }
-    }
-  }
-`;
+import {Box, Button, LinearProgress, Typography} from '@material-ui/core';
 
 export default function InstanceDetails(props) {
-  const instanceDomain = props.instance.name + '.saucer.dev';
-  const instanceUrl = 'https://' + instanceDomain;
-  const graphqlUrl = instanceUrl + '/graphql';
-
-  async function graphQLFetcher(graphQLParams) {
-    const response = await fetch(graphqlUrl, {
-      method: 'post',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(graphQLParams)
-    });
-    return response.json();
-  }
-
   switch (props.instance.status) {
     case 'Pending':
     case 'Delayed':
@@ -72,55 +37,33 @@ export default function InstanceDetails(props) {
         </EmptyState>
       );
     case 'Success':
-      return (
-        <Fragment>
-          <EmptyStateWrapper p={2}>
-            <Typography variant="subtitle1">
-              Wordpress is running at{' '}
-              <Link
-                href={instanceUrl + '/wp-admin'}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {instanceDomain}
-                <Box
-                  component={FiArrowUpRight}
-                  ml={0.5}
-                  size="1em"
-                  style={{verticalAlign: -1}}
-                />
-              </Link>
-            </Typography>
-          </EmptyStateWrapper>
-          <Box mb={3}>
-            <Typography gutterBottom variant="h5">
-              GraphQL API
-            </Typography>
-            <CopyUrl url={graphqlUrl} />
-            <Box height={600} style={{boxSizing: 'content-box'}}>
-              <GraphiQL fetcher={graphQLFetcher} defaultQuery={defaultQuery} />
+      if (
+        !props.instance.subscription &&
+        true
+        // Date.now() > new Date(props.instance.expiresAt)
+      ) {
+        return (
+          <EmptyState image={bird}>
+            <Box mb={3}>
+              <Typography variant="h5" gutterBottom>
+                Your free trial is expired
+              </Typography>
+              <Typography>
+                Add a payment plan to regain access to your instance
+              </Typography>
             </Box>
-          </Box>
-          <Box mb={3}>
-            <Typography gutterBottom variant="h5">
-              Billing settings
-            </Typography>
-            {props.instance.subscription ? (
-              <SubscriptionDetails
-                subscription={props.instance.subscription}
-                defaultCard={props.defaultCard}
-              />
-            ) : (
-              <TrialDetails expiryDate={new Date(props.instance.expiresAt)} />
-            )}
-          </Box>
-          <Box mb={1}>
-            <Typography gutterBottom variant="h5">
-              Danger zone
-            </Typography>
-            <DeleteInstanceButton instance={props.instance} />
-          </Box>
-        </Fragment>
+            <Button size="large" color="primary" variant="contained">
+              Add payment plan
+            </Button>
+          </EmptyState>
+        );
+      }
+
+      return (
+        <ActiveInstance
+          instance={props.instance}
+          defaultCard={props.defaultCard}
+        />
       );
     default:
       return null;
