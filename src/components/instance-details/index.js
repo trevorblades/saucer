@@ -1,6 +1,6 @@
 import ActiveInstance from './active-instance';
-import AddPaymentPlanButton from './add-payment-plan-button';
 import EmptyState from '../empty-state';
+import PaymentPlanButton from './payment-plan-button';
 import PropTypes from 'prop-types';
 import React from 'react';
 import bird from '../../assets/bird.png';
@@ -52,7 +52,7 @@ export default function InstanceDetails(props) {
                 Add a payment plan to regain access to your instance
               </Typography>
             </Box>
-            <AddPaymentPlanButton
+            <PaymentPlanButton
               size="large"
               color="primary"
               variant="contained"

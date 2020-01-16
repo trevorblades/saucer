@@ -1,7 +1,9 @@
+import FormButton from '../form-button';
 import FormField from '../form-field';
 import LabeledSelect from '../labeled-select';
 import PasswordField from './password-field';
 import PaymentMethod from '../payment-method';
+import PlanButton, {PlanButtonContext} from '../plan-button';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useRef, useState} from 'react';
 import build from '../../assets/build.png';
@@ -21,13 +23,13 @@ import {FiUploadCloud} from 'react-icons/fi';
 import {
   INSTANCE_FRAGMENT,
   LIST_INSTANCES,
+  LIST_STRIPE_PLANS,
   UserContext,
   locales
 } from '../../utils';
 import {Link} from 'gatsby-theme-material-ui';
-import {PlanButton, PlanButtonContext, PlatformButton} from './form-button';
 import {gql, useMutation} from '@apollo/client';
-import {graphql, useStaticQuery} from 'gatsby';
+import {useStaticQuery} from 'gatsby';
 
 const CREATE_INSTANCE = gql`
   mutation CreateInstance(
@@ -54,28 +56,29 @@ const CREATE_INSTANCE = gql`
   ${INSTANCE_FRAGMENT}
 `;
 
+function PlatformButton({icon, label, caption, ...props}) {
+  return (
+    <FormButton {...props}>
+      <Box component={icon} mb={1} size={32} />
+      <Typography>{label}</Typography>
+      {caption && <Typography variant="caption">{caption}</Typography>}
+    </FormButton>
+  );
+}
+
+PlatformButton.propTypes = {
+  icon: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired,
+  caption: PropTypes.string
+};
+
 export default function InstanceForm(props) {
   const user = useContext(UserContext);
   const formRef = useRef(null);
   const [locale, setLocale] = useState('en_US');
-
-  const {allStripePlan} = useStaticQuery(
-    graphql`
-      {
-        allStripePlan(sort: {fields: amount}) {
-          nodes {
-            interval
-            amount
-            id
-          }
-        }
-      }
-    `
-  );
-
-  const [cheapestPlan] = allStripePlan.nodes;
+  const {allStripePlan} = useStaticQuery(LIST_STRIPE_PLANS);
   const [plan, setPlan] = useState(
-    props.isTrialDisabled ? cheapestPlan.id : null
+    props.isTrialDisabled ? allStripePlan.nodes[0].id : null
   );
 
   const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {

@@ -79,7 +79,10 @@ export default function ActiveInstance(props) {
             defaultCard={props.defaultCard}
           />
         ) : (
-          <TrialDetails expiryDate={new Date(props.instance.expiresAt)} />
+          <TrialDetails
+            defaultCard={props.defaultCard}
+            expiryDate={new Date(props.instance.expiresAt)}
+          />
         )}
       </Box>
       <Box mb={1}>
