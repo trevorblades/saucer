@@ -1,6 +1,7 @@
+import AddPaymentPlanButton from './add-payment-plan-button';
 import PropTypes from 'prop-types';
 import React, {Fragment} from 'react';
-import {Button, Typography} from '@material-ui/core';
+import {Typography} from '@material-ui/core';
 
 export default function TrialDetails(props) {
   return (
@@ -8,9 +9,7 @@ export default function TrialDetails(props) {
       <Typography gutterBottom>
         Free trial &bull; Expires {props.expiryDate.toLocaleString()}
       </Typography>
-      <Button variant="contained" color="primary">
-        Add payment plan
-      </Button>
+      <AddPaymentPlanButton variant="contained" color="primary" />
     </Fragment>
   );
 }

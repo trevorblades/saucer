@@ -3,7 +3,7 @@ import CenteredBox from './centered-box';
 import LogoTitle from './logo-title';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {Box, Typography} from '@material-ui/core';
+import {Box, Divider, Typography} from '@material-ui/core';
 import {ReactComponent as Favicon} from '../assets/favicon.svg';
 import {Link} from 'gatsby';
 import {Link as MuiLink} from 'gatsby-theme-material-ui';
@@ -45,14 +45,18 @@ export default function PageLayout(props) {
           </CenteredBox>
         </Box>
         {props.children}
-        <Box component="footer" mt="auto" bgcolor="black" color="white">
+        <Box component="footer" mt="auto" bgcolor="grey.100">
+          <Divider />
           <CenteredBox px={8} py={6} textAlign="center">
             <Box
               component={Favicon}
-              width={40}
+              width={42}
               display="block"
               mb={2}
               mx="auto"
+              borderRadius="50%"
+              borderColor="divider"
+              border={1}
             />
             <Typography display="block" variant="caption">
               &copy; {new Date().getFullYear()} Saucer

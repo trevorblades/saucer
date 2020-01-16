@@ -1,11 +1,12 @@
 import ActiveInstance from './active-instance';
+import AddPaymentPlanButton from './add-payment-plan-button';
 import EmptyState from '../empty-state';
 import PropTypes from 'prop-types';
 import React from 'react';
 import bird from '../../assets/bird.png';
 import error from '../../assets/error.png';
 import waiting from '../../assets/waiting.png';
-import {Box, Button, LinearProgress, Typography} from '@material-ui/core';
+import {Box, LinearProgress, Typography} from '@material-ui/core';
 
 export default function InstanceDetails(props) {
   switch (props.instance.status) {
@@ -51,9 +52,12 @@ export default function InstanceDetails(props) {
                 Add a payment plan to regain access to your instance
               </Typography>
             </Box>
-            <Button size="large" color="primary" variant="contained">
-              Add payment plan
-            </Button>
+            <AddPaymentPlanButton
+              size="large"
+              color="primary"
+              variant="contained"
+              defaultCard={props.defaultCard}
+            />
           </EmptyState>
         );
       }
