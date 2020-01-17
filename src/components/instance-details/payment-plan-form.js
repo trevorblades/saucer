@@ -1,36 +1,19 @@
 import DialogHeader from '../dialog-header';
 import PaymentMethod from '../payment-method';
-import PlanButton, {PlanButtonContext} from '../plan-button';
+import PlanButtons from '../plan-buttons';
 import PropTypes from 'prop-types';
-import React, {Fragment, useState} from 'react';
+import React, {Fragment} from 'react';
 import unlock from '../../assets/unlock.png';
 import {
   Box,
   Button,
   DialogActions,
   DialogContent,
-  Grid,
   Typography
 } from '@material-ui/core';
 import {Link} from 'gatsby-theme-material-ui';
-import {graphql, useStaticQuery} from 'gatsby';
 
 export default function PaymentPlanForm(props) {
-  const {allStripePlan} = useStaticQuery(
-    graphql`
-      {
-        allStripePlan(sort: {fields: amount}) {
-          nodes {
-            interval
-            amount
-            id
-          }
-        }
-      }
-    `
-  );
-
-  const [plan, setPlan] = useState(allStripePlan.nodes[0].id);
   return (
     <Fragment>
       <DialogHeader image={unlock}>Add a payment plan</DialogHeader>
@@ -38,19 +21,7 @@ export default function PaymentPlanForm(props) {
         {props.defaultCard ? (
           <Fragment>
             <Box mb={2}>
-              <PlanButtonContext.Provider value={{plan, setPlan}}>
-                <Grid container spacing={2}>
-                  {allStripePlan.nodes.map(plan => (
-                    <Grid item xs={6} key={plan.id}>
-                      <PlanButton
-                        value={plan.id}
-                        cost={`$${plan.amount / 100}`}
-                        label={`per ${plan.interval}`}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </PlanButtonContext.Provider>
+              <PlanButtons />
             </Box>
             <Typography gutterBottom variant="subtitle2">
               Payment method

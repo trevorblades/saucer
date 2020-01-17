@@ -3,7 +3,7 @@ import FormField from '../form-field';
 import LabeledSelect from '../labeled-select';
 import PasswordField from './password-field';
 import PaymentMethod from '../payment-method';
-import PlanButton, {PlanButtonContext} from '../plan-button';
+import PlanButtons, {PlanButton} from '../plan-buttons';
 import PropTypes from 'prop-types';
 import React, {Fragment, useContext, useRef, useState} from 'react';
 import build from '../../assets/build.png';
@@ -28,7 +28,6 @@ import {
 } from '../../utils';
 import {Link} from 'gatsby-theme-material-ui';
 import {gql, useMutation} from '@apollo/client';
-import {graphql, useStaticQuery} from 'gatsby';
 
 const CREATE_INSTANCE = gql`
   mutation CreateInstance(
@@ -75,28 +74,10 @@ export default function InstanceForm(props) {
   const user = useContext(UserContext);
   const formRef = useRef(null);
   const [locale, setLocale] = useState('en_US');
-  const {allStripePlan} = useStaticQuery(
-    graphql`
-      {
-        allStripePlan(sort: {fields: amount}) {
-          nodes {
-            interval
-            amount
-            id
-          }
-        }
-      }
-    `
-  );
-
-  const [plan, setPlan] = useState(
-    props.isTrialDisabled ? allStripePlan.nodes[0].id : null
-  );
 
   const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {
     variables: {
-      locale,
-      plan
+      locale
     },
     onError() {
       // scroll to the top of the form to show the error message
@@ -127,7 +108,8 @@ export default function InstanceForm(props) {
       adminPassword,
       woocommerce,
       acf,
-      polylang
+      polylang,
+      plan
     } = event.target;
     createInstance({
       variables: {
@@ -139,7 +121,8 @@ export default function InstanceForm(props) {
           woocommerce: woocommerce.checked,
           acf: acf.checked,
           polylang: polylang.checked
-        }
+        },
+        plan: plan.value || null
       }
     });
   }
@@ -277,48 +260,33 @@ export default function InstanceForm(props) {
         </Box>
         <Typography variant="subtitle2">Payment options</Typography>
         <Box my={1.5}>
-          <PlanButtonContext.Provider value={{plan, setPlan}}>
-            <Grid container spacing={2}>
-              <Grid item xs={4}>
-                <PlanButton
-                  disabled={props.isTrialDisabled}
-                  value={null}
-                  cost="Free"
-                  label="14-day trial"
-                />
-              </Grid>
-              {allStripePlan.nodes.map(plan => (
-                <Grid item xs={4} key={plan.id}>
-                  <PlanButton
-                    value={plan.id}
-                    cost={`$${plan.amount / 100}`}
-                    label={`per ${plan.interval}`}
-                  />
-                </Grid>
-              ))}
+          <PlanButtons defaultValue={props.isTrialDisabled ? undefined : ''}>
+            <Grid item xs={4}>
+              <PlanButton
+                disabled={props.isTrialDisabled}
+                value=""
+                cost="Free"
+                label="14-day trial"
+              />
             </Grid>
-          </PlanButtonContext.Provider>
+          </PlanButtons>
         </Box>
         <Typography gutterBottom variant="body2" color="textSecondary">
           Free trial instances are available to users with no existing
           instances.
         </Typography>
-        {plan && (
-          <Box mt={2} mb={1}>
-            <Typography gutterBottom variant="subtitle2">
-              Payment method
-            </Typography>
-            <Typography>
-              {props.defaultCard ? (
-                <PaymentMethod card={props.defaultCard}>
-                  (default)
-                </PaymentMethod>
-              ) : (
-                <Link to="/dashboard/billing">Add a payment method</Link>
-              )}
-            </Typography>
-          </Box>
-        )}
+        <Box mt={2} mb={1}>
+          <Typography gutterBottom variant="subtitle2">
+            Payment method
+          </Typography>
+          <Typography>
+            {props.defaultCard ? (
+              <PaymentMethod card={props.defaultCard}>(default)</PaymentMethod>
+            ) : (
+              <Link to="/dashboard/billing">Add a payment method</Link>
+            )}
+          </Typography>
+        </Box>
       </Box>
       <Box position="sticky" bottom={0} bgcolor="background.paper">
         <CardActionArea disabled={loading} type="submit">
