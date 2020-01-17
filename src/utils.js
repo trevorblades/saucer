@@ -1,7 +1,6 @@
 import decode from 'jwt-decode';
 import {createContext} from 'react';
 import {gql} from '@apollo/client';
-import {graphql} from 'gatsby';
 
 export function userFromToken(token) {
   try {
@@ -57,18 +56,6 @@ export const LIST_CARDS = gql`
     }
   }
   ${CARD_FRAGMENT}
-`;
-
-export const LIST_STRIPE_PLANS = graphql`
-  {
-    allStripePlan(sort: {fields: amount}) {
-      nodes {
-        interval
-        amount
-        id
-      }
-    }
-  }
 `;
 
 export const locales = {

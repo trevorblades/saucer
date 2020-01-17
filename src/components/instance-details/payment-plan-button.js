@@ -20,7 +20,7 @@ export default function PaymentPlanButton({defaultCard, ...props}) {
         Add payment plan
       </Button>
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
-        <PaymentPlanForm defaultCard={defaultCard} />
+        <PaymentPlanForm defaultCard={defaultCard} onCancel={closeDialog} />
       </Dialog>
     </Fragment>
   );

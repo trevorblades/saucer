@@ -23,13 +23,12 @@ import {FiUploadCloud} from 'react-icons/fi';
 import {
   INSTANCE_FRAGMENT,
   LIST_INSTANCES,
-  LIST_STRIPE_PLANS,
   UserContext,
   locales
 } from '../../utils';
 import {Link} from 'gatsby-theme-material-ui';
 import {gql, useMutation} from '@apollo/client';
-import {useStaticQuery} from 'gatsby';
+import {graphql, useStaticQuery} from 'gatsby';
 
 const CREATE_INSTANCE = gql`
   mutation CreateInstance(
@@ -76,7 +75,20 @@ export default function InstanceForm(props) {
   const user = useContext(UserContext);
   const formRef = useRef(null);
   const [locale, setLocale] = useState('en_US');
-  const {allStripePlan} = useStaticQuery(LIST_STRIPE_PLANS);
+  const {allStripePlan} = useStaticQuery(
+    graphql`
+      {
+        allStripePlan(sort: {fields: amount}) {
+          nodes {
+            interval
+            amount
+            id
+          }
+        }
+      }
+    `
+  );
+
   const [plan, setPlan] = useState(
     props.isTrialDisabled ? allStripePlan.nodes[0].id : null
   );

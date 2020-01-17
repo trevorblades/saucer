@@ -5,39 +5,53 @@ import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
 import unlock from '../../assets/unlock.png';
 import {
+  Box,
   Button,
   DialogActions,
   DialogContent,
   Grid,
   Typography
 } from '@material-ui/core';
-import {LIST_STRIPE_PLANS} from '../../utils';
 import {Link} from 'gatsby-theme-material-ui';
-import {useStaticQuery} from 'gatsby';
+import {graphql, useStaticQuery} from 'gatsby';
 
 export default function PaymentPlanForm(props) {
-  const {allStripePlan} = useStaticQuery(LIST_STRIPE_PLANS);
-  const [plan, setPlan] = useState(allStripePlan.nodes[0]);
+  const {allStripePlan} = useStaticQuery(
+    graphql`
+      {
+        allStripePlan(sort: {fields: amount}) {
+          nodes {
+            interval
+            amount
+            id
+          }
+        }
+      }
+    `
+  );
 
+  const [plan, setPlan] = useState(allStripePlan.nodes[0].id);
   return (
     <Fragment>
       <DialogHeader image={unlock}>Add a payment plan</DialogHeader>
       <DialogContent>
         {props.defaultCard ? (
           <Fragment>
-            <PlanButtonContext.Provider value={{plan, setPlan}}>
-              <Grid container spacing={2}>
-                {allStripePlan.nodes.map(plan => (
-                  <Grid item xs={6} key={plan.id}>
-                    <PlanButton
-                      value={plan.id}
-                      cost={`$${plan.amount / 100}`}
-                      label={`per ${plan.interval}`}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </PlanButtonContext.Provider>
+            <Box mb={2}>
+              <PlanButtonContext.Provider value={{plan, setPlan}}>
+                <Grid container spacing={2}>
+                  {allStripePlan.nodes.map(plan => (
+                    <Grid item xs={6} key={plan.id}>
+                      <PlanButton
+                        value={plan.id}
+                        cost={`$${plan.amount / 100}`}
+                        label={`per ${plan.interval}`}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </PlanButtonContext.Provider>
+            </Box>
             <Typography gutterBottom variant="subtitle2">
               Payment method
             </Typography>
