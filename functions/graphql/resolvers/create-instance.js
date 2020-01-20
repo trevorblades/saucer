@@ -1,4 +1,4 @@
-const {AuthenticationError, UserInputError} = require('apollo-server-lambda');
+const {UserInputError} = require('apollo-server-lambda');
 const {
   adjectives,
   animals,
@@ -7,20 +7,13 @@ const {
 const {query} = require('faunadb');
 const {generate} = require('randomstring');
 const {outdent} = require('outdent');
-const {paginateInstancesForUser} = require('../utils');
-
-const PAYMENT_METHOD_ERROR =
-  'You selected a paid plan. Add a valid payment method in your billing settings to create this instance.';
+const {paginateInstancesForUser, createSubscriptionItem} = require('../utils');
 
 module.exports = async function createInstance(
   parent,
   args,
   {user, ssm, stripe, client}
 ) {
-  if (!user) {
-    throw new AuthenticationError('Unauthorized');
-  }
-
   let expiresAt;
   let subscriptionItem;
   if (!args.plan) {
@@ -36,44 +29,7 @@ module.exports = async function createInstance(
     expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 14);
   } else {
-    // if the user doesn't have a customer id, they need to add a card
-    if (!user.data.customer_id) {
-      throw new UserInputError(PAYMENT_METHOD_ERROR);
-    }
-
-    // if they have no cards, they need to create one
-    const sources = await stripe.customers.listSources(user.data.customer_id);
-    if (!sources.data.length) {
-      throw new UserInputError(PAYMENT_METHOD_ERROR);
-    }
-
-    const subscriptions = await stripe.subscriptions.list({
-      customer: user.data.customer_id
-    });
-
-    subscriptionItem = subscriptions.data
-      .flatMap(subscription => subscription.items.data)
-      .find(item => item.plan.id === args.plan);
-
-    if (subscriptionItem) {
-      // if a sub item exists for this plan, increment the quantity
-      await stripe.subscriptionItems.update(subscriptionItem.id, {
-        quantity: subscriptionItem.quantity + 1
-      });
-    } else {
-      // otherwise create a new subscription with a quantity of 1
-      const subscription = await stripe.subscriptions.create({
-        customer: user.data.customer_id,
-        items: [
-          {
-            plan: args.plan,
-            quantity: 1
-          }
-        ]
-      });
-
-      subscriptionItem = subscription.items.data[0];
-    }
+    subscriptionItem = await createSubscriptionItem(stripe, user, args.plan);
   }
 
   // generate a subdomain: part english words, part hex color code
@@ -231,7 +187,7 @@ module.exports = async function createInstance(
     })
     .promise();
 
-  const instance = await client.query(
+  return client.query(
     query.Create(query.Collection('wp_instances'), {
       data: {
         name: subdomain,
@@ -242,6 +198,4 @@ module.exports = async function createInstance(
       }
     })
   );
-
-  return instance;
 };

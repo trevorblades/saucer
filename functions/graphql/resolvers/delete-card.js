@@ -1,10 +1,6 @@
-const {AuthenticationError, UserInputError} = require('apollo-server-lambda');
+const {UserInputError} = require('apollo-server-lambda');
 
 module.exports = async function deleteCard(parent, args, {user, stripe}) {
-  if (!user) {
-    throw new AuthenticationError('Unauthorized');
-  }
-
   const customer = user.data.customer_id;
   const sources = await stripe.customers.listSources(customer);
   if (sources.data.length === 1) {

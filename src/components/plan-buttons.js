@@ -50,7 +50,11 @@ export default function PlanButtons(props) {
   return (
     <PlanButtonContext.Provider value={{plan, setPlan}}>
       <Grid container spacing={2}>
-        {props.children}
+        {props.children && (
+          <Grid item xs={4}>
+            {props.children}
+          </Grid>
+        )}
         {allStripePlan.nodes.map(plan => (
           <Grid item xs={props.children ? 4 : 6} key={plan.id}>
             <PlanButton

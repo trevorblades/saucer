@@ -261,14 +261,12 @@ export default function InstanceForm(props) {
         <Typography variant="subtitle2">Payment options</Typography>
         <Box my={1.5}>
           <PlanButtons defaultValue={props.isTrialDisabled ? undefined : ''}>
-            <Grid item xs={4}>
-              <PlanButton
-                disabled={props.isTrialDisabled}
-                value=""
-                cost="Free"
-                label="14-day trial"
-              />
-            </Grid>
+            <PlanButton
+              disabled={props.isTrialDisabled}
+              value=""
+              cost="Free"
+              label="14-day trial"
+            />
           </PlanButtons>
         </Box>
         <Typography gutterBottom variant="body2" color="textSecondary">

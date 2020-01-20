@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_DEV);
 const {SSM} = require('aws-sdk');
-const {ApolloServer} = require('apollo-server-lambda');
+const {AuthenticationError, ApolloServer} = require('apollo-server-lambda');
 const {Client, query} = require('faunadb');
 const {resolvers, typeDefs} = require('./schema');
 
@@ -28,26 +28,22 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   async context({event}) {
-    let user;
-    if (event.headers.authorization) {
+    try {
       const matches = event.headers.authorization.match(/bearer (\S+)/i);
-      try {
-        const {sub} = jwt.verify(matches[1], TOKEN_SECRET);
-        user = await client.query(
-          query.Get(query.Ref(query.Collection('users'), sub))
-        );
-      } catch (error) {
-        console.log(error);
-        // let errors pass
-      }
-    }
+      const {sub} = jwt.verify(matches[1], TOKEN_SECRET);
+      const user = await client.query(
+        query.Get(query.Ref(query.Collection('users'), sub))
+      );
 
-    return {
-      user,
-      ssm,
-      client,
-      stripe
-    };
+      return {
+        user,
+        ssm,
+        client,
+        stripe
+      };
+    } catch (error) {
+      throw new AuthenticationError('Unauthorized');
+    }
   }
 });
 

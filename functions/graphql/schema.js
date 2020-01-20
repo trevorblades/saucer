@@ -1,16 +1,12 @@
-const logIn = require('./resolvers/log-in');
 const createInstance = require('./resolvers/create-instance');
 const deleteInstance = require('./resolvers/delete-instance');
+const updateInstance = require('./resolvers/update-instance');
 const createCard = require('./resolvers/create-card');
 const deleteCard = require('./resolvers/delete-card');
-const {
-  AuthenticationError,
-  ForbiddenError,
-  gql
-} = require('apollo-server-lambda');
+const {gql} = require('apollo-server-lambda');
 const {query} = require('faunadb');
 const {GraphQLDateTime} = require('graphql-iso-date');
-const {paginateInstancesForUser} = require('./utils');
+const {findInstance, paginateInstancesForUser} = require('./utils');
 
 exports.typeDefs = gql`
   scalar DateTime
@@ -23,7 +19,6 @@ exports.typeDefs = gql`
   }
 
   type Mutation {
-    logIn(code: String!): String
     createInstance(
       title: String!
       locale: String!
@@ -33,6 +28,7 @@ exports.typeDefs = gql`
       plugins: PluginsInput!
       plan: String
     ): Instance
+    updateInstance(id: ID!, plan: String!): Instance
     deleteInstance(id: ID!): Instance
     createCard(source: String!, isDefault: Boolean): Card
     deleteCard(id: ID!): Card
@@ -102,26 +98,9 @@ exports.resolvers = {
     }
   },
   Query: {
-    async instance(parent, args, {user, client}) {
-      if (!user) {
-        throw new AuthenticationError('Unauthorized');
-      }
-
-      const instance = await client.query(
-        query.Get(query.Ref(query.Collection('wp_instances'), args.id))
-      );
-
-      if (!instance) {
-        throw new ForbiddenError('You do not have access to this instance');
-      }
-
-      return instance;
-    },
+    instance: (parent, args, {user, client}) =>
+      findInstance(client, user, args.id),
     async instances(parent, args, {client, user}) {
-      if (!user) {
-        throw new AuthenticationError('Unauthorized');
-      }
-
       const {data} = await client.query(
         query.Map(
           paginateInstancesForUser(user),
@@ -132,10 +111,6 @@ exports.resolvers = {
       return data;
     },
     async defaultCard(parent, args, {user, stripe}) {
-      if (!user) {
-        throw new AuthenticationError('Unauthorized');
-      }
-
       const customerId = user.data.customer_id;
       if (!customerId) {
         return null;
@@ -148,10 +123,6 @@ exports.resolvers = {
       );
     },
     async cards(parent, args, {user, stripe}) {
-      if (!user) {
-        throw new AuthenticationError('Unauthorized');
-      }
-
       const customerId = user.data.customer_id;
       if (!customerId) {
         return [];
@@ -162,8 +133,8 @@ exports.resolvers = {
     }
   },
   Mutation: {
-    logIn,
     createInstance,
+    updateInstance,
     deleteInstance,
     createCard,
     deleteCard

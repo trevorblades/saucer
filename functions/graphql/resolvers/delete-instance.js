@@ -1,24 +1,13 @@
-const {AuthenticationError, ForbiddenError} = require('apollo-server-lambda');
+const {findInstance} = require('../utils');
+const {outdent} = require('outdent');
 const {query} = require('faunadb');
-const outdent = require('outdent');
 
 module.exports = async function deleteInstance(
   parent,
   args,
   {user, client, stripe, ssm}
 ) {
-  if (!user) {
-    throw new AuthenticationError('Unauthorized');
-  }
-
-  const instance = await client.query(
-    query.Get(query.Ref(query.Collection('wp_instances'), args.id))
-  );
-
-  if (instance.data.user_id !== user.data.id) {
-    throw new ForbiddenError('You do not have access to this instance');
-  }
-
+  const instance = await findInstance(client, user, args.id);
   if ('subscription_item_id' in instance.data) {
     // adjust the associated subscription
     const subscriptionItem = await stripe.subscriptionItems.retrieve(

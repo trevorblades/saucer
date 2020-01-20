@@ -1,18 +1,31 @@
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const {parse} = require('querystring');
-const {query} = require('faunadb');
+const {Client, query} = require('faunadb');
 
 const {
   NETLIFY_DEV,
   TOKEN_SECRET,
+  FAUNADB_SERVER_SECRET,
   GATSBY_GITHUB_CLIENT_ID_PROD,
   GATSBY_GITHUB_CLIENT_ID_DEV,
   GITHUB_CLIENT_SECRET_DEV,
   GITHUB_CLIENT_SECRET_PROD
 } = process.env;
 
-module.exports = async function logIn(parent, args, {client}) {
+const client = new Client({
+  secret: FAUNADB_SERVER_SECRET
+});
+
+exports.handler = async event => {
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: 'Method Not Allowed'
+    };
+  }
+
+  const {code} = JSON.parse(event.body);
   const accessToken = await axios
     .post('https://github.com/login/oauth/access_token', {
       client_id: NETLIFY_DEV
@@ -21,7 +34,7 @@ module.exports = async function logIn(parent, args, {client}) {
       client_secret: NETLIFY_DEV
         ? GITHUB_CLIENT_SECRET_DEV
         : GITHUB_CLIENT_SECRET_PROD,
-      code: args.code
+      code
     })
     .then(({data}) => {
       const {error, error_description, access_token} = parse(data);
@@ -66,7 +79,10 @@ module.exports = async function logIn(parent, args, {client}) {
     );
   }
 
-  return jwt.sign(user.data, TOKEN_SECRET, {
-    subject: user.ref.id
-  });
+  return {
+    statusCode: 200,
+    body: jwt.sign(user.data, TOKEN_SECRET, {
+      subject: user.ref.id
+    })
+  };
 };

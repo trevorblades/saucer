@@ -1,4 +1,3 @@
-const {AuthenticationError} = require('apollo-server-lambda');
 const {query} = require('faunadb');
 
 module.exports = async function createCard(
@@ -6,10 +5,6 @@ module.exports = async function createCard(
   args,
   {user, stripe, client}
 ) {
-  if (!user) {
-    throw new AuthenticationError('Unauthorized');
-  }
-
   let customerId = user.data.customer_id;
   if (!customerId) {
     const customer = await stripe.customers.create({
