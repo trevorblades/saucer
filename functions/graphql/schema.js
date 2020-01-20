@@ -82,12 +82,18 @@ exports.resolvers = {
         .promise();
       return data.Status;
     },
-    expiresAt: instance => instance.data.expires_at / 1000,
+    expiresAt: instance => {
+      const {expires_at} = instance.data;
+      return expires_at && expires_at / 1000;
+    },
     updatedAt: instance => instance.ts / 1000000,
-    subscription: (instance, args, {stripe}) =>
-      instance.data.subscription_item_id
-        ? stripe.subscriptionItems.retrieve(instance.data.subscription_item_id)
-        : null
+    subscription: (instance, args, {stripe}) => {
+      const {subscription_item_id} = instance.data;
+      return (
+        subscription_item_id &&
+        stripe.subscriptionItems.retrieve(subscription_item_id)
+      );
+    }
   },
   Card: {
     expMonth: card => card.exp_month,
