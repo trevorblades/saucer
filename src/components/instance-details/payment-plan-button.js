@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
 import {Button, Dialog} from '@material-ui/core';
 
-export default function PaymentPlanButton({defaultCard, ...props}) {
+export default function PaymentPlanButton(props) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   function openDialog() {
@@ -16,14 +16,20 @@ export default function PaymentPlanButton({defaultCard, ...props}) {
 
   return (
     <Fragment>
-      <Button {...props} onClick={openDialog}>
+      <Button
+        variant="contained"
+        color="primary"
+        size={props.size}
+        onClick={openDialog}
+      >
         Add payment plan
       </Button>
       <Dialog fullWidth maxWidth="xs" open={dialogOpen} onClose={closeDialog}>
         <PaymentPlanForm
           instance={props.instance}
-          defaultCard={defaultCard}
+          defaultCard={props.defaultCard}
           onCancel={closeDialog}
+          onCompleted={props.onCompleted}
         />
       </Dialog>
     </Fragment>
@@ -32,5 +38,7 @@ export default function PaymentPlanButton({defaultCard, ...props}) {
 
 PaymentPlanButton.propTypes = {
   instance: PropTypes.object.isRequired,
-  defaultCard: PropTypes.object
+  defaultCard: PropTypes.object,
+  size: PropTypes.string,
+  onCompleted: PropTypes.func
 };

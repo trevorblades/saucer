@@ -4,19 +4,17 @@ import PaymentMethod from '../../components/payment-method';
 import QueryTable from '../../components/query-table';
 import React, {Fragment, useState} from 'react';
 import StripeElementsProvider from '../../components/stripe-elements-provider';
+import SuccessToast from '../../components/success-toast';
 import dog from '../../assets/dog.png';
 import {
   Chip,
   Dialog,
-  IconButton,
-  Snackbar,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow
 } from '@material-ui/core';
-import {FiX} from 'react-icons/fi';
 import {Helmet} from 'react-helmet';
 import {LIST_CARDS} from '../../utils';
 
@@ -39,13 +37,6 @@ export default function Billing() {
   function handleCompleted() {
     closeDialog();
     setSnackbarOpen(true);
-  }
-
-  function handleSnackbarClose(event, reason) {
-    if (reason === 'clickaway') {
-      return;
-    }
-    closeSnackbar();
   }
 
   return (
@@ -110,19 +101,9 @@ export default function Billing() {
           </Dialog>
         )}
       </QueryTable>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        autoHideDuration={3000}
-        action={
-          <IconButton onClick={closeSnackbar} size="small" color="inherit">
-            <FiX size={20} />
-          </IconButton>
-        }
+      <SuccessToast
         open={snackbarOpen}
-        onClose={handleSnackbarClose}
+        onClose={closeSnackbar}
         message="Card added 🎉"
       />
     </Fragment>

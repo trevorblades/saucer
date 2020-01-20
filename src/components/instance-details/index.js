@@ -54,8 +54,7 @@ export default function InstanceDetails(props) {
             </Box>
             <PaymentPlanButton
               size="large"
-              color="primary"
-              variant="contained"
+              instance={props.instance}
               defaultCard={props.defaultCard}
             />
           </EmptyState>

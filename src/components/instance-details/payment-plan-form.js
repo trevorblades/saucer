@@ -27,6 +27,7 @@ const UPDATE_INSTANCE = gql`
 
 export default function PaymentPlanForm(props) {
   const [updateInstance, {loading, error}] = useMutation(UPDATE_INSTANCE, {
+    onCompleted: props.onCompleted,
     variables: {
       id: props.instance.id
     }
@@ -88,5 +89,6 @@ export default function PaymentPlanForm(props) {
 PaymentPlanForm.propTypes = {
   defaultCard: PropTypes.object,
   instance: PropTypes.object.isRequired,
-  onCancel: PropTypes.func.isRequired
+  onCancel: PropTypes.func.isRequired,
+  onCompleted: PropTypes.func
 };

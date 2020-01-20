@@ -2,8 +2,9 @@ import CopyUrl from './copy-url';
 import DeleteInstanceButton from './delete-instance-button';
 import GraphiQL from 'graphiql';
 import PropTypes from 'prop-types';
-import React, {Fragment} from 'react';
+import React, {Fragment, useState} from 'react';
 import SubscriptionDetails from './subscription-details';
+import SuccessToast from '../success-toast';
 import TrialDetails from './trial-details';
 import {Box, Link, Typography} from '@material-ui/core';
 import {EmptyStateWrapper} from '../empty-state';
@@ -27,6 +28,8 @@ const defaultQuery = outdent`
 `;
 
 export default function ActiveInstance(props) {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
   const instanceDomain = props.instance.name + '.saucer.dev';
   const instanceUrl = 'https://' + instanceDomain;
   const graphqlUrl = instanceUrl + '/graphql';
@@ -38,6 +41,14 @@ export default function ActiveInstance(props) {
       body: JSON.stringify(graphQLParams)
     });
     return response.json();
+  }
+
+  function openSnackbar() {
+    setSnackbarOpen(true);
+  }
+
+  function closeSnackbar() {
+    setSnackbarOpen(false);
   }
 
   return (
@@ -83,6 +94,7 @@ export default function ActiveInstance(props) {
             instance={props.instance}
             defaultCard={props.defaultCard}
             expiryDate={new Date(props.instance.expiresAt)}
+            onPaymentPlanCompleted={openSnackbar}
           />
         )}
       </Box>
@@ -92,6 +104,11 @@ export default function ActiveInstance(props) {
         </Typography>
         <DeleteInstanceButton instance={props.instance} />
       </Box>
+      <SuccessToast
+        open={snackbarOpen}
+        onClose={closeSnackbar}
+        message="Payment plan added 💯"
+      />
     </Fragment>
   );
 }

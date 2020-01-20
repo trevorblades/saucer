@@ -12,8 +12,7 @@ export default function TrialDetails(props) {
       <PaymentPlanButton
         instance={props.instance}
         defaultCard={props.defaultCard}
-        variant="contained"
-        color="primary"
+        onCompleted={props.onPaymentPlanCompleted}
       />
     </Fragment>
   );
@@ -22,5 +21,6 @@ export default function TrialDetails(props) {
 TrialDetails.propTypes = {
   expiryDate: PropTypes.instanceOf(Date).isRequired,
   defaultCard: PropTypes.object,
-  instance: PropTypes.object.isRequired
+  instance: PropTypes.object.isRequired,
+  onPaymentPlanCompleted: PropTypes.func.isRequired
 };
