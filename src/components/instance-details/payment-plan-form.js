@@ -12,16 +12,34 @@ import {
   DialogContentText,
   Typography
 } from '@material-ui/core';
+import {INSTANCE_DETAILS_FRAGMENT} from '../../utils';
 import {Link} from 'gatsby-theme-material-ui';
-import {useMutation} from '@apollo/client';
+import {gql, useMutation} from '@apollo/client';
+
+const UPDATE_INSTANCE = gql`
+  mutation UpdateInstance($id: ID!, $plan: String!) {
+    updateInstance(id: $id, plan: $plan) {
+      ...InstanceDetailsFragment
+    }
+  }
+  ${INSTANCE_DETAILS_FRAGMENT}
+`;
 
 export default function PaymentPlanForm(props) {
-  const [updateInstance, {loading, error}] = useMutation();
+  const [updateInstance, {loading, error}] = useMutation(UPDATE_INSTANCE, {
+    variables: {
+      id: props.instance.id
+    }
+  });
 
   function handleSubmit(event) {
     event.preventDefault();
 
-    console.log();
+    updateInstance({
+      variables: {
+        plan: event.target.plan.value
+      }
+    });
   }
 
   return (
@@ -69,5 +87,6 @@ export default function PaymentPlanForm(props) {
 
 PaymentPlanForm.propTypes = {
   defaultCard: PropTypes.object,
+  instance: PropTypes.object.isRequired,
   onCancel: PropTypes.func.isRequired
 };

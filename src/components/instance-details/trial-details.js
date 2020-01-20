@@ -10,6 +10,7 @@ export default function TrialDetails(props) {
         Free trial &bull; Expires {props.expiryDate.toLocaleString()}
       </Typography>
       <PaymentPlanButton
+        instance={props.instance}
         defaultCard={props.defaultCard}
         variant="contained"
         color="primary"
@@ -20,5 +21,6 @@ export default function TrialDetails(props) {
 
 TrialDetails.propTypes = {
   expiryDate: PropTypes.instanceOf(Date).isRequired,
-  defaultCard: PropTypes.object
+  defaultCard: PropTypes.object,
+  instance: PropTypes.object.isRequired
 };

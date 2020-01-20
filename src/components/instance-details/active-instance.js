@@ -80,6 +80,7 @@ export default function ActiveInstance(props) {
           />
         ) : (
           <TrialDetails
+            instance={props.instance}
             defaultCard={props.defaultCard}
             expiryDate={new Date(props.instance.expiresAt)}
           />

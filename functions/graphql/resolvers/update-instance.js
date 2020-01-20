@@ -16,6 +16,7 @@ module.exports = async function updateInstance(
   return client.query(
     query.Update(instance.ref, {
       data: {
+        expires_at: null,
         subscription_item_id: subscriptionItem.id
       }
     })

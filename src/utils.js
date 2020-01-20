@@ -25,6 +25,20 @@ export const INSTANCE_FRAGMENT = gql`
   }
 `;
 
+export const INSTANCE_DETAILS_FRAGMENT = gql`
+  fragment InstanceDetailsFragment on Instance {
+    ...InstanceFragment
+    expiresAt
+    subscription {
+      plan {
+        amount
+        interval
+      }
+    }
+  }
+  ${INSTANCE_FRAGMENT}
+`;
+
 export const LIST_INSTANCES = gql`
   {
     instances {

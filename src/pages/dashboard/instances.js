@@ -4,27 +4,20 @@ import PropTypes from 'prop-types';
 import React, {Fragment, useEffect} from 'react';
 import {Box, Typography} from '@material-ui/core';
 import {Helmet} from 'react-helmet';
-import {INSTANCE_FRAGMENT} from '../../utils';
+import {INSTANCE_DETAILS_FRAGMENT} from '../../utils';
 import {gql, useQuery} from '@apollo/client';
 
 const GET_INSTANCE = gql`
   query GetInstance($id: ID!) {
     instance(id: $id) {
-      ...InstanceFragment
-      expiresAt
-      subscription {
-        plan {
-          amount
-          interval
-        }
-      }
+      ...InstanceDetailsFragment
     }
     defaultCard {
       last4
       brand
     }
   }
-  ${INSTANCE_FRAGMENT}
+  ${INSTANCE_DETAILS_FRAGMENT}
 `;
 
 export default function Instances(props) {
