@@ -8,11 +8,12 @@ import {Box} from '@material-ui/core';
 
 function getIconForBrand(brand) {
   switch (brand) {
-    case 'Visa':
+    case 'visa':
       return visaIcon;
-    case 'MasterCard':
+    case 'mastercard':
       return mastercardIcon;
-    case 'American Express':
+    case 'american express':
+    case 'amex':
       return amexIcon;
     default:
       return defaultIcon;
@@ -25,7 +26,7 @@ export default function PaymentMethod(props) {
     <Box display="flex" alignItems="center" component="span">
       <Box
         component="img"
-        src={getIconForBrand(brand)}
+        src={getIconForBrand(brand.toLowerCase())}
         width="2em"
         title={brand}
       />

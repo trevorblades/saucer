@@ -15,6 +15,7 @@ exports.typeDefs = gql`
     instance(id: ID!): Instance
     instances: [Instance]
     cards: [Card]
+    payments: [Payment]
     defaultCard: Card
   }
 
@@ -62,6 +63,13 @@ exports.typeDefs = gql`
     plan: Plan
   }
 
+  type Payment {
+    id: ID
+    amount: Int
+    card: Card
+    created: DateTime
+  }
+
   type Plan {
     amount: Int
     interval: String
@@ -103,6 +111,9 @@ exports.resolvers = {
       return card.id === customer.default_source;
     }
   },
+  Payment: {
+    card: payment => payment.payment_method_details.card
+  },
   Query: {
     instance: (parent, args, {user, client}) =>
       findInstance(client, user, args.id),
@@ -117,24 +128,33 @@ exports.resolvers = {
       return data;
     },
     async defaultCard(parent, args, {user, stripe}) {
-      const customerId = user.data.customer_id;
-      if (!customerId) {
+      const {customer_id} = user.data;
+      if (!customer_id) {
         return null;
       }
 
-      const customer = await stripe.customers.retrieve(customerId);
+      const customer = await stripe.customers.retrieve(customer_id);
       return (
         customer.default_source &&
         stripe.customers.retrieveSource(customer.id, customer.default_source)
       );
     },
     async cards(parent, args, {user, stripe}) {
-      const customerId = user.data.customer_id;
-      if (!customerId) {
+      const {customer_id} = user.data;
+      if (!customer_id) {
         return [];
       }
 
-      const response = await stripe.customers.listSources(customerId);
+      const response = await stripe.customers.listSources(customer_id);
+      return response.data;
+    },
+    async payments(parent, args, {user, stripe}) {
+      const customer = user.data.customer_id;
+      if (!customer) {
+        return [];
+      }
+
+      const response = await stripe.charges.list({customer});
       return response.data;
     }
   },

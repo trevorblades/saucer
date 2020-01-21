@@ -1,5 +1,6 @@
 import CardActions from '../../components/card-actions';
 import CardForm from '../../components/card-form';
+import PaymentHistoryTable from '../../components/payment-history-table';
 import PaymentMethod from '../../components/payment-method';
 import QueryTable from '../../components/query-table';
 import React, {Fragment, useState} from 'react';
@@ -7,13 +8,15 @@ import StripeElementsProvider from '../../components/stripe-elements-provider';
 import SuccessToast from '../../components/success-toast';
 import dog from '../../assets/dog.png';
 import {
+  Box,
   Chip,
   Dialog,
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableRow
+  TableRow,
+  Typography
 } from '@material-ui/core';
 import {Helmet} from 'react-helmet';
 import {LIST_CARDS} from '../../utils';
@@ -101,6 +104,12 @@ export default function Billing() {
           </Dialog>
         )}
       </QueryTable>
+      <Box mt={4}>
+        <Typography paragraph variant="h4">
+          Payment history
+        </Typography>
+        <PaymentHistoryTable />
+      </Box>
       <SuccessToast
         open={snackbarOpen}
         onClose={closeSnackbar}
