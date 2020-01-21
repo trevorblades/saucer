@@ -15,30 +15,16 @@ export default function InstanceActions(props) {
   return (
     <Fragment>
       <ActionMenu>
-        {closeMenu => {
-          const menuItems = [
+        {closeMenu => (
+          <div>
             <MenuItem
-              key="details"
               component={Link}
               to={`/dashboard/instances/${props.instance.id}`}
             >
               Instance details
-            </MenuItem>,
-            <MenuItem
-              key="delete"
-              onClick={() => {
-                closeMenu();
-                setDialogOpen(true);
-              }}
-            >
-              Delete instance
             </MenuItem>
-          ];
-
-          if (props.instance.status === 'Success') {
-            menuItems.push(
+            {props.instance.status === 'Success' && (
               <MenuItem
-                key="wordpress"
                 component="a"
                 href={`https://${props.instance.name}.saucer.dev/wp-admin`}
                 target="_blank"
@@ -46,11 +32,17 @@ export default function InstanceActions(props) {
               >
                 Go to Wordpress
               </MenuItem>
-            );
-          }
-
-          return menuItems;
-        }}
+            )}
+            <MenuItem
+              onClick={() => {
+                closeMenu();
+                setDialogOpen(true);
+              }}
+            >
+              Delete instance
+            </MenuItem>
+          </div>
+        )}
       </ActionMenu>
       <DeleteInstanceDialog
         instance={props.instance}

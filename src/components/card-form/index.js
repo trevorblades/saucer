@@ -13,7 +13,12 @@ import {
   TextField,
   useTheme
 } from '@material-ui/core';
-import {CARD_FRAGMENT, LIST_CARDS, LIST_INSTANCES} from '../../utils';
+import {
+  CARD_FRAGMENT,
+  LIST_CARDS,
+  LIST_INSTANCES,
+  sortByDefault
+} from '../../utils';
 import {gql, useMutation} from '@apollo/client';
 import {injectStripe} from 'react-stripe-elements';
 
@@ -48,9 +53,7 @@ function CardForm(props) {
       cache.writeQuery({
         query: LIST_CARDS,
         data: {
-          cards: [data.createCard, ...existingCards].sort(
-            (a, b) => b.isDefault - a.isDefault
-          )
+          cards: [data.createCard, ...existingCards].sort(sortByDefault)
         }
       });
     }

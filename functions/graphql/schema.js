@@ -2,6 +2,7 @@ const createInstance = require('./resolvers/create-instance');
 const deleteInstance = require('./resolvers/delete-instance');
 const updateInstance = require('./resolvers/update-instance');
 const createCard = require('./resolvers/create-card');
+const updateCard = require('./resolvers/update-card');
 const deleteCard = require('./resolvers/delete-card');
 const {gql} = require('apollo-server-lambda');
 const {query} = require('faunadb');
@@ -32,6 +33,7 @@ exports.typeDefs = gql`
     updateInstance(id: ID!, plan: String!): Instance
     deleteInstance(id: ID!): Instance
     createCard(source: String!, isDefault: Boolean): Card
+    updateCard(id: ID!): Card
     deleteCard(id: ID!): Card
   }
 
@@ -163,6 +165,7 @@ exports.resolvers = {
     updateInstance,
     deleteInstance,
     createCard,
+    updateCard,
     deleteCard
   }
 };

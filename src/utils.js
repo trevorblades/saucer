@@ -14,6 +14,10 @@ export function userFromToken(token) {
   }
 }
 
+export function sortByDefault(a, b) {
+  return b.isDefault - a.isDefault;
+}
+
 export const UserContext = createContext();
 
 export const INSTANCE_FRAGMENT = gql`
