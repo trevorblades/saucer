@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import React, {Fragment, useState} from 'react';
 import executioner from '../assets/executioner.png';
 import {Dialog, MenuItem, Typography} from '@material-ui/core';
-import {LIST_CARDS, LIST_INSTANCES, sortByDefault} from '../utils';
+import {LIST_CARDS, sortByDefault} from '../utils';
 import {gql, useMutation} from '@apollo/client';
 
 const DELETE_CARD = gql`
@@ -27,7 +27,6 @@ const UPDATE_CARD = gql`
 export default function CardActions(props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [updateCard, {loading}] = useMutation(UPDATE_CARD, {
-    refetchQueries: [{query: LIST_INSTANCES}],
     variables: {
       id: props.card.id
     },
@@ -91,8 +90,6 @@ export default function CardActions(props) {
             variables: {
               id: props.card.id
             },
-            // also refetches new default card
-            refetchQueries: [{query: LIST_INSTANCES}],
             update(cache, {data}) {
               const {cards} = cache.readQuery({query: LIST_CARDS});
               cache.writeQuery({
