@@ -9,6 +9,7 @@ import {gql, useQuery} from '@apollo/client';
 const GET_USER = gql`
   {
     user @client(always: true) {
+      id
       name
       email
     }
@@ -16,11 +17,16 @@ const GET_USER = gql`
 `;
 
 export default function AuthRequired(props) {
-  const {data} = useQuery(GET_USER);
+  const {data, client} = useQuery(GET_USER);
 
   if (data && data.user) {
     return (
-      <UserContext.Provider value={data.user}>
+      <UserContext.Provider
+        value={{
+          client,
+          user: data.user
+        }}
+      >
         {props.children}
       </UserContext.Provider>
     );

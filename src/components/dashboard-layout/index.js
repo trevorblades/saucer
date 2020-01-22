@@ -1,8 +1,9 @@
-import AuthRequired from './auth-required';
-import BaseLayout from './base-layout';
-import Logo from './logo';
+import AuthRequired from '../auth-required';
+import BaseLayout from '../base-layout';
+import Logo from '../logo';
 import PropTypes from 'prop-types';
 import React from 'react';
+import UserStatus from './user-status';
 import {
   Box,
   List,
@@ -14,12 +15,11 @@ import {
 import {Helmet} from 'react-helmet';
 import {Link} from 'gatsby';
 import {LogoTitleProps} from '@trevorblades/mui-theme';
-import {ReactComponent as Wordmark} from '../assets/wordmark.svg';
+import {ReactComponent as Wordmark} from '../../assets/wordmark.svg';
 
 const navItems = {
   '/dashboard': 'Instances',
   '/dashboard/billing': 'Billing',
-  '/dashboard/account': 'Account',
   '/dashboard/support': 'Support',
   '/guide': 'Guide'
 };
@@ -47,6 +47,8 @@ export default function DashboardLayout(props) {
               position="sticky"
               top={0}
               flexShrink={0}
+              display="flex"
+              flexDirection="column"
               style={{overflow: 'auto'}}
             >
               <Box {...LogoTitleProps.root} p={2}>
@@ -80,6 +82,7 @@ export default function DashboardLayout(props) {
                   </ListItem>
                 ))}
               </List>
+              <UserStatus />
             </Box>
             <Box
               flexGrow={1}

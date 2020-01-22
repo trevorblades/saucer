@@ -71,8 +71,8 @@ PlatformButton.propTypes = {
 };
 
 export default function InstanceForm(props) {
-  const user = useContext(UserContext);
   const formRef = useRef(null);
+  const {user} = useContext(UserContext);
   const [locale, setLocale] = useState('en_US');
 
   const [createInstance, {loading, error}] = useMutation(CREATE_INSTANCE, {
