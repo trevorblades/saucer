@@ -131,7 +131,7 @@ module.exports = async function createInstance(
           outdent`
             wp core install \
               --url=https://$subdomain.saucer.dev \
-              --title=${args.title} \
+              --title=${JSON.stringify(args.title)} \
               --admin_user=${args.adminUser} \
               --admin_password=${args.adminPassword} \
               --admin_email=${args.adminEmail}
