@@ -34,7 +34,7 @@ export default function UserStatus() {
       </Box>
       <Tooltip title="Log out">
         <IconButton size="small" onClick={logOut}>
-          <FiLogOut size={18} />
+          <FiLogOut size={20} />
         </IconButton>
       </Tooltip>
     </Box>

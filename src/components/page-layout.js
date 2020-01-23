@@ -10,7 +10,7 @@ import {Link as MuiLink} from 'gatsby-theme-material-ui';
 
 function NavLink(props) {
   return (
-    <Box component="span" ml={2.5}>
+    <Box component="span" ml={3}>
       <MuiLink color="inherit" variant="body1" {...props} />
     </Box>
   );
@@ -38,8 +38,8 @@ export default function PageLayout(props) {
           >
             <LogoTitle component={Link} to="/" />
             <Box component="nav" ml="auto">
+              <NavLink to="/">Home</NavLink>
               <NavLink to="/guide">Getting started</NavLink>
-              <NavLink to="/pricing">Pricing</NavLink>
               <NavLink to="/dashboard">Dashboard</NavLink>
             </Box>
           </CenteredBox>
