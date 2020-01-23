@@ -14,7 +14,7 @@ exports.handler = async event => {
   await sgMail.send({
     to: 'support@saucer.dev',
     from,
-    subject: `[Contact form] ${subject}`,
+    subject,
     text
   });
 
