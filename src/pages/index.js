@@ -43,7 +43,7 @@ export default function Home(props) {
         style={{
           backgroundImage: `url(${dishes})`,
           backgroundSize: 360,
-          backgroundPosition: 'calc(50vw + 40px) center',
+          backgroundPosition: 'calc(50vw + 80px) center',
           backgroundRepeat: 'no-repeat'
         }}
       >
