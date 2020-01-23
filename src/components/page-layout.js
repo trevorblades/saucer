@@ -45,7 +45,7 @@ export default function PageLayout(props) {
           </CenteredBox>
         </Box>
         {props.children}
-        <Box component="footer" mt="auto" bgcolor="grey.100">
+        <Box component="footer" mt="auto">
           <Divider />
           <CenteredBox px={8} py={6} textAlign="center">
             <Box
