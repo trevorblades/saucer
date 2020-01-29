@@ -42,7 +42,10 @@ module.exports = {
       resolve: 'gatsby-source-stripe',
       options: {
         objects: ['Product', 'Plan'],
-        secretKey: process.env.STRIPE_SECRET_KEY_DEV
+        secretKey:
+          process.env.NODE_ENV === 'production'
+            ? process.env.STRIPE_SECRET_KEY_PROD
+            : process.env.STRIPE_SECRET_KEY_DEV
       }
     },
     {

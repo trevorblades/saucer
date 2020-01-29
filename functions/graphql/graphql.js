@@ -1,5 +1,5 @@
+const Stripe = require('stripe');
 const jwt = require('jsonwebtoken');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_DEV);
 const {SSM} = require('aws-sdk');
 const {AuthenticationError, ApolloServer} = require('apollo-server-lambda');
 const {Client, query} = require('faunadb');
@@ -9,7 +9,10 @@ const {
   ACCESS_KEY_ID,
   SECRET_ACCESS_KEY,
   FAUNADB_SERVER_SECRET,
-  TOKEN_SECRET
+  TOKEN_SECRET,
+  NETLIFY_DEV,
+  STRIPE_SECRET_KEY_DEV,
+  STRIPE_SECRET_KEY_PROD
 } = process.env;
 
 const ssm = new SSM({
@@ -23,6 +26,10 @@ const ssm = new SSM({
 const client = new Client({
   secret: FAUNADB_SERVER_SECRET
 });
+
+const stripe = Stripe(
+  NETLIFY_DEV ? STRIPE_SECRET_KEY_DEV : STRIPE_SECRET_KEY_PROD
+);
 
 const server = new ApolloServer({
   typeDefs,
